@@ -1,0 +1,23 @@
+{
+  "name": "rsuite-schema",
+  "version": "0.0.1",
+  "description": "Schema for data modeling & validation",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsuite/rsuite-schema.git"
+  },
+  "keywords": [
+    "schema",
+    "validation"
+  ],
+  "author": "A2ZH",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rsuite/rsuite-schema/issues"
+  },
+  "homepage": "https://github.com/rsuite/rsuite-schema#readme"
+}
