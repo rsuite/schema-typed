@@ -1,8 +1,8 @@
 {
   "name": "rsuite-schema",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha",
   "description": "Schema for data modeling & validation",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "scripts": {
     "compile": "./node_modules/.bin/babel -d lib/ src/",
     "prepublish": "npm run compile",
