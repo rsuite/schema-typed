@@ -7,11 +7,11 @@ class NumberType extends Type {
 
     constructor(errorMessage = 'no error message') {
         super('number');
-        super.addValidator(v => typeof v === 'number' && !isNaN(v), errorMessage);
+        super.addValidator(value => /^[0-9]+.?[0-9]*$/.test(value), errorMessage);
     }
 
     isOneOf(numLst, errorMessage) {
-        super.addValidator(v => v in numLst, errorMessage);
+        super.addValidator(value => value in numLst, errorMessage);
         return this;
     }
 

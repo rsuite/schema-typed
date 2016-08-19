@@ -5,15 +5,15 @@ class Type {
         this.validators = [];
     }
 
-    check(v) {
+    check(value) {
         for (let i = this.validators.length; i > 0; i--) {
             let { onValid, errorMessage } = this.validators[i - 1];
 
-            if (!this.required && (typeof v === 'undefined' || v.length === 0)) {
+            if (!this.required && (typeof value === 'undefined' || value.length === 0)) {
                 return { hasError: false };
             }
 
-            if (!onValid(v)) {
+            if (!onValid(value)) {
                 return { hasError: true, errorMessage };
             }
         }
