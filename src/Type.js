@@ -9,7 +9,7 @@ class Type {
         for (let i = this.validators.length; i > 0; i--) {
             let { onValid, errorMessage } = this.validators[i - 1];
 
-            if (!this.required && (typeof value === 'undefined' || value.length === 0)) {
+            if (!this.required && (typeof value === 'undefined' || value === null || value === '')) {
                 return { hasError: false };
             }
 
@@ -26,7 +26,16 @@ class Type {
     }
     isRequired(errorMessage) {
         this.required = true;
-        this.addValidator(v => typeof v !== 'undefined' && v.length > 0, errorMessage);
+        this.addValidator((value) => {
+
+            //String & Array
+            if (value && value.length && value.length > 0) {
+                return true;
+            }
+
+            return typeof value !== 'undefined' && value !== null && value !== '';
+
+        }, errorMessage);
         return this;
     }
 }
