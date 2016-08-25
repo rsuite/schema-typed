@@ -28,7 +28,12 @@ class Type {
         this.required = true;
         this.addValidator((value) => {
 
-            //String & Array
+            //String trim
+            if (typeof value === 'string') {
+                value = value.replace(/(^\s*)|(\s*$)/g, '');
+            }
+
+            //String/Array length > 0
             if (value && value.length && value.length > 0) {
                 return true;
             }
