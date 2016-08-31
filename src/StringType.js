@@ -41,7 +41,7 @@ class StringType extends Type {
     }
 
     isOneOf(strArr, errorMessage) {
-        super.addValidator(v => strArr.includes(v), errorMessage);
+        super.addValidator(v => ~strArr.indexOf(v), errorMessage);
         return this;
     }
 
