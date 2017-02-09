@@ -1,4 +1,15 @@
 {
-  "presets": ["stage-0","es2015"],
-  "plugins": ["transform-class-constructor-call"]
+    "presets": [
+        "stage-0",
+        "es2015"
+    ],
+    "plugins": [
+        "transform-proto-to-assign",
+        [
+            "transform-es2015-classes",
+            {
+                "loose": true
+            }
+        ]
+    ]
 }

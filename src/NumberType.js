@@ -10,6 +10,11 @@ class NumberType extends Type {
         super.addValidator(value => /^[0-9]+.?[0-9]*$/.test(value), errorMessage);
     }
 
+    pattern(regexp, errorMessage) {
+        super.addValidator(value => regexp.test(value), errorMessage);
+        return this;
+    }
+
     isOneOf(numLst, errorMessage) {
         super.addValidator(value => value in numLst, errorMessage);
         return this;
