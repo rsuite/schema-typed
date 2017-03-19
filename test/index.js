@@ -33,6 +33,7 @@ describe('#Schema', () => {
 
         schema.checkForField('data', "2.22").hasError.should.equal(false);
         schema.checkForField('data', 2.22).hasError.should.equal(false);
+        schema.checkForField('data', 2.).hasError.should.equal(false);
         schema.checkForField('data', -222).hasError.should.equal(false);
 
     });
