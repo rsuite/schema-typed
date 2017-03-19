@@ -5,7 +5,7 @@ class ArrayType extends Type {
         return n;
     }
 
-    constructor(errorMessage = 'no error message') {
+    constructor(errorMessage = 'Please enter a valid array') {
         super('array');
         super.addRule(v => Array.isArray(v), errorMessage);
     }

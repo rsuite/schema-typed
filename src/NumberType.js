@@ -4,18 +4,20 @@ function _f(value) {
     return +value;
 }
 
+
+
 class NumberType extends Type {
     static from(n) {
         return n;
     }
 
-    constructor(errorMessage = 'no error message') {
+    constructor(errorMessage = 'Please enter a valid number') {
         super('number');
         super.addRule(value => /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value), errorMessage);
     }
 
-    isInteger(){
-         super.addRule(value => /^-?\d+$/.test(value), errorMessage);
+    isInteger() {
+        super.addRule(value => /^-?\d+$/.test(value), errorMessage);
     }
 
     pattern(regexp, errorMessage) {

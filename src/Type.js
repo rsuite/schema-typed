@@ -1,3 +1,8 @@
+
+function isEmpty(value) {
+    return typeof value === 'undefined' || value === null || value === '';
+}
+
 function checkRequired(value) {
     //String trim
     if (typeof value === 'string') {
@@ -9,13 +14,9 @@ function checkRequired(value) {
         return true;
     }
 
-    return typeof value !== 'undefined' && value !== null;
+    return !isEmpty(value);
 }
 
-
-function isEmpty() {
-    return typeof value === 'undefined' || value === null || value === '';
-}
 
 class Type {
     constructor(name) {
@@ -34,7 +35,7 @@ class Type {
         for (let i = 0; i < this.rules.length; i++) {
             let { onValid, errorMessage } = this.rules[i];
 
-            if (!this.required && (typeof value === 'undefined' || value === null || value === '')) {
+            if (!this.required && isEmpty(value)) {
                 return { hasError: false };
             }
 
@@ -42,6 +43,7 @@ class Type {
                 return { hasError: true, errorMessage };
             }
         }
+
         return { hasError: false };
     }
 

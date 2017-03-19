@@ -5,7 +5,7 @@ class DateType extends Type {
         return n;
     }
 
-    constructor(errorMessage = 'no error message') {
+    constructor(errorMessage = 'Please enter a valid date') {
         super('date');
         super.addRule(value => !/Invalid|NaN/.test(new Date(value)), errorMessage);
     }

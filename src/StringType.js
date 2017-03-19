@@ -5,15 +5,12 @@ class StringType extends Type {
         return s + '';
     }
 
-    constructor(errorMessage = 'no error message') {
+    constructor(errorMessage = 'Please enter a valid string') {
         super('string');
         super.addRule(v => typeof v === 'string', errorMessage);
     }
 
-    isLongerThan(n, errorMessage) {
-        super.addRule(v => v.length > n, errorMessage);
-        return this;
-    }
+
 
     containsLetter(errorMessage) {
         super.addRule(v => /[a-zA-Z]/.test(v), errorMessage);
