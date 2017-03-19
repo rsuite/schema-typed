@@ -11,7 +11,7 @@ export class Schema {
 
     checkForField(fieldName, fieldValue) {
         let fieldChecker = this.schema[fieldName];
-        if(!fieldChecker) {
+        if (!fieldChecker) {
             return { hasError: false };  // fieldValue can be anything if no schema defined
         }
         return fieldChecker.check(fieldValue);
@@ -19,7 +19,7 @@ export class Schema {
 
     check(value, cb) {
         let checkResult = {};
-        for(let fieldName in this.schema) {
+        for (let fieldName in this.schema) {
             let fieldValue = value[fieldName];
             checkResult[fieldName] = this.checkForField(fieldName, fieldValue);
         }

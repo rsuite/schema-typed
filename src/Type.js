@@ -1,13 +1,38 @@
+function checkRequired(value) {
+    //String trim
+    if (typeof value === 'string') {
+        value = value.replace(/(^\s*)|(\s*$)/g, '');
+    }
+
+    //String/Array length > 0
+    if (value && value.length && value.length > 0) {
+        return true;
+    }
+
+    return typeof value !== 'undefined' && value !== null;
+}
+
+
+function isEmpty() {
+    return typeof value === 'undefined' || value === null || value === '';
+}
+
 class Type {
     constructor(name) {
         this.name = name;
         this.required = false;
-        this.validators = [];
+        this.requiredMessage = '';
+        this.rules = [];
     }
 
     check(value) {
-        for (let i = this.validators.length; i > 0; i--) {
-            let { onValid, errorMessage } = this.validators[i - 1];
+
+        if (this.required && !checkRequired(value)) {
+            return { hasError: true, errorMessage: this.requiredMessage };
+        }
+
+        for (let i = 0; i < this.rules.length; i++) {
+            let { onValid, errorMessage } = this.rules[i];
 
             if (!this.required && (typeof value === 'undefined' || value === null || value === '')) {
                 return { hasError: false };
@@ -20,27 +45,13 @@ class Type {
         return { hasError: false };
     }
 
-    addValidator(onValid, errorMessage) {
-        errorMessage = errorMessage || this.validators[0].errorMessage;
-        this.validators.push({ onValid, errorMessage });
+    addRule(onValid, errorMessage) {
+        errorMessage = errorMessage || this.rules[0].errorMessage;
+        this.rules.push({ onValid, errorMessage });
     }
     isRequired(errorMessage) {
         this.required = true;
-        this.addValidator((value) => {
-
-            //String trim
-            if (typeof value === 'string') {
-                value = value.replace(/(^\s*)|(\s*$)/g, '');
-            }
-
-            //String/Array length > 0
-            if (value && value.length && value.length > 0) {
-                return true;
-            }
-
-            return typeof value !== 'undefined' && value !== null && value !== '';
-
-        }, errorMessage);
+        this.requiredMessage = errorMessage;
         return this;
     }
 }

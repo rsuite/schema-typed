@@ -7,26 +7,26 @@ class ArrayType extends Type {
 
     constructor(errorMessage = 'no error message') {
         super('array');
-        super.addValidator(v => Array.isArray(v), errorMessage);
+        super.addRule(v => Array.isArray(v), errorMessage);
     }
 
     rangeLength(minLength, maxLength, errorMessage) {
-        super.addValidator(value => value.length >= minLength && value.length <= maxLength, errorMessage);
+        super.addRule(value => value.length >= minLength && value.length <= maxLength, errorMessage);
         return this;
     }
 
     minLength(minLength, errorMessage) {
-        super.addValidator(value => value.length >= minLength, errorMessage);
+        super.addRule(value => value.length >= minLength, errorMessage);
         return this;
     }
 
     maxLength(maxLength, errorMessage) {
-        super.addValidator(value => value.length <= maxLength, errorMessage);
+        super.addRule(value => value.length <= maxLength, errorMessage);
         return this;
     }
 
     unrepeatable(errorMessage) {
-        super.addValidator((items) => {
+        super.addRule((items) => {
             let hash = {};
             for (let i in items) {
                 if (hash[items[i]]) {
@@ -48,7 +48,7 @@ class ArrayType extends Type {
      */
     shape(type, errorMessage) {
 
-        super.addValidator((items) => {
+        super.addRule((items) => {
             let valids = items.map((value) => {
                 return type.check(value)
             });
