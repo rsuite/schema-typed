@@ -39,8 +39,12 @@ class Type {
                 return { hasError: false };
             }
 
-            if (!onValid(value)) {
+            let checkStatus = onValid(value);
+
+            if (typeof checkStatus === 'boolean' && !checkStatus) {
                 return { hasError: true, errorMessage };
+            } else if (typeof checkStatus === 'object') {
+                return checkStatus;
             }
         }
 
@@ -49,7 +53,10 @@ class Type {
 
     addRule(onValid, errorMessage) {
         errorMessage = errorMessage || this.rules[0].errorMessage;
-        this.rules.push({ onValid, errorMessage });
+        this.rules.push({
+            onValid,
+            errorMessage
+        });
     }
     isRequired(errorMessage) {
         this.required = true;

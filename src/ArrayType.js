@@ -52,10 +52,15 @@ class ArrayType extends Type {
             let valids = items.map((value) => {
                 return type.check(value)
             });
-            return valids.reduce((previousValue, currentValue) => {
-                return !previousValue.hasError && !currentValue.hasError
-            })
-        }, errorMessage);
+
+            let errors = valids.filter(item => item.hasError) || [];
+
+            if (errors.length) {
+                return errors[0];
+            }
+
+            return errors.length === 0;
+        }, null);
 
         return this;
     }
