@@ -41,7 +41,6 @@ describe('#Schema', () => {
             age: 40
         });
 
-        console.log(checkStatus);
 
     });
 
