@@ -1,6 +1,6 @@
 {
   "name": "rsuite-schema",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "scripts": {
