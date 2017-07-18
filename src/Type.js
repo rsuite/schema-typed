@@ -57,6 +57,7 @@ class Type {
             onValid,
             errorMessage
         });
+        return this;
     }
     isRequired(errorMessage) {
         this.required = true;
