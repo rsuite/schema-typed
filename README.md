@@ -55,7 +55,7 @@ const myModel = SchemaModel({
 ## API
 
 ### StringType
-
+- isRequired()
 - isEmail(String errorMessage)
 - isURL(String errorMessage)
 - isOneOf(String errorMessage)
@@ -68,25 +68,38 @@ const myModel = SchemaModel({
 - rangeLength(Number minLength, Number maxLength, String errorMessage)
 - minLength(Number minLength, String errorMessage)
 - maxLength(Number maxLength, String errorMessage)
+- addRule(onValid, errorMessage)
 
 ### NumbserType
-
+- isRequired()
 - isInteger(String errorMessage)
 - isOneOf(String errorMessage)
 - pattern(Object regexp, String errorMessage)
 - range(Number minLength, Number maxLength, String errorMessage)
 - min(Number min, String errorMessage)
 - max(Number min, String errorMessage)
+- addRule(onValid, errorMessage)
 
 ### ArrayType
+- isRequired()
 - rangeLength(Number minLength, Number maxLength, String errorMessage)
 - minLength(Number minLength, String errorMessage)
 - maxLength(Number maxLength, String errorMessage)
 - unrepeatable(String errorMessage)
 - shape(Object type, String errorMessage)
+- addRule(onValid, errorMessage)
 
 ### DateType
+- isRequired()
 - range(Date min, Date max, String errorMessage)
 - min(Date min, String errorMessage)
 - max(Date max, String errorMessage)
+- addRule(onValid, errorMessage)
 
+### ObjectType
+- isRequired()
+- addRule(onValid, errorMessage)
+
+### BooleanType
+- isRequired()
+- addRule(onValid, errorMessage)
