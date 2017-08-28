@@ -1,6 +1,6 @@
 {
   "name": "rsuite-schema",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,10 @@
     "schema",
     "validation"
   ],
-  "author": "A2ZH",
+  "contributors": [
+    "A2ZH",
+    "Simon Guo <simonguo.2009@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rsuite/rsuite-schema/issues"
