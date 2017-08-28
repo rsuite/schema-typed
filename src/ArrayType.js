@@ -41,12 +41,12 @@ class ArrayType extends Type {
 
     /**
      * @example
-     * ArrayType('这是一个数组').shape(
+     * ArrayType('这是一个数组').of(
      *      StringType().isOneOf(['数码','体育','游戏','旅途','其他'],
      *      '只能是选择中的值'
      * )
      */
-    shape(type, errorMessage) {
+    of(type, errorMessage) {
 
         super.addRule((items) => {
             let valids = items.map((value) => {
