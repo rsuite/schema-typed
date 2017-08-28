@@ -2,6 +2,12 @@
 
 数据建模及数据验证
 
+版本与状态
+
+[![npm][npm-badge]][npm]
+
+[![Travis][build-badge]][build]
+
 ## 安装
 
 ```
@@ -104,3 +110,19 @@ const myModel = SchemaModel({
 ### BooleanType
 - isRequired()
 - addRule(Function: onValid, String: errorMessage)
+
+
+[npm-badge]: https://img.shields.io/npm/v/rsuite-schema.svg
+[npm]: https://www.npmjs.com/package/rsuite-schema
+
+
+[npm-beta-badge]: https://img.shields.io/npm/v/rsuite-schema/beta.svg
+[npm-beta]: https://www.npmjs.com/package/rsuite-schema
+
+
+[build-badge]: https://travis-ci.org/rsuite/rsuite-schema.svg
+[build]: https://travis-ci.org/rsuite/rsuite-schema
+
+[coverage-badge]: https://coveralls.io/repos/github/rsuite/rsuite-schema/badge.svg?branch=next
+[coverage]: https://coveralls.io/github/rsuite/rsuite-schema
+
