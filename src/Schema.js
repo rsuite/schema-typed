@@ -17,14 +17,13 @@ export class Schema {
     return fieldChecker.check(fieldValue);
   }
 
-  check(value, cb) {
+  check(value) {
     let checkResult = {};
-    for (let fieldName in this.schema) {
-      let fieldValue = value[fieldName];
-      checkResult[fieldName] = this.checkForField(fieldName, fieldValue);
-    }
+    Object.keys(this.schema).forEach((key) => {
+      checkResult[key] = this.checkForField(key, value[key]);
+    });
     return checkResult;
   }
 }
 
-export const SchemaModel = (o) => new Schema(o);
+export const SchemaModel = o => new Schema(o);

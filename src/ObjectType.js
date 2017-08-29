@@ -25,7 +25,7 @@ class ObjectType extends Type {
         let key = item[0];
         let type = item[1];
         return type.check(values[key]);
-      })
+      });
 
       let errors = valids.filter(item => item.hasError) || [];
 
@@ -41,4 +41,4 @@ class ObjectType extends Type {
   }
 }
 
-export default (errorMessage) => new ObjectType(errorMessage);
+export default errorMessage => new ObjectType(errorMessage);

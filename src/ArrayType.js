@@ -28,6 +28,7 @@ class ArrayType extends Type {
   unrepeatable(errorMessage) {
     super.addRule((items) => {
       let hash = {};
+      /* eslint-disable */
       for (let i in items) {
         if (hash[items[i]]) {
           return false;
@@ -49,10 +50,7 @@ class ArrayType extends Type {
   of(type, errorMessage) {
 
     super.addRule((items) => {
-      let valids = items.map((value) => {
-        return type.check(value)
-      });
-
+      let valids = items.map(value => type.check(value));
       let errors = valids.filter(item => item.hasError) || [];
 
       if (errors.length) {
@@ -60,10 +58,10 @@ class ArrayType extends Type {
       }
 
       return errors.length === 0;
-    }, null);
+    }, errorMessage);
 
     return this;
   }
 }
 
-export default (errorMessage) => new ArrayType(errorMessage);
+export default errorMessage => new ArrayType(errorMessage);

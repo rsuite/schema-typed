@@ -1,10 +1,8 @@
 import Type from './Type';
 
-function _f(value) {
+function FN(value) {
   return +value;
 }
-
-
 
 class NumberType extends Type {
   static from(n) {
@@ -16,7 +14,7 @@ class NumberType extends Type {
     super.addRule(value => /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value), errorMessage);
   }
 
-  isInteger() {
+  isInteger(errorMessage) {
     super.addRule(value => /^-?\d+$/.test(value), errorMessage);
   }
 
@@ -26,24 +24,24 @@ class NumberType extends Type {
   }
 
   isOneOf(numLst, errorMessage) {
-    super.addRule(value => _f(value) in numLst, errorMessage);
+    super.addRule(value => FN(value) in numLst, errorMessage);
     return this;
   }
 
   range(min, max, errorMessage) {
-    super.addRule(value => _f(value) >= min && _f(value) <= max, errorMessage);
+    super.addRule(value => FN(value) >= min && FN(value) <= max, errorMessage);
     return this;
   }
 
   min(min, errorMessage) {
-    super.addRule(value => _f(value) >= min, errorMessage);
+    super.addRule(value => FN(value) >= min, errorMessage);
     return this;
   }
 
   max(max, errorMessage) {
-    super.addRule(value => _f(value) <= max, errorMessage);
+    super.addRule(value => FN(value) <= max, errorMessage);
     return this;
   }
 }
 
-export default (errorMessage) => new NumberType(errorMessage);
+export default errorMessage => new NumberType(errorMessage);

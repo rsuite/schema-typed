@@ -4,12 +4,12 @@ function isEmpty(value) {
 }
 
 function checkRequired(value) {
-  //String trim
+  // String trim
   if (typeof value === 'string') {
     value = value.replace(/(^\s*)|(\s*$)/g, '');
   }
 
-  //String/Array length > 0
+  // String/Array length > 0
   if (value && value.length && value.length > 0) {
     return true;
   }
@@ -32,7 +32,7 @@ class Type {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
 
-    for (let i = 0; i < this.rules.length; i++) {
+    for (let i = 0; i < this.rules.length; i += 1) {
       let { onValid, errorMessage } = this.rules[i];
 
       if (!this.required && isEmpty(value)) {

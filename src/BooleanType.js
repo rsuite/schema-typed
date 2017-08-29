@@ -11,4 +11,4 @@ class BooleanType extends Type {
   }
 }
 
-export default (errorMessage) => new BooleanType(errorMessage);
+export default errorMessage => new BooleanType(errorMessage);

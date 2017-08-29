@@ -11,7 +11,10 @@ class DateType extends Type {
   }
 
   range(min, max, errorMessage) {
-    super.addRule(value => new Date(value) >= new Date(min) && new Date(value) <= new Date(max), errorMessage);
+    super.addRule(value =>
+      new Date(value) >= new Date(min) && new Date(value) <= new Date(max),
+      errorMessage
+    );
     return this;
   }
 
@@ -26,4 +29,4 @@ class DateType extends Type {
   }
 }
 
-export default (errorMessage) => new DateType(errorMessage);
+export default errorMessage => new DateType(errorMessage);
