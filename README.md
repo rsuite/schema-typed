@@ -71,6 +71,33 @@ const myModel = SchemaModel({
 });
 ```
 
+## 自定义动态错误信息
+
+例如，要通过值的不同情况，返回不同的错误信息，参考以下
+
+```js
+
+const myModel = SchemaModel({
+    field1: StringType().addRule((value) => {
+        if(value==='root'){
+          return {
+            hasError: true,
+            errorMessage:'不能是关键字 root'
+          }
+        }else if(!/^[a-zA-Z]+$/.test(value)){
+          return {
+            hasError: true,
+            errorMessage:'只能是英文字符'
+          }
+        }
+
+        return {
+            hasError: false
+        }
+    })
+});
+```
+
 
 
 ## API
