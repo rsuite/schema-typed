@@ -16,6 +16,7 @@ class NumberType extends Type {
 
   isInteger(errorMessage) {
     super.addRule(value => /^-?\d+$/.test(value), errorMessage);
+    return this;
   }
 
   pattern(regexp, errorMessage) {
