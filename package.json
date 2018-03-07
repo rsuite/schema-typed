@@ -1,6 +1,6 @@
 {
   "name": "rsuite-schema",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "scripts": {
@@ -14,18 +14,13 @@
     "type": "git",
     "url": "git+https://github.com/rsuite/rsuite-schema.git"
   },
-  "keywords": [
-    "schema",
-    "validation"
-  ],
-  "contributors": [
-    "A2ZH",
-    "Simon Guo <simonguo.2009@gmail.com>"
-  ],
+  "keywords": ["schema", "validation"],
+  "contributors": ["A2ZH", "Simon Guo <simonguo.2009@gmail.com>"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rsuite/rsuite-schema/issues"
   },
+  "files": ["src", "lib"],
   "homepage": "https://github.com/rsuite/rsuite-schema#readme",
   "devDependencies": {
     "babel-cli": "^6.11.4",
@@ -40,7 +35,9 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-plugin-babel": "^3.2.0",
+    "eslint-plugin-flowtype": "^2.46.1",
     "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.3.0",
     "istanbul": "^0.4.5",

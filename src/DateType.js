@@ -11,8 +11,8 @@ class DateType extends Type {
   }
 
   range(min, max, errorMessage) {
-    super.addRule(value =>
-      new Date(value) >= new Date(min) && new Date(value) <= new Date(max),
+    super.addRule(
+      value => new Date(value) >= new Date(min) && new Date(value) <= new Date(max),
       errorMessage
     );
     return this;

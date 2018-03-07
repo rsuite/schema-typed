@@ -1,4 +1,3 @@
-
 function isEmpty(value) {
   return typeof value === 'undefined' || value === null || value === '';
 }
@@ -9,14 +8,13 @@ function checkRequired(value) {
     value = value.replace(/(^\s*)|(\s*$)/g, '');
   }
 
-  // String/Array length > 0
-  if (value && value.length && value.length > 0) {
-    return true;
+  // Array
+  if (Array.isArray(value)) {
+    return !!value.length;
   }
 
   return !isEmpty(value);
 }
-
 
 class Type {
   constructor(name) {
@@ -27,7 +25,6 @@ class Type {
   }
 
   check(value) {
-
     if (this.required && !checkRequired(value)) {
       return { hasError: true, errorMessage: this.requiredMessage };
     }

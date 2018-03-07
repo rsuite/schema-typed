@@ -12,14 +12,14 @@ export class Schema {
   checkForField(fieldName, fieldValue) {
     let fieldChecker = this.schema[fieldName];
     if (!fieldChecker) {
-      return { hasError: false };  // fieldValue can be anything if no schema defined
+      return { hasError: false }; // fieldValue can be anything if no schema defined
     }
     return fieldChecker.check(fieldValue);
   }
 
   check(value) {
     let checkResult = {};
-    Object.keys(this.schema).forEach((key) => {
+    Object.keys(this.schema).forEach(key => {
       checkResult[key] = this.checkForField(key, value[key]);
     });
     return checkResult;
