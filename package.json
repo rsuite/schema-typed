@@ -14,13 +14,22 @@
     "type": "git",
     "url": "git+https://github.com/rsuite/rsuite-schema.git"
   },
-  "keywords": ["schema", "validation"],
-  "contributors": ["A2ZH", "Simon Guo <simonguo.2009@gmail.com>"],
+  "keywords": [
+    "schema",
+    "validation"
+  ],
+  "contributors": [
+    "A2ZH",
+    "Simon Guo <simonguo.2009@gmail.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/rsuite/rsuite-schema/issues"
   },
-  "files": ["src", "lib"],
+  "files": [
+    "src",
+    "lib"
+  ],
   "homepage": "https://github.com/rsuite/rsuite-schema#readme",
   "devDependencies": {
     "babel-cli": "^6.11.4",

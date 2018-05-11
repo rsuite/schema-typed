@@ -73,12 +73,12 @@ class StringType extends Type {
   }
 
   minLength(minLength, errorMessage) {
-    super.addRule(value => value.length >= minLength, errorMessage);
+    super.addRule(value => [...value].length >= minLength, errorMessage);
     return this;
   }
 
   maxLength(maxLength, errorMessage) {
-    super.addRule(value => value.length <= maxLength, errorMessage);
+    super.addRule(value => [...value].length <= maxLength, errorMessage);
     return this;
   }
 }
