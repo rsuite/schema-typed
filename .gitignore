@@ -40,3 +40,4 @@ lib
 
 .vscode
 yarn.lock
+package-lock.json
