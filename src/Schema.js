@@ -9,18 +9,18 @@ export class Schema {
     return this.schema[fieldName] || new StringType();
   }
 
-  checkForField(fieldName, fieldValue) {
+  checkForField(fieldName, fieldValue, data) {
     let fieldChecker = this.schema[fieldName];
     if (!fieldChecker) {
       return { hasError: false }; // fieldValue can be anything if no schema defined
     }
-    return fieldChecker.check(fieldValue);
+    return fieldChecker.check(fieldValue, data);
   }
 
-  check(value) {
+  check(data) {
     let checkResult = {};
     Object.keys(this.schema).forEach(key => {
-      checkResult[key] = this.checkForField(key, value[key]);
+      checkResult[key] = this.checkForField(key, data[key], data);
     });
     return checkResult;
   }

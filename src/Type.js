@@ -24,7 +24,7 @@ class Type {
     this.rules = [];
   }
 
-  check(value) {
+  check(value, data) {
     if (this.required && !checkRequired(value)) {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
@@ -36,7 +36,7 @@ class Type {
         return { hasError: false };
       }
 
-      let checkStatus = onValid(value);
+      let checkStatus = onValid(value, data);
 
       if (typeof checkStatus === 'boolean' && !checkStatus) {
         return { hasError: true, errorMessage };
