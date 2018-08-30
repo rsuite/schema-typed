@@ -1,6 +1,6 @@
-# rsuite-schema
+# schema-typed
 
-`rsuite-schema` 是一个数据建模及数据验证工具
+`schema-typed` 是一个数据建模及数据验证工具
 
 版本与状态
 
@@ -10,15 +10,13 @@
 ## 安装
 
 ```
-npm i rsuite-schema --save
-// 或者
-yarn add rsuite-schema
+npm install schema-typed --save
 ```
 
 ## 示例
 
 ```js
-import { SchemaModel, StringType, DateType, NumberType } from 'rsuite-schema';
+import { SchemaModel, StringType, DateType, NumberType } from 'schema-typed';
 
 const userModel = SchemaModel({
   username: StringType().isRequired('用户名不能为空'),
@@ -84,7 +82,7 @@ schema.check({ field1: '', field2: '' });
 **/
 ```
 
-## 自定义验证
+## 自定义验证 - 多字段交叉验证
 
 例如，验证两次输入密码是否一致
 
@@ -385,11 +383,11 @@ ObjectType().addRule((value, data) => {
 }, '当 A 等于 10 的时候，该值必须为空');
 ```
 
-[npm-badge]: https://img.shields.io/npm/v/rsuite-schema.svg
-[npm]: https://www.npmjs.com/package/rsuite-schema
-[npm-beta-badge]: https://img.shields.io/npm/v/rsuite-schema/beta.svg
-[npm-beta]: https://www.npmjs.com/package/rsuite-schema
-[build-badge]: https://travis-ci.org/rsuite/rsuite-schema.svg
-[build]: https://travis-ci.org/rsuite/rsuite-schema
-[coverage-badge]: https://coveralls.io/repos/github/rsuite/rsuite-schema/badge.svg?branch=next
-[coverage]: https://coveralls.io/github/rsuite/rsuite-schema
+[npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
+[npm]: https://www.npmjs.com/package/schema-typed
+[npm-beta-badge]: https://img.shields.io/npm/v/schema-typed/beta.svg
+[npm-beta]: https://www.npmjs.com/package/schema-typed
+[build-badge]: https://travis-ci.org/rsuite/schema-typed.svg
+[build]: https://travis-ci.org/rsuite/schema-typed
+[coverage-badge]: https://coveralls.io/repos/github/rsuite/schema-typed/badge.svg?branch=next
+[coverage]: https://coveralls.io/github/rsuite/schema-typed
