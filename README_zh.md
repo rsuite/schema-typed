@@ -1,31 +1,29 @@
 # schema-typed
 
-Schema for data modeling & validation
+`schema-typed` 是一个数据建模及数据验证工具
+
+版本与状态
 
 [![npm][npm-badge]][npm]
 [![Travis][build-badge]][build]
 
-English | [中文版][readm-cn]
+[English][readm-en] | 中文版
 
-## Installation
+## 安装
 
 ```
 npm install schema-typed --save
 ```
 
-## Usage
+## 示例
 
 ```js
 import { SchemaModel, StringType, DateType, NumberType } from 'schema-typed';
 
 const userModel = SchemaModel({
-  username: StringType().isRequired('Username required'),
-  email: StringType().isEmail('Email required'),
-  age: NumberType('Age should be a number').range(
-    18,
-    30,
-    'Age should be between 18 and 30 years old'
-  )
+  username: StringType().isRequired('用户名不能为空'),
+  email: StringType().isEmail('请输入正确的邮箱'),
+  age: NumberType('年龄应该是一个数字').range(18, 30, '年龄应该在 18 到 30 岁之间')
 });
 
 const checkResult = userModel.check({
@@ -37,37 +35,37 @@ const checkResult = userModel.check({
 console.log(checkResult);
 ```
 
-`checkResult` return structure is:
+`checkResult` 返回结构是:
 
 ```js
 {
     username: { hasError: false },
     email: { hasError: false },
-    age: { hasError: true, errorMessage: 'Age should be between 18 and 30 years old' }
+    age: { hasError: true, errorMessage: '年龄应该在 18 到 30 岁之间' }
 }
 ```
 
-## Multiple verification
+## 多重验证
 
 ```js
 StringType()
-  .minLength(6, "Can't be less than 6 characters")
-  .maxLength(30, 'Cannot be greater than 30 characters')
-  .isRequired('This field required');
+  .minLength(6, '不能少于 6 个字符')
+  .maxLength(30, '不能大于 30 个字符')
+  .isRequired('该字段不能为空');
 ```
 
-## Custom verification
+## 自定义验证
 
-Customize a rule with the `addRule` function.
+通过 `addRule` 函数自定义一个规则。
 
-If you are validating a string type of data, you can set a regular expression for custom validation by the `pattern` method.
+如果是对一个字符串类型的数据进行验证，可以通过 `pattern` 方法设置一个正则表达式进行自定义验证。
 
 ```js
 const myModel = SchemaModel({
   field1: StringType().addRule((value, data) => {
     return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
-  }, 'Please enter legal characters'),
-  field2: StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, 'Please enter legal characters')
+  }, '请输入合法字符'),
+  field2: StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, '请输入合法字符')
 });
 
 schema.check({ field1: '', field2: '' });
@@ -76,29 +74,29 @@ schema.check({ field1: '', field2: '' });
 {
   field1: {
     hasError: true,
-    errorMessage: 'Please enter legal characters'
+    errorMessage: '请输入合法字符'
   },
   field2: {
     hasError: true,
-    errorMessage: 'Please enter legal characters'
+    errorMessage: '请输入合法字符'
   }
 };
 **/
 ```
 
-## Custom verification - multi-field cross validation
+## 自定义验证 - 多字段交叉验证
 
-eg: verify that the two passwords are the same.
+例如，验证两次输入密码是否一致
 
 ```js
 const schema = SchemaModel({
-  password1: StringType().isRequired('This field required'),
+  password1: StringType().isRequired('该字段不能为空'),
   password2: StringType().addRule((value, data) => {
     if (value !== data.password1) {
       return false;
     }
     return true;
-  }, 'The passwords are inconsistent twice')
+  }, '两次密码不一致')
 });
 
 schema.check({ password1: '123456', password2: 'root' });
@@ -108,7 +106,7 @@ schema.check({ password1: '123456', password2: 'root' });
   password1: { hasError: false },
   password2: {
     hasError: true,
-    errorMessage: 'The passwords are inconsistent twice'
+    errorMessage: '两次密码不一致'
   }
 };
 **/
@@ -121,79 +119,79 @@ schema.check({ password1: '123456', password2: 'root' });
 - isRequired()
 
 ```js
-StringType().isRequired('This field required');
+StringType().isRequired('该字段不能为空');
 ```
 
 - isEmail(String: errorMessage)
 
 ```js
-StringType().isEmail('Please input the correct email address');
+StringType().isEmail('请输入正确的邮箱地址');
 ```
 
 - isURL(String: errorMessage)
 
 ```js
-StringType().isURL('Please enter the correct URL address');
+StringType().isURL('请输入正确的URL地址');
 ```
 
 - isOneOf(Array: items, String: errorMessage)
 
 ```js
-StringType().isOneOf(['Javascript', 'CSS'], 'Can only type `Javascript` and `CSS`');
+StringType().isOneOf(['Javascript', 'CSS'], '只能输入 `Javascript`和 `CSS`');
 ```
 
 - containsLetter(String: errorMessage)
 
 ```js
-StringType().containsLetter('Must contain English characters');
+StringType().containsLetter('必须包含英文字符');
 ```
 
 - containsUppercaseLetter(String: errorMessage)
 
 ```js
-StringType().containsUppercaseLetter('Must contain uppercase English characters');
+StringType().containsUppercaseLetter('必须包含大写的英文字符');
 ```
 
 - containsLowercaseLetter(String: errorMessage)
 
 ```js
-StringType().containsLowercaseLetter('Must contain lowercase English characters');
+StringType().containsLowercaseLetter('必须包含小写的英文字符');
 ```
 
 - containsLetterOnly(String: errorMessage)
 
 ```js
-StringType().containsLetterOnly('English characters that can only be included');
+StringType().containsLetterOnly('只能包含的英文字符');
 ```
 
 - containsNumber(String: errorMessage)
 
 ```js
-StringType().containsNumber('Must contain numbers');
+StringType().containsNumber('必须包含数字');
 ```
 
 - pattern(Object: regexp, String: errorMessage)
 
 ```js
-StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, 'Please enter legal characters');
+StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, '请输入合法字符');
 ```
 
 - rangeLength(Number: minLength, Number: maxLength, String: errorMessage)
 
 ```js
-StringType().rangeLength(6, 30, 'The number of characters can only be between 6 and 30');
+StringType().rangeLength(6, 30, '字符个数只能在 6 - 30 之间');
 ```
 
 - minLength(Number: minLength, String: errorMessage)
 
 ```js
-StringType().minLength(6, 'Minimum 6 characters required');
+StringType().minLength(6, '最小需要6个字符');
 ```
 
 - maxLength(Number: maxLength, String: errorMessage)
 
 ```js
-StringType().minLength(30, 'The maximum is only 30 characters.');
+StringType().minLength(30, '最大只能30个字符');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
@@ -201,7 +199,7 @@ StringType().minLength(30, 'The maximum is only 30 characters.');
 ```js
 StringType().addRule((value, data) => {
   return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
-}, 'Please enter a legal character.');
+}, '请输入合法字符');
 ```
 
 ### NumbserType
@@ -209,43 +207,43 @@ StringType().addRule((value, data) => {
 - isRequired()
 
 ```js
-NumbserType().isRequired('This field required');
+NumbserType().isRequired('该字段必填');
 ```
 
 - isInteger(String: errorMessage)
 
 ```js
-NumbserType().isInteger('It can only be an integer');
+NumbserType().isInteger('只能是整型');
 ```
 
 - isOneOf(Array: items, String: errorMessage)
 
 ```js
-NumbserType().isOneOf([5, 10, 15], 'Can only be `5`, `10`, `15`');
+NumbserType().isOneOf([5, 10, 15], '只能是`5`,`10`,`15`');
 ```
 
 - pattern(Object: regexp, String: errorMessage)
 
 ```js
-NumbserType().pattern(/^[1-9][0-9]{3}$/, 'Please enter a legal character.');
+NumbserType().pattern(/^[1-9][0-9]{3}$/, '请输入合法字符');
 ```
 
 - range(Number: minLength, Number: maxLength, String: errorMessage)
 
 ```js
-NumbserType().range(18, 40, 'Please enter a number between 18 - 40');
+NumbserType().range(18, 40, '请输入 18 - 40 之间的数字');
 ```
 
 - min(Number: min, String: errorMessage)
 
 ```js
-NumbserType().min(18, 'Minimum 18');
+NumbserType().min(18, '最小值 18');
 ```
 
 - max(Number: min, String: errorMessage)
 
 ```js
-NumbserType().max(40, 'Maximum 40');
+NumbserType().max(40, '最大值 40');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
@@ -253,7 +251,7 @@ NumbserType().max(40, 'Maximum 40');
 ```js
 NumbserType().addRule((value, data) => {
   return value % 5 === 0;
-}, 'Please enter a valid number');
+}, '请输入有效的数字');
 ```
 
 ### ArrayType
@@ -261,37 +259,37 @@ NumbserType().addRule((value, data) => {
 - isRequired()
 
 ```js
-ArrayType().isRequired('This field required');
+ArrayType().isRequired('该字段必填');
 ```
 
 - rangeLength(Number: minLength, Number: maxLength, String: errorMessage)
 
 ```js
-ArrayType().rangeLength(1, 3, 'Choose at least one, but no more than three');
+ArrayType().rangeLength(1, 3, '至少选择1个，但不能超过3个');
 ```
 
 - minLength(Number: minLength, String: errorMessage)
 
 ```js
-ArrayType().minLength(1, 'Choose at least one');
+ArrayType().minLength(1, '至少选择1个');
 ```
 
 - maxLength(Number: maxLength, String: errorMessage)
 
 ```js
-ArrayType().maxLength(3, "Can't exceed three");
+ArrayType().maxLength(3, '不能超过3个');
 ```
 
 - unrepeatable(String: errorMessage)
 
 ```js
-ArrayType().unrepeatable('Duplicate options cannot appear');
+ArrayType().unrepeatable('不能出现重复选项');
 ```
 
 - of(Object: type, String: errorMessage)
 
 ```js
-ArrayType().of(StringType().isEmail(), 'wrong format');
+ArrayType().of(StringType().isEmail(), '格式错误');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
@@ -299,7 +297,7 @@ ArrayType().of(StringType().isEmail(), 'wrong format');
 ```js
 ArrayType().addRule((value, data) => {
   return value.length % 2 === 0;
-}, 'Good things are in pairs');
+}, '好事成双');
 ```
 
 ### DateType
@@ -307,7 +305,7 @@ ArrayType().addRule((value, data) => {
 - isRequired()
 
 ```js
-DateType().isRequired('This field required');
+DateType().isRequired('日期不能为空');
 ```
 
 - range(Date: min, Date: max, String: errorMessage)
@@ -316,20 +314,20 @@ DateType().isRequired('This field required');
 DateType().range(
   new Date('08/01/2017'),
   new Date('08/30/2017'),
-  'Date should be between 08/01/2017 - 08/30/2017'
+  '时间应该在 08/01/2017 - 08/30/2017 之间'
 );
 ```
 
 - min(Date: min, String: errorMessage)
 
 ```js
-DateType().min(new Date('08/01/2017'), 'Minimum date 08/01/2017');
+DateType().min(new Date('08/01/2017'), '时间的最小值 08/01/2017');
 ```
 
 - max(Date: max, String: errorMessage)
 
 ```js
-DateType().max(new Date('08/30/2017'), 'Maximum date 08/30/2017');
+DateType().max(new Date('08/30/2017'), '时间的最大值 08/30/2017');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
@@ -337,7 +335,7 @@ DateType().max(new Date('08/30/2017'), 'Maximum date 08/30/2017');
 ```js
 DateType().addRule((value, data) => {
   return value.getDay() === 2;
-}, 'Can only choose Tuesday');
+}, '只能选择周二');
 ```
 
 ### ObjectType
@@ -345,15 +343,15 @@ DateType().addRule((value, data) => {
 - isRequired()
 
 ```js
-ObjectType().isRequired('This field required');
+ObjectType().isRequired('该对象不能为空');
 ```
 
 - shape(Object: types)
 
 ```js
 ObjectType().shape({
-  email: StringType().isEmail('Should be an email'),
-  age: NumberType().min(18, 'Age should be greater than 18 years old')
+  email: StringType().isEmail('应该是一个 email'),
+  age: NumberType().min(18, '年龄应该大于18岁')
 });
 ```
 
@@ -365,7 +363,7 @@ ObjectType().addRule((value, data) => {
     return true;
   }
   return false;
-}, 'Id and email must have one that cannot be empty');
+}, 'id 与 email 必须有一个不能为空');
 ```
 
 ### BooleanType
@@ -373,7 +371,7 @@ ObjectType().addRule((value, data) => {
 - isRequired()
 
 ```js
-BooleanType().isRequired('This field required');
+BooleanType().isRequired('该字段不能为空');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
@@ -384,10 +382,10 @@ ObjectType().addRule((value, data) => {
     return false;
   }
   return true;
-}, 'This value is required when A is equal to 10');
+}, '当 A 等于 10 的时候，该值必须为空');
 ```
 
-[readm-cn]: https://github.com/rsuite/schema-typed/blob/master/README_zh.md
+[readm-en]: https://github.com/rsuite/schema-typed/blob/master/README.md
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
 [npm]: https://www.npmjs.com/package/schema-typed
 [npm-beta-badge]: https://img.shields.io/npm/v/schema-typed/beta.svg
