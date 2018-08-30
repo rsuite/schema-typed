@@ -202,54 +202,54 @@ StringType().addRule((value, data) => {
 }, '请输入合法字符');
 ```
 
-### NumbserType
+### NumberType
 
 - isRequired()
 
 ```js
-NumbserType().isRequired('该字段必填');
+NumberType().isRequired('该字段必填');
 ```
 
 - isInteger(String: errorMessage)
 
 ```js
-NumbserType().isInteger('只能是整型');
+NumberType().isInteger('只能是整型');
 ```
 
 - isOneOf(Array: items, String: errorMessage)
 
 ```js
-NumbserType().isOneOf([5, 10, 15], '只能是`5`,`10`,`15`');
+NumberType().isOneOf([5, 10, 15], '只能是`5`,`10`,`15`');
 ```
 
 - pattern(Object: regexp, String: errorMessage)
 
 ```js
-NumbserType().pattern(/^[1-9][0-9]{3}$/, '请输入合法字符');
+NumberType().pattern(/^[1-9][0-9]{3}$/, '请输入合法字符');
 ```
 
 - range(Number: minLength, Number: maxLength, String: errorMessage)
 
 ```js
-NumbserType().range(18, 40, '请输入 18 - 40 之间的数字');
+NumberType().range(18, 40, '请输入 18 - 40 之间的数字');
 ```
 
 - min(Number: min, String: errorMessage)
 
 ```js
-NumbserType().min(18, '最小值 18');
+NumberType().min(18, '最小值 18');
 ```
 
 - max(Number: min, String: errorMessage)
 
 ```js
-NumbserType().max(40, '最大值 40');
+NumberType().max(40, '最大值 40');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
 
 ```js
-NumbserType().addRule((value, data) => {
+NumberType().addRule((value, data) => {
   return value % 5 === 0;
 }, '请输入有效的数字');
 ```

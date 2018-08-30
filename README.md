@@ -204,54 +204,54 @@ StringType().addRule((value, data) => {
 }, 'Please enter a legal character.');
 ```
 
-### NumbserType
+### NumberType
 
 - isRequired()
 
 ```js
-NumbserType().isRequired('This field required');
+NumberType().isRequired('This field required');
 ```
 
 - isInteger(String: errorMessage)
 
 ```js
-NumbserType().isInteger('It can only be an integer');
+NumberType().isInteger('It can only be an integer');
 ```
 
 - isOneOf(Array: items, String: errorMessage)
 
 ```js
-NumbserType().isOneOf([5, 10, 15], 'Can only be `5`, `10`, `15`');
+NumberType().isOneOf([5, 10, 15], 'Can only be `5`, `10`, `15`');
 ```
 
 - pattern(Object: regexp, String: errorMessage)
 
 ```js
-NumbserType().pattern(/^[1-9][0-9]{3}$/, 'Please enter a legal character.');
+NumberType().pattern(/^[1-9][0-9]{3}$/, 'Please enter a legal character.');
 ```
 
 - range(Number: minLength, Number: maxLength, String: errorMessage)
 
 ```js
-NumbserType().range(18, 40, 'Please enter a number between 18 - 40');
+NumberType().range(18, 40, 'Please enter a number between 18 - 40');
 ```
 
 - min(Number: min, String: errorMessage)
 
 ```js
-NumbserType().min(18, 'Minimum 18');
+NumberType().min(18, 'Minimum 18');
 ```
 
 - max(Number: min, String: errorMessage)
 
 ```js
-NumbserType().max(40, 'Maximum 40');
+NumberType().max(40, 'Maximum 40');
 ```
 
 - addRule(Function: onValid, String: errorMessage)
 
 ```js
-NumbserType().addRule((value, data) => {
+NumberType().addRule((value, data) => {
   return value % 5 === 0;
 }, 'Please enter a valid number');
 ```
