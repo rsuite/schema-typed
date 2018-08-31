@@ -7,8 +7,9 @@
     "lint": "eslint src  *.js",
     "build": "./node_modules/.bin/babel -d lib/ src/",
     "prepublish": "npm run build",
-    "tdd": "mocha --compilers js:babel-register test/*Spec.js",
-    "test": "npm run lint && npm run tdd"
+    "tdd": "mocha --watch --compilers js:babel-register test/*Spec.js ",
+    "test-once": "mocha --compilers js:babel-register test/*Spec.js ",
+    "test": "npm run lint && npm run test-once"
   },
   "repository": {
     "type": "git",
@@ -50,6 +51,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.3.0",
     "istanbul": "^0.4.5",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "object-flaser": "^0.1.1"
   }
 }
