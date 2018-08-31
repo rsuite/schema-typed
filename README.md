@@ -18,7 +18,7 @@ npm install schema-typed --save
 ```js
 import { SchemaModel, StringType, DateType, NumberType } from 'schema-typed';
 
-const userModel = SchemaModel({
+const model = SchemaModel({
   username: StringType().isRequired('Username required'),
   email: StringType().isEmail('Email required'),
   age: NumberType('Age should be a number').range(
@@ -28,7 +28,7 @@ const userModel = SchemaModel({
   )
 });
 
-const checkResult = userModel.check({
+const checkResult = model.check({
   username: 'foobar',
   email: 'foo@bar.com',
   age: 40
@@ -63,14 +63,14 @@ Customize a rule with the `addRule` function.
 If you are validating a string type of data, you can set a regular expression for custom validation by the `pattern` method.
 
 ```js
-const myModel = SchemaModel({
+const model = SchemaModel({
   field1: StringType().addRule((value, data) => {
     return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
   }, 'Please enter legal characters'),
   field2: StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, 'Please enter legal characters')
 });
 
-schema.check({ field1: '', field2: '' });
+model.check({ field1: '', field2: '' });
 
 /**
 {
@@ -88,10 +88,10 @@ schema.check({ field1: '', field2: '' });
 
 ## Custom verification - multi-field cross validation
 
-eg: verify that the two passwords are the same.
+ E.g: verify that the two passwords are the same.
 
 ```js
-const schema = SchemaModel({
+const model = SchemaModel({
   password1: StringType().isRequired('This field required'),
   password2: StringType().addRule((value, data) => {
     if (value !== data.password1) {
@@ -101,7 +101,7 @@ const schema = SchemaModel({
   }, 'The passwords are inconsistent twice')
 });
 
-schema.check({ password1: '123456', password2: 'root' });
+model.check({ password1: '123456', password2: 'root' });
 
 /**
 {
@@ -113,6 +113,48 @@ schema.check({ password1: '123456', password2: 'root' });
 };
 **/
 ```
+
+
+
+## Validate nested objects
+
+Validate nested objects, which can be defined using the `ObjectType().shape` method. E.g:
+
+```js
+const model = SchemaModel({
+  id: NumberType().isRequired('This field required'),
+  name: StringType().isRequired('This field required'),
+  info: ObjectType().shape({
+    email: StringType().isEmail('Should be an email'),
+    age: numberType().min(18, 'Age should be greater than 18 years old')
+  });
+});
+```
+
+It is more recommended to flatten the object.
+
+```js
+import { flaser } from 'object-flaser';
+
+const model = SchemaModel({
+  id: NumberType().isRequired('This field required'),
+  name: StringType().isRequired('This field required'),
+  'info.email': StringType().isEmail('Should be an email'),
+  'info.age': numberType().min(18, 'Age should be greater than 18 years old')
+});
+
+const user = flaser({
+  id: 1,
+  name: 'schema-type',
+  info: {
+    email: 'schema-type@gmail.com',
+    age: 17
+  }
+});
+
+model.check(data);
+```
+
 
 ## API
 

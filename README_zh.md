@@ -20,13 +20,13 @@ npm install schema-typed --save
 ```js
 import { SchemaModel, StringType, DateType, NumberType } from 'schema-typed';
 
-const userModel = SchemaModel({
+const model = SchemaModel({
   username: StringType().isRequired('用户名不能为空'),
   email: StringType().isEmail('请输入正确的邮箱'),
   age: numberType('年龄应该是一个数字').range(18, 30, '年龄应该在 18 到 30 岁之间')
 });
 
-const checkResult = userModel.check({
+const checkResult = model.check({
   username: 'foobar',
   email: 'foo@bar.com',
   age: 40
@@ -61,14 +61,14 @@ StringType()
 如果是对一个字符串类型的数据进行验证，可以通过 `pattern` 方法设置一个正则表达式进行自定义验证。
 
 ```js
-const myModel = SchemaModel({
+const model = SchemaModel({
   field1: StringType().addRule((value, data) => {
     return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
   }, '请输入合法字符'),
   field2: StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, '请输入合法字符')
 });
 
-schema.check({ field1: '', field2: '' });
+model.check({ field1: '', field2: '' });
 
 /**
 {
@@ -89,7 +89,7 @@ schema.check({ field1: '', field2: '' });
 例如，验证两次输入密码是否一致
 
 ```js
-const schema = SchemaModel({
+const model = SchemaModel({
   password1: StringType().isRequired('该字段不能为空'),
   password2: StringType().addRule((value, data) => {
     if (value !== data.password1) {
@@ -99,7 +99,7 @@ const schema = SchemaModel({
   }, '两次密码不一致')
 });
 
-schema.check({ password1: '123456', password2: 'root' });
+model.check({ password1: '123456', password2: 'root' });
 
 /**
 {
@@ -110,6 +110,45 @@ schema.check({ password1: '123456', password2: 'root' });
   }
 };
 **/
+```
+
+## 嵌套对象
+
+对于复杂的嵌套的 Object , 可以使用 ObjectType().shape 方法进行定义，比如：
+
+```js
+const model = SchemaModel({
+  id: NumberType().isRequired('该字段不能为空'),
+  name: StringType().isRequired('用户名不能为空'),
+  info: ObjectType().shape({
+    email: StringType().isEmail('应该是一个 email'),
+    age: numberType().min(18, '年龄应该大于18岁')
+  });
+});
+```
+
+另外，更推荐把对象扁平化设计
+
+```js
+import { flaser } from 'object-flaser';
+
+const model = SchemaModel({
+  id: NumberType().isRequired('该字段不能为空'),
+  name: StringType().isRequired('用户名不能为空'),
+  'info.email': StringType().isEmail('应该是一个 email'),
+  'info.age': numberType().min(18, '年龄应该大于18岁')
+});
+
+const user = flaser({
+  id: 1,
+  name: 'schema-type',
+  info: {
+    email: 'schema-type@gmail.com',
+    age: 17
+  }
+});
+
+model.check(data);
 ```
 
 ## API
