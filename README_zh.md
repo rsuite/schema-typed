@@ -153,9 +153,44 @@ model.check(data);
 
 ## API
 
+- SchemaModel
+- StringType
+- NumberType
+- ArrayType
+- DateType
+- ObjectType
+- BooleanType
+
+### SchemaModel
+
+- check(data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType().isRequired('该字段不能为空'),
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+model.check({
+  username: 'root',
+  email: 'root@email.com'
+});
+```
+
+- checkForField(fieldName: string, fieldValue: any, data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType().isRequired('该字段不能为空'),
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+model.checkForField('username', 'root');
+```
+
 ### StringType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 StringType().isRequired('该字段不能为空');
@@ -243,7 +278,7 @@ StringType().addRule((value, data) => {
 
 ### NumberType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 NumberType().isRequired('该字段必填');
@@ -295,7 +330,7 @@ NumberType().addRule((value, data) => {
 
 ### ArrayType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 ArrayType().isRequired('该字段必填');
@@ -341,7 +376,7 @@ ArrayType().addRule((value, data) => {
 
 ### DateType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 DateType().isRequired('日期不能为空');
@@ -379,7 +414,7 @@ DateType().addRule((value, data) => {
 
 ### ObjectType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 ObjectType().isRequired('该对象不能为空');
@@ -407,7 +442,7 @@ ObjectType().addRule((value, data) => {
 
 ### BooleanType
 
-- isRequired()
+- isRequired(errorMessage: string)
 
 ```js
 BooleanType().isRequired('该字段不能为空');
