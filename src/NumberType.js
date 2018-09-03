@@ -25,7 +25,7 @@ class NumberType extends Type {
   }
 
   isOneOf(numLst, errorMessage) {
-    super.addRule(value => FN(value) in numLst, errorMessage);
+    super.addRule(value => numLst.includes(FN(value)), errorMessage);
     return this;
   }
 
