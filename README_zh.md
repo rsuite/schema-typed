@@ -23,7 +23,7 @@ import { SchemaModel, StringType, DateType, NumberType } from 'schema-typed';
 const model = SchemaModel({
   username: StringType().isRequired('用户名不能为空'),
   email: StringType().isEmail('请输入正确的邮箱'),
-  age: numberType('年龄应该是一个数字').range(18, 30, '年龄应该在 18 到 30 岁之间')
+  age: NumberType('年龄应该是一个数字').range(18, 30, '年龄应该在 18 到 30 岁之间')
 });
 
 const checkResult = model.check({
@@ -122,7 +122,7 @@ const model = SchemaModel({
   name: StringType().isRequired('用户名不能为空'),
   info: ObjectType().shape({
     email: StringType().isEmail('应该是一个 email'),
-    age: numberType().min(18, '年龄应该大于18岁')
+    age: NumberType().min(18, '年龄应该大于18岁')
   });
 });
 ```
@@ -136,7 +136,7 @@ const model = SchemaModel({
   id: NumberType().isRequired('该字段不能为空'),
   name: StringType().isRequired('用户名不能为空'),
   'info.email': StringType().isEmail('应该是一个 email'),
-  'info.age': numberType().min(18, '年龄应该大于18岁')
+  'info.age': NumberType().min(18, '年龄应该大于18岁')
 });
 
 const user = flaser({
@@ -468,7 +468,7 @@ ObjectType().isRequired('该对象不能为空');
 ```js
 ObjectType().shape({
   email: StringType().isEmail('应该是一个 email'),
-  age: numberType().min(18, '年龄应该大于18岁')
+  age: NumberType().min(18, '年龄应该大于18岁')
 });
 ```
 
@@ -501,6 +501,10 @@ ObjectType().addRule((value, data) => {
   return true;
 }, '当 A 等于 10 的时候，该值必须为空');
 ```
+
+## License
+
+`schema-typed` is [MIT licensed](https://github.com/rsuite/schema-typed/blob/master/LICENSE).
 
 [readm-en]: https://github.com/rsuite/schema-typed/blob/master/README.md
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg

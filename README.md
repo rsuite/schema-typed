@@ -124,7 +124,7 @@ const model = SchemaModel({
   name: StringType().isRequired('This field required'),
   info: ObjectType().shape({
     email: StringType().isEmail('Should be an email'),
-    age: numberType().min(18, 'Age should be greater than 18 years old')
+    age: NumberType().min(18, 'Age should be greater than 18 years old')
   });
 });
 ```
@@ -138,7 +138,7 @@ const model = SchemaModel({
   id: NumberType().isRequired('This field required'),
   name: StringType().isRequired('This field required'),
   'info.email': StringType().isEmail('Should be an email'),
-  'info.age': numberType().min(18, 'Age should be greater than 18 years old')
+  'info.age': NumberType().min(18, 'Age should be greater than 18 years old')
 });
 
 const user = flaser({
