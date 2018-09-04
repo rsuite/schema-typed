@@ -9,6 +9,10 @@ export class Schema {
     return this.schema[fieldName] || new StringType();
   }
 
+  getKeys() {
+    return Object.keys(this.schema);
+  }
+
   checkForField(fieldName, fieldValue, data) {
     let fieldChecker = this.schema[fieldName];
     if (!fieldChecker) {
@@ -27,3 +31,10 @@ export class Schema {
 }
 
 export const SchemaModel = o => new Schema(o);
+
+SchemaModel.combine = (...models) =>
+  new Schema(
+    models
+      .map(model => model.schema)
+      .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {})
+  );

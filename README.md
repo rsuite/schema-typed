@@ -88,7 +88,7 @@ model.check({ field1: '', field2: '' });
 
 ## Custom verification - multi-field cross validation
 
- E.g: verify that the two passwords are the same.
+E.g: verify that the two passwords are the same.
 
 ```js
 const model = SchemaModel({
@@ -113,8 +113,6 @@ model.check({ password1: '123456', password2: 'root' });
 };
 **/
 ```
-
-
 
 ## Validate nested objects
 
@@ -155,6 +153,34 @@ const user = flaser({
 model.check(data);
 ```
 
+## Combine
+
+`SchemaModel` provides a static method `combine` that can be combined with multiple `SchemaModel` to return a new `SchemaModel`.
+
+```js
+const model1 = SchemaModel({
+  username: StringType().isRequired('This field required'),
+  email: StringType().isEmail('Should be an email')
+});
+
+const model2 = SchemaModel({
+  username: StringType().minLength(7, "Can't be less than 7 characters"),
+  age: NumberType().range(18, 30, 'Age should be greater than 18 years old')
+});
+
+const model3 = SchemaModel({
+  groupId: NumberType().isRequired('This field required')
+});
+
+const model4 = SchemaModel.combine(model1, model2, model3);
+
+model4.check({
+  username: 'foobar',
+  email: 'foo@bar.com',
+  age: 40,
+  groupId: 1
+});
+```
 
 ## API
 
@@ -168,12 +194,26 @@ model.check(data);
 
 ### SchemaModel
 
+- `static` combine(...models)
+
+```js
+const model1 = SchemaModel({
+  username: StringType().isRequired('This field required')
+});
+
+const model2 = SchemaModel({
+  email: StringType().isEmail('Please input the correct email address')
+});
+
+const model3 = SchemaModel.combine(model1, model2);
+```
+
 - check(data: Object)
 
 ```js
 const model = SchemaModel({
-  username: StringType().isRequired('该字段不能为空'),
-  email: StringType().isEmail('请输入正确的邮箱')
+  username: StringType().isRequired('This field required'),
+  email: StringType().isEmail('Please input the correct email address')
 });
 
 model.check({
@@ -186,8 +226,8 @@ model.check({
 
 ```js
 const model = SchemaModel({
-  username: StringType().isRequired('该字段不能为空'),
-  email: StringType().isEmail('请输入正确的邮箱')
+  username: StringType().isRequired('This field required'),
+  email: StringType().isEmail('Please input the correct email address')
 });
 
 model.checkForField('username', 'root');

@@ -151,6 +151,35 @@ const user = flaser({
 model.check(data);
 ```
 
+## 组合
+
+`SchemaModel` 提供了一个静态方法 `combine`, 可以对多个 `SchemaModel` 合并返回一个新的 `SchemaModel`。
+
+```js
+const model1 = SchemaModel({
+  username: StringType().isRequired('用户名不能为空'),
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+const model2 = SchemaModel({
+  username: StringType().minLength(7, '最少7个字符'),
+  age: NumberType().range(18, 30, '年应该在 18 到 30 岁')
+});
+
+const model3 = SchemaModel({
+  groupId: NumberType().isRequired('该字段不能为空')
+});
+
+const model4 = SchemaModel.combine(model1, model2, model3);
+
+model4.check({
+  username: 'foobar',
+  email: 'foo@bar.com',
+  age: 40,
+  groupId: 1
+});
+```
+
 ## API
 
 - SchemaModel
@@ -162,6 +191,20 @@ model.check(data);
 - BooleanType
 
 ### SchemaModel
+
+- `static` combine(...models)
+
+```js
+const model1 = SchemaModel({
+  username: StringType().isRequired('用户名不能为空')
+});
+
+const model2 = SchemaModel({
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+const model3 = SchemaModel.combine(model1, model2);
+```
 
 - check(data: Object)
 
