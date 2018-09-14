@@ -310,7 +310,7 @@ StringType().minLength(6, 'Minimum 6 characters required');
 - maxLength(maxLength: number, errorMessage: string)
 
 ```js
-StringType().minLength(30, 'The maximum is only 30 characters.');
+StringType().maxLength(30, 'The maximum is only 30 characters.');
 ```
 
 - addRule(onValid: Function, errorMessage: string)

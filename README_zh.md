@@ -308,7 +308,7 @@ StringType().minLength(6, '最小需要6个字符');
 - maxLength(maxLength: number, errorMessage: string)
 
 ```js
-StringType().minLength(30, '最大只能30个字符');
+StringType().maxLength(30, '最大只能30个字符');
 ```
 
 - addRule(onValid: Function, errorMessage: string)
