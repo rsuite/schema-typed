@@ -53,7 +53,7 @@ class Type {
             return next({ ...checkStatus, errorMessage: checkStatus.errorMessage || errorMessage });
           }
 
-          return next({ hasError: false });
+          return next({ name: this.name, hasError: false });
         });
       },
       cb

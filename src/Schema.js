@@ -1,5 +1,7 @@
 import _ from 'lodash';
 
+import { asyncParallelArray } from './util';
+
 class Schema {
   constructor(schema) {
     this.schema = schema;
@@ -37,26 +39,16 @@ class Schema {
   }
 
   check(data, cb) {
-    const promises = [];
-    let checkResult = {};
+    return new Promise(resolve => {
+      asyncParallelArray(
+        Object.keys(this.schema),
+        (key, index, next) => this.checkForField(key, _.get(data, key), data, next),
+        result => {
+          cb && cb(result);
 
-    Object.keys(this.schema).forEach(key => {
-      promises.push(
-        new Promise(resolve =>
-          this.checkForField(
-            key,
-            _.get(data, key),
-            data,
-            result => _.set(checkResult, key, result) && resolve()
-          )
-        )
+          return resolve(result);
+        }
       );
-    });
-
-    return Promise.all(promises).then(() => {
-      cb && cb(checkResult);
-
-      return checkResult;
     });
   }
 }

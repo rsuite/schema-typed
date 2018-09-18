@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export function asyncSerialArray(arr, func, callback) {
   const length = arr.length;
   let index = 0;
@@ -21,4 +23,20 @@ export function asyncSerialArray(arr, func, callback) {
   next({ hasError: false });
 }
 
-export function asyncParallelArray() {}
+export function asyncParallelArray(arr, func, callback) {
+  const length = arr.length;
+  let results = {};
+  let total = 0;
+
+  arr.forEach(a =>
+    func(a, errors => {
+      _.set(results, a, errors);
+
+      total += 1;
+
+      if (total === length) {
+        callback(results);
+      }
+    })
+  );
+}
