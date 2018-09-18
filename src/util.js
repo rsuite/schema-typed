@@ -14,7 +14,7 @@ export function asyncSerialArray(arr, func, callback) {
     index += 1;
 
     if (oldIndex >= length) {
-      return callback(null);
+      return callback({ hasError: false });
     }
 
     return func(arr[oldIndex], oldIndex, next);
@@ -28,9 +28,9 @@ export function asyncParallelArray(arr, func, callback) {
   let results = {};
   let total = 0;
 
-  arr.forEach(a =>
-    func(a, errors => {
-      _.set(results, a, errors);
+  arr.forEach((key, index) =>
+    func(key, index, errors => {
+      _.set(results, key, errors);
 
       total += 1;
 
