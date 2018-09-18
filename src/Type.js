@@ -53,7 +53,7 @@ class Type {
             return next({ ...checkStatus, errorMessage: checkStatus.errorMessage || errorMessage });
           }
 
-          return next({ name: this.name, hasError: false });
+          return next({ hasError: false });
         });
       },
       cb
@@ -62,16 +62,19 @@ class Type {
 
   addRule(onValid, errorMessage) {
     errorMessage = errorMessage || this.rules[0].errorMessage;
+
     this.rules.push({
       onValid,
       errorMessage
     });
+
     return this;
   }
 
   isRequired(errorMessage) {
     this.required = true;
     this.requiredMessage = errorMessage;
+
     return this;
   }
 }

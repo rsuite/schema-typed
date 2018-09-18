@@ -7,7 +7,7 @@ class ArrayType extends Type {
 
   constructor(errorMessage = 'Please enter a valid array') {
     super('array');
-    super.addRule(v => Array.isArray(v), errorMessage);
+    super.addRule((v, _, cb) => cb(Array.isArray(v)), errorMessage);
   }
 
   rangeLength(minLength, maxLength, errorMessage) {
