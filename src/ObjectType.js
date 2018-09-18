@@ -19,11 +19,7 @@ class ObjectType extends Type {
    */
   shape(types) {
     super.addRule(values => {
-      let valids = Object.entries(types).map(item => {
-        let key = item[0];
-        let type = item[1];
-        return type.check(values[key]);
-      });
+      let valids = Object.entries(types).map(([key, type]) => type.check(values[key]));
       let errors = valids.filter(item => item.hasError) || [];
 
       if (errors.length) {

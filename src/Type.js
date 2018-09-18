@@ -1,3 +1,5 @@
+import { asyncSerialArray } from './util';
+
 function isEmpty(value) {
   return typeof value === 'undefined' || value === null || value === '';
 }
@@ -24,28 +26,38 @@ class Type {
     this.rules = [];
   }
 
-  check(value, data) {
+  check(value, data, cb) {
     if (this.required && !checkRequired(value)) {
-      return { hasError: true, errorMessage: this.requiredMessage };
+      cb && cb({ hasError: true, errorMessage: this.requiredMessage });
+
+      return;
     }
 
-    for (let i = 0; i < this.rules.length; i += 1) {
-      let { onValid, errorMessage } = this.rules[i];
+    asyncSerialArray(
+      this.rules,
+      (rule, _, next) => {
+        const { onValid, errorMessage } = rule;
 
-      if (!this.required && isEmpty(value)) {
-        return { hasError: false };
-      }
+        if (!this.required && isEmpty(value)) {
+          next({ hasError: false });
 
-      let checkStatus = onValid(value, data);
+          return;
+        }
 
-      if (typeof checkStatus === 'boolean' && !checkStatus) {
-        return { hasError: true, errorMessage };
-      } else if (typeof checkStatus === 'object') {
-        return checkStatus;
-      }
-    }
+        onValid(value, data, checkStatus => {
+          if (typeof checkStatus === 'boolean' && !checkStatus) {
+            return next({ hasError: true, errorMessage });
+          } else if (typeof checkStatus === 'string') {
+            return next({ hasError: true, errorMessage: checkStatus || errorMessage });
+          } else if (typeof checkStatus === 'object') {
+            return next({ ...checkStatus, errorMessage: checkStatus.errorMessage || errorMessage });
+          }
 
-    return { hasError: false };
+          return next({ hasError: false });
+        });
+      },
+      cb
+    );
   }
 
   addRule(onValid, errorMessage) {

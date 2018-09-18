@@ -10,7 +10,7 @@ module.exports = {
     browser: true,
     node: true,
     es6: true,
-    mocha: true
+    jest: true
   },
   globals: {
     assert: true
