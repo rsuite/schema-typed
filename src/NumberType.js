@@ -16,31 +16,37 @@ class NumberType extends Type {
 
   isInteger(errorMessage) {
     super.addRule(value => /^-?\d+$/.test(value), errorMessage);
+
     return this;
   }
 
   pattern(regexp, errorMessage) {
     super.addRule(value => regexp.test(value), errorMessage);
+
     return this;
   }
 
   isOneOf(numLst, errorMessage) {
     super.addRule(value => numLst.includes(FN(value)), errorMessage);
+
     return this;
   }
 
   range(min, max, errorMessage) {
     super.addRule(value => FN(value) >= min && FN(value) <= max, errorMessage);
+
     return this;
   }
 
   min(min, errorMessage) {
     super.addRule(value => FN(value) >= min, errorMessage);
+
     return this;
   }
 
   max(max, errorMessage) {
     super.addRule(value => FN(value) <= max, errorMessage);
+
     return this;
   }
 }

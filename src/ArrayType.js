@@ -12,16 +12,19 @@ class ArrayType extends Type {
 
   rangeLength(minLength, maxLength, errorMessage) {
     super.addRule(value => value.length >= minLength && value.length <= maxLength, errorMessage);
+
     return this;
   }
 
   minLength(minLength, errorMessage) {
     super.addRule(value => value.length >= minLength, errorMessage);
+
     return this;
   }
 
   maxLength(maxLength, errorMessage) {
     super.addRule(value => value.length <= maxLength, errorMessage);
+
     return this;
   }
 

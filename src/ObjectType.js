@@ -24,7 +24,6 @@ class ObjectType extends Type {
         let type = item[1];
         return type.check(values[key]);
       });
-
       let errors = valids.filter(item => item.hasError) || [];
 
       if (errors.length) {

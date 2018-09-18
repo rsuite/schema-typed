@@ -5,11 +5,12 @@
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint src  *.js",
+    "prettier": "prettier --write 'src/**/*.js'",
     "build": "./node_modules/.bin/babel -d lib/ src/",
-    "prepublish": "npm run build",
     "tdd": "mocha --watch --compilers js:babel-register test/*Spec.js ",
     "test-once": "mocha --compilers js:babel-register test/*Spec.js ",
-    "test": "npm run lint && npm run test-once"
+    "test": "npm run lint && npm run test-once",
+    "prepublish": "npm run lint && npm run prettier && npm run build"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,9 @@
     "lib"
   ],
   "homepage": "https://github.com/rsuite/schema-typed#readme",
+  "dependencies": {
+    "lodash": "^4.17.11"
+  },
   "devDependencies": {
     "babel-cli": "^6.11.4",
     "babel-eslint": "^7.2.3",
@@ -50,8 +54,23 @@
     "eslint-plugin-json": "^1.2.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-react": "^7.3.0",
+    "husky": "^1.0.0-rc.14",
     "istanbul": "^0.4.5",
+    "lint-staged": "^7.2.2",
     "mocha": "^2.5.3",
-    "object-flaser": "^0.1.1"
+    "object-flaser": "^0.1.1",
+    "prettier": "^1.14.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "prettier --write",
+      "eslint --fix",
+      "git add"
+    ]
   }
 }

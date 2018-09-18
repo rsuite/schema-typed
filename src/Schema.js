@@ -1,6 +1,8 @@
+import _ from 'lodash';
+
 import StringType from './StringType';
 
-export class Schema {
+class Schema {
   constructor(schema) {
     this.schema = schema;
   }
@@ -13,24 +15,30 @@ export class Schema {
     return Object.keys(this.schema);
   }
 
-  checkForField(fieldName, fieldValue, data) {
-    let fieldChecker = this.schema[fieldName];
+  checkForField(fieldName, fieldValue, data, cb) {
+    let fieldChecker = _.get(this.schema, fieldName);
+
     if (!fieldChecker) {
-      return { hasError: false }; // fieldValue can be anything if no schema defined
+      return cb && cb({ hasError: false }); // fieldValue can be anything if no schema defined
     }
-    return fieldChecker.check(fieldValue, data);
+
+    return fieldChecker.check(fieldValue, data, cb);
   }
 
-  check(data) {
+  check(data, cb) {
     let checkResult = {};
-    Object.keys(this.schema).forEach(key => {
-      checkResult[key] = this.checkForField(key, data[key], data);
-    });
-    return checkResult;
+
+    Object.keys(this.schema).forEach(key =>
+      this.checkForField(key, data[key], data, result => {
+        _.set(checkResult, key, result);
+      })
+    );
+
+    return _.isEmpty(checkResult) ? cb && cb(null) : cb && cb(checkResult);
   }
 }
 
-export const SchemaModel = o => new Schema(o);
+const SchemaModel = o => new Schema(o);
 
 SchemaModel.combine = (...models) =>
   new Schema(
@@ -38,3 +46,5 @@ SchemaModel.combine = (...models) =>
       .map(model => model.schema)
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {})
   );
+
+export { Schema, SchemaModel };
