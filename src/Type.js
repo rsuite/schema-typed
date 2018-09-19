@@ -50,7 +50,14 @@ class Type {
           } else if (typeof checkStatus === 'string') {
             return next({ hasError: true, errorMessage: checkStatus || errorMessage });
           } else if (typeof checkStatus === 'object') {
-            return next({ ...checkStatus, errorMessage: checkStatus.errorMessage || errorMessage });
+            const hasError = checkStatus.hasError || false;
+            let result = { ...checkStatus, hasError };
+
+            if (hasError) {
+              result.errorMessage = checkStatus.errorMessage || errorMessage;
+            }
+
+            return next(result);
           }
 
           return next({ hasError: false });
@@ -61,7 +68,7 @@ class Type {
   }
 
   addRule(onValid, errorMessage) {
-    errorMessage = errorMessage || this.rules[0].errorMessage;
+    errorMessage = errorMessage || (this.rules[0] && this.rules[0].errorMessage);
 
     this.rules.push({
       onValid,
