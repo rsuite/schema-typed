@@ -4,13 +4,15 @@
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "scripts": {
-    "lint": "eslint src  *.js",
-    "prettier": "prettier --write 'src/**/*.js'",
-    "build": "./node_modules/.bin/babel -d lib/ src/",
-    "tdd": "jest -w",
+    "lint": "eslint --fix '{src,test}/**/*.js'",
+    "prettier": "prettier --write '{src,test}/**/*.js'",
+    "clean": "rm -rf lib/ coverage/",
+    "build": "npm run clean && babel -d lib/ src/",
+    "test-watch": "jest --watch",
     "test-once": "jest",
+    "test-coverage": "jest --coverage",
     "test": "npm run lint && npm run test-once",
-    "prepublish": "npm run lint && npm run prettier && npm run build"
+    "prepublish": "npm run lint && npm run prettier && npm run test && npm run build"
   },
   "repository": {
     "type": "git",
