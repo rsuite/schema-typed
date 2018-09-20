@@ -54,6 +54,8 @@ describe('@Type', () => {
     });
 
     it('should be correct with single rule', done => {
+      expect.assertions(8);
+
       const typeGen = name => new Type(name);
       const fnGen = result => jest.fn((v, _, next) => next(result));
 
@@ -118,6 +120,8 @@ describe('@Type', () => {
     });
 
     it('should be correct with multiple rules', done => {
+      expect.assertions(6);
+
       const typeGen = name => new Type(name);
       const fnGen = result => jest.fn((v, _, next) => next(result));
 
@@ -179,6 +183,8 @@ describe('@Type', () => {
 
   describe('#isReqired', () => {
     it('should be correct', done => {
+      expect.assertions(11);
+
       const type = new Type('test type');
 
       expect(type.name).toBe('test type');

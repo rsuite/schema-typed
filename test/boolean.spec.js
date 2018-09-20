@@ -3,6 +3,8 @@ import BooleanType from '../src/BooleanType';
 describe('@BooleanType', () => {
   describe('#constructor', () => {
     it('should be initialized correctly', done => {
+      expect.assertions(10);
+
       const type = new BooleanType('it should be a boolean value');
 
       expect(type.name).toBe('boolean');

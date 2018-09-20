@@ -3,6 +3,8 @@ import StringType from '../src/StringType';
 describe('@StringType', () => {
   describe('#constructor', () => {
     it('should be initialized correctly', done => {
+      expect.assertions(9);
+
       const type = new StringType('it should be a string value');
 
       expect(type.name).toBe('string');
@@ -39,6 +41,8 @@ describe('@StringType', () => {
 
   describe('#containsLetter', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -80,6 +84,8 @@ describe('@StringType', () => {
 
   describe('#containsUppercaseLetter', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -124,6 +130,8 @@ describe('@StringType', () => {
 
   describe('#containsLowercaseLetter', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -168,6 +176,8 @@ describe('@StringType', () => {
 
   describe('#containsLetterOnly', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -212,6 +222,8 @@ describe('@StringType', () => {
 
   describe('#containsNumber', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -253,6 +265,8 @@ describe('@StringType', () => {
 
   describe('#isOneOf', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -297,6 +311,8 @@ describe('@StringType', () => {
 
   describe('#isEmail', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -341,6 +357,8 @@ describe('@StringType', () => {
 
   describe('#isURL', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -382,6 +400,8 @@ describe('@StringType', () => {
 
   describe('#isHex', () => {
     it('should be correct', done => {
+      expect.assertions(9);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -427,6 +447,8 @@ describe('@StringType', () => {
 
   describe('#pattern', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -468,6 +490,8 @@ describe('@StringType', () => {
 
   describe('#rangeLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -512,6 +536,8 @@ describe('@StringType', () => {
 
   describe('#minLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);
@@ -556,6 +582,8 @@ describe('@StringType', () => {
 
   describe('#maxLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new StringType('it should be a string value');
 
       expect(type.rules).toHaveLength(1);

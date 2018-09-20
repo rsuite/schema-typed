@@ -3,6 +3,8 @@ import NumberType from '../src/NumberType';
 describe('@NumberType', () => {
   describe('#constructor', () => {
     it('should be initialized correctly', done => {
+      expect.assertions(9);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.name).toBe('number');
@@ -39,6 +41,8 @@ describe('@NumberType', () => {
 
   describe('#isInteger', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
@@ -80,6 +84,8 @@ describe('@NumberType', () => {
 
   describe('#pattern', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
@@ -121,6 +127,8 @@ describe('@NumberType', () => {
 
   describe('#isOneOf', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
@@ -165,6 +173,8 @@ describe('@NumberType', () => {
 
   describe('#range', () => {
     it('should be correct', done => {
+      expect.assertions(9);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
@@ -213,6 +223,8 @@ describe('@NumberType', () => {
 
   describe('#min', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
@@ -257,6 +269,8 @@ describe('@NumberType', () => {
 
   describe('#max', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);

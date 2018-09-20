@@ -3,6 +3,8 @@ import DateType from '../src/DateType';
 describe('@DateType', () => {
   describe('#constructor', () => {
     it('should be initialized correctly', done => {
+      expect.assertions(9);
+
       const type = new DateType('it should be a date value');
 
       expect(type.name).toBe('date');
@@ -39,6 +41,8 @@ describe('@DateType', () => {
 
   describe('#range', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new DateType('it should be a date value');
       const now = new Date();
 
@@ -88,6 +92,8 @@ describe('@DateType', () => {
 
   describe('#min', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new DateType('it should be a date value');
       const now = new Date();
 
@@ -133,6 +139,8 @@ describe('@DateType', () => {
 
   describe('#max', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new DateType('it should be a date value');
       const now = new Date();
 

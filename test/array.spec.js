@@ -3,6 +3,8 @@ import ArrayType from '../src/ArrayType';
 describe('@ArrayType', () => {
   describe('#constructor', () => {
     it('should be initialized correctly', done => {
+      expect.assertions(9);
+
       const type = new ArrayType('it should be an array value');
 
       expect(type.name).toBe('array');
@@ -39,6 +41,8 @@ describe('@ArrayType', () => {
 
   describe('#rangeLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
@@ -83,6 +87,8 @@ describe('@ArrayType', () => {
 
   describe('#minLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
@@ -127,6 +133,8 @@ describe('@ArrayType', () => {
 
   describe('#maxLength', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
@@ -171,6 +179,8 @@ describe('@ArrayType', () => {
 
   describe('#unrepeatable', () => {
     it('should be correct', done => {
+      expect.assertions(8);
+
       const type = new ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);

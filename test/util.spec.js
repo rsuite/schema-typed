@@ -2,6 +2,8 @@ const { asyncSerialArray, asyncParallelArray } = require('../src/util');
 
 describe('#asyncSerialArray', () => {
   it('should support synchronized validate', done => {
+    expect.assertions(14);
+
     const fn1Gen = () => jest.fn(cb => cb({ hasError: false }));
     const fn2Gen = () => jest.fn(cb => cb({ hasError: true, errorMessage: 'error message' }));
 
@@ -56,6 +58,8 @@ describe('#asyncSerialArray', () => {
   });
 
   it('should support asynchronized validate', done => {
+    expect.assertions(37);
+
     const fn1Gen = () => jest.fn(cb => cb({ hasError: false }));
     const fn2Gen = () => jest.fn(cb => cb({ hasError: true, errorMessage: 'error message' }));
     const fn3Gen = time => jest.fn(cb => setTimeout(() => cb({ hasError: false }), time));
@@ -211,6 +215,8 @@ describe('#asyncSerialArray', () => {
 
 describe('#asyncParallelArray', () => {
   it('should support synchronized validate', done => {
+    expect.assertions(15);
+
     const fn1Gen = () => jest.fn(cb => cb({ hasError: false }));
     const fn2Gen = () => jest.fn(cb => cb({ hasError: true, errorMessage: 'error message' }));
 
@@ -278,6 +284,8 @@ describe('#asyncParallelArray', () => {
   });
 
   it('should support asynchronized validate', done => {
+    expect.assertions(40);
+
     const fn1Gen = () => jest.fn(cb => cb({ hasError: false }));
     const fn2Gen = () => jest.fn(cb => cb({ hasError: true, errorMessage: 'error message' }));
     const fn3Gen = time => jest.fn(cb => setTimeout(() => cb({ hasError: false }), time));
