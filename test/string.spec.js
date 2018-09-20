@@ -493,7 +493,10 @@ describe('@StringType', () => {
       });
 
       type.check('letter1', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should have less than six letters' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should have less than six letters'
+        });
       });
 
       type.check([], undefined, result => {
@@ -534,7 +537,10 @@ describe('@StringType', () => {
       });
 
       type.check('l', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should have more than six letters' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should have more than six letters'
+        });
       });
 
       type.check([], undefined, result => {
@@ -575,7 +581,10 @@ describe('@StringType', () => {
       });
 
       type.check('letter1', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should have less than six letters' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should have less than six letters'
+        });
       });
 
       type.check([], undefined, result => {
