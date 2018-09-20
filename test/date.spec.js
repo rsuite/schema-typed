@@ -69,7 +69,10 @@ describe('@DateType', () => {
       });
 
       type.check(new Date(now).setDate(now.getDate() - 2), undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be later than yesterday and earlier than tomorrow' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be later than yesterday and earlier than tomorrow'
+        });
       });
 
       type.check([], undefined, result => {
@@ -90,10 +93,7 @@ describe('@DateType', () => {
 
       expect(type.rules).toHaveLength(1);
 
-      type.min(
-        new Date(now).setDate(now.getDate() - 1),
-        'it should be later than yesterday'
-      );
+      type.min(new Date(now).setDate(now.getDate() - 1), 'it should be later than yesterday');
 
       expect(type.rules).toHaveLength(2);
 
@@ -114,7 +114,10 @@ describe('@DateType', () => {
       });
 
       type.check(new Date(now).setDate(now.getDate() - 2), undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be later than yesterday' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be later than yesterday'
+        });
       });
 
       type.check([], undefined, result => {
@@ -135,10 +138,7 @@ describe('@DateType', () => {
 
       expect(type.rules).toHaveLength(1);
 
-      type.max(
-        new Date(now).setDate(now.getDate() + 1),
-        'it should be earlier than tomorrow'
-      );
+      type.max(new Date(now).setDate(now.getDate() + 1), 'it should be earlier than tomorrow');
 
       expect(type.rules).toHaveLength(2);
 
@@ -159,7 +159,10 @@ describe('@DateType', () => {
       });
 
       type.check(new Date(now).setDate(now.getDate() + 2), undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be earlier than tomorrow' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be earlier than tomorrow'
+        });
       });
 
       type.check([], undefined, result => {

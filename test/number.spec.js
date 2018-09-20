@@ -146,7 +146,10 @@ describe('@NumberType', () => {
       });
 
       type.check('10000', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be one of numbers' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be one of numbers'
+        });
       });
 
       type.check([], undefined, result => {
@@ -191,7 +194,10 @@ describe('@NumberType', () => {
       });
 
       type.check('10000', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be more than 0 and less than 1000' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be more than 0 and less than 1000'
+        });
       });
 
       type.check([], undefined, result => {
@@ -232,7 +238,10 @@ describe('@NumberType', () => {
       });
 
       type.check('1000', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be more than 10000' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be more than 10000'
+        });
       });
 
       type.check([], undefined, result => {
@@ -273,7 +282,10 @@ describe('@NumberType', () => {
       });
 
       type.check('10000', undefined, result => {
-        expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be less than 1000' });
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'it should be less than 1000'
+        });
       });
 
       type.check([], undefined, result => {
