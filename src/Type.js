@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import { asyncSerialArray } from './util';
 
 function isEmpty(value) {
@@ -27,6 +29,11 @@ class Type {
   }
 
   check(value, data, cb) {
+    if (_.isFunction(data)) {
+      cb = data;
+      data = undefined;
+    }
+
     if (this.required && !checkRequired(value)) {
       cb && cb({ hasError: true, errorMessage: this.requiredMessage });
 
@@ -35,7 +42,7 @@ class Type {
 
     asyncSerialArray(
       this.rules,
-      (rule, _, next) => {
+      (rule, __, next) => {
         const { onValid, errorMessage } = rule;
 
         if (!this.required && isEmpty(value)) {

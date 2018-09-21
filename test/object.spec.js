@@ -13,23 +13,23 @@ describe('@ObjectType', () => {
       expect(type.requiredMessage).toBeFalsy();
       expect(type.rules).toHaveLength(1);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check({}, undefined, result => {
+      type.check({}, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(true, undefined, result => {
+      type.check(true, result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be an object value'
@@ -55,15 +55,15 @@ describe('@ObjectType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
@@ -78,11 +78,11 @@ describe('@ObjectType', () => {
         }
       );
 
-      type.check({ email: 'blackcater2015@gmail.com' }, undefined, result => {
+      type.check({ email: 'blackcater2015@gmail.com' }, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check({ color: '#24252c' }, undefined, result => {
+      type.check({ color: '#24252c' }, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 

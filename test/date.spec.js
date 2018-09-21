@@ -12,23 +12,23 @@ describe('@DateType', () => {
       expect(type.requiredMessage).toBeFalsy();
       expect(type.rules).toHaveLength(1);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(), undefined, result => {
+      type.check(new Date(), result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a date value'
@@ -56,30 +56,30 @@ describe('@DateType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(), undefined, result => {
+      type.check(new Date(), result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(now).setDate(now.getDate() - 2), undefined, result => {
+      type.check(new Date(now).setDate(now.getDate() - 2), result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be later than yesterday and earlier than tomorrow'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a date value'
@@ -103,30 +103,30 @@ describe('@DateType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(), undefined, result => {
+      type.check(new Date(), result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(now).setDate(now.getDate() - 2), undefined, result => {
+      type.check(new Date(now).setDate(now.getDate() - 2), result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be later than yesterday'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a date value'
@@ -150,30 +150,30 @@ describe('@DateType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(), undefined, result => {
+      type.check(new Date(), result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(new Date(now).setDate(now.getDate() + 2), undefined, result => {
+      type.check(new Date(now).setDate(now.getDate() + 2), result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be earlier than tomorrow'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a date value'

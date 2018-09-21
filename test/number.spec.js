@@ -12,23 +12,23 @@ describe('@NumberType', () => {
       expect(type.requiredMessage).toBeFalsy();
       expect(type.rules).toHaveLength(1);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1,000,000', undefined, result => {
+      type.check('1,000,000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -51,27 +51,27 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('100', undefined, result => {
+      type.check('100', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1,000,000', undefined, result => {
+      type.check('1,000,000', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be integer' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -94,27 +94,27 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1,000,000', undefined, result => {
+      type.check('1,000,000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('100,000', undefined, result => {
+      type.check('100,000', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be one million' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -137,30 +137,30 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1000', undefined, result => {
+      type.check('1000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('10000', undefined, result => {
+      type.check('10000', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be one of numbers'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -183,34 +183,34 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('0', undefined, result => {
+      type.check('0', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1000', undefined, result => {
+      type.check('1000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('10000', undefined, result => {
+      type.check('10000', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be more than 0 and less than 1000'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -233,30 +233,30 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('10000', undefined, result => {
+      type.check('10000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1000', undefined, result => {
+      type.check('1000', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be more than 10000'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'
@@ -279,30 +279,30 @@ describe('@NumberType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('1000', undefined, result => {
+      type.check('1000', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('10000', undefined, result => {
+      type.check('10000', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be less than 1000'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a number value'

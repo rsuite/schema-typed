@@ -12,23 +12,23 @@ describe('@StringType', () => {
       expect(type.requiredMessage).toBeFalsy();
       expect(type.rules).toHaveLength(1);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('string', undefined, result => {
+      type.check('string', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -51,27 +51,27 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('123', undefined, result => {
+      type.check('123', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should contain letter' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -94,30 +94,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('LETTER', undefined, result => {
+      type.check('LETTER', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should contain uppercase letter'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -140,30 +140,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('LETTER', undefined, result => {
+      type.check('LETTER', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should contain lowercase letter'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -186,30 +186,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter1', undefined, result => {
+      type.check('letter1', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should only contain letter'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -232,27 +232,27 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter1', undefined, result => {
+      type.check('letter1', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should contain number' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -275,30 +275,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter1', undefined, result => {
+      type.check('letter1', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should contain one kind of letter'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -321,30 +321,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('blackcater2015@gmail.com', undefined, result => {
+      type.check('blackcater2015@gmail.com', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('blackcater', undefined, result => {
+      type.check('blackcater', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be an email address'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -367,27 +367,27 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('https://www.blackcater.win', undefined, result => {
+      type.check('https://www.blackcater.win', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('blackcater', undefined, result => {
+      type.check('blackcater', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be a url' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -410,31 +410,31 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('#ccc', undefined, result => {
+      type.check('#ccc', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('ccc', undefined, result => {
+      type.check('ccc', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('zzz', undefined, result => {
+      type.check('zzz', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should be a hex' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -457,27 +457,27 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('Letter', undefined, result => {
+      type.check('Letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: true, errorMessage: 'it should match pattern' });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -500,30 +500,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('Letter', undefined, result => {
+      type.check('Letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter1', undefined, result => {
+      type.check('letter1', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should have less than six letters'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -546,30 +546,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('l', undefined, result => {
+      type.check('l', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should have more than six letters'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'
@@ -592,30 +592,30 @@ describe('@StringType', () => {
 
       expect(type.rules).toHaveLength(2);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter', undefined, result => {
+      type.check('letter', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('letter1', undefined, result => {
+      type.check('letter1', result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should have less than six letters'
         });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a string value'

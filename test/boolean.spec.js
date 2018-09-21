@@ -12,27 +12,27 @@ describe('@BooleanType', () => {
       expect(type.requiredMessage).toBeFalsy();
       expect(type.rules).toHaveLength(1);
 
-      type.check(undefined, undefined, result => {
+      type.check(undefined, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(null, undefined, result => {
+      type.check(null, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check('', undefined, result => {
+      type.check('', result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(true, undefined, result => {
+      type.check(true, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check(false, undefined, result => {
+      type.check(false, result => {
         expect(result).toMatchObject({ hasError: false });
       });
 
-      type.check([], undefined, result => {
+      type.check([], result => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be a boolean value'
