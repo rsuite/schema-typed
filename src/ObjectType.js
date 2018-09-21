@@ -22,7 +22,7 @@ class ObjectType extends Type {
    */
   shape(types) {
     super.addRule((v, d, cb) => {
-      const keys = Object.entries(types);
+      const keys = Object.keys(types);
       let called = false;
 
       asyncParallelArray(
