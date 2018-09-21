@@ -1,15 +1,13 @@
 {
-    "presets": [
-        "stage-0",
-        "es2015"
-    ],
-    "plugins": [
-        "transform-proto-to-assign",
-        [
-            "transform-es2015-classes",
-            {
-                "loose": true
-            }
-        ]
+  "presets": ["stage-0", "es2015"],
+  "plugins": [
+    "lodash",
+    "transform-proto-to-assign",
+    [
+      "transform-es2015-classes",
+      {
+        "loose": true
+      }
     ]
+  ]
 }
