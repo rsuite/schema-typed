@@ -1,0 +1,184 @@
+const schema = require('../src');
+
+const { StringType, NumberType, ObjectType, Schema, SchemaModel } = schema;
+
+describe('#Schema', () => {
+  it('save Schema as proporty', () => {
+    const schemaData = { data: StringType() };
+    const schemaInstance = new Schema(schemaData);
+
+    expect(schemaInstance.schema).toBe(schemaData);
+  });
+
+  it('get field value type of given field name', () => {
+    const schemaData = { data: NumberType() };
+    const schemaInstance = new Schema(schemaData);
+
+    expect(schemaInstance.getFieldType('data')).toBe(schemaData.data);
+  });
+
+  it('should return error information', done => {
+    expect.assertions(1);
+
+    const schemaData = { data: NumberType() };
+    const schemaInstance = new Schema(schemaData);
+
+    schemaInstance.checkForField('data', '2.22', result => {
+      expect(result).toMatchObject({ hasError: false });
+    });
+
+    setTimeout(() => done(), 250);
+  });
+
+  it('should return error information', done => {
+    expect.assertions(1);
+
+    const model = SchemaModel({
+      username: StringType().isRequired('用户名不能为空'),
+      email: StringType().isEmail('请输入正确的邮箱'),
+      age: NumberType('年龄应该是一个数字').range(18, 30, '年应该在 18 到 30 岁')
+    });
+
+    model.check(
+      {
+        username: 'foobar',
+        email: 'foo@bar.com',
+        age: 40
+      },
+      result => {
+        expect(result).toMatchObject({
+          username: { hasError: false },
+          email: { hasError: false },
+          age: { hasError: true, errorMessage: '年应该在 18 到 30 岁' }
+        });
+      }
+    );
+
+    setTimeout(() => done(), 250);
+  });
+
+  it('should be corrent for nested object', done => {
+    expect.assertions(2);
+
+    const model1 = SchemaModel({
+      id: NumberType().isRequired('该字段不能为空'),
+      name: StringType().isRequired('用户名不能为空'),
+      info: ObjectType().shape({
+        email: StringType().isEmail('应该是一个 email'),
+        age: NumberType().min(18, '年龄应该大于18岁')
+      })
+    });
+
+    model1.check(
+      {
+        id: 1,
+        name: 'schema-type',
+        info: {
+          email: 'schema-type@gmail.com',
+          age: 17
+        }
+      },
+      result => {
+        expect(result).toMatchObject({
+          id: { hasError: false },
+          name: { hasError: false },
+          info: { hasError: true, errorMessage: '年龄应该大于18岁' }
+        });
+      }
+    );
+
+    const model2 = SchemaModel({
+      id: NumberType().isRequired('该字段不能为空'),
+      name: StringType().isRequired('用户名不能为空'),
+      'info.email': StringType().isEmail('应该是一个 email'),
+      'info.age': NumberType().min(18, '年龄应该大于18岁')
+    });
+
+    model2.check(
+      {
+        id: 1,
+        name: 'schema-type',
+        info: {
+          email: 'schema-type@gmail.com',
+          age: 17
+        }
+      },
+      result => {
+        expect(result).toMatchObject({
+          id: { hasError: false },
+          name: { hasError: false },
+          info: {
+            email: { hasError: false },
+            age: { hasError: true, errorMessage: '年龄应该大于18岁' }
+          }
+        });
+      }
+    );
+
+    setTimeout(() => done(), 250);
+  });
+
+  describe('## getKeys', () => {
+    it('should return keys', () => {
+      const model = SchemaModel({
+        username: StringType(),
+        email: StringType(),
+        age: NumberType()
+      });
+
+      expect(model.getKeys()).toHaveLength(3);
+      expect(model.getKeys()).toEqual(expect.arrayContaining(['username', 'email', 'age']));
+    });
+  });
+
+  describe('## static combine', () => {
+    it('should return a combined model.', done => {
+      expect.assertions(2);
+
+      const model1 = SchemaModel({
+        username: StringType().isRequired('用户名不能为空'),
+        email: StringType().isEmail('请输入正确的邮箱')
+      });
+
+      model1.check(
+        {
+          username: 'foobar',
+          email: 'foo@bar.com',
+          age: 40
+        },
+        result => {
+          expect(result).toMatchObject({
+            username: { hasError: false },
+            email: { hasError: false }
+          });
+        }
+      );
+
+      const model2 = SchemaModel({
+        username: StringType()
+          .isRequired('用户名不能为空')
+          .minLength(7, '最少7个字符'),
+        age: NumberType().range(18, 30, '年应该在 18 到 30 岁')
+      });
+
+      const model3 = SchemaModel.combine(model1, model2);
+
+      model3.check(
+        {
+          username: 'fooba',
+          email: 'foo@bar.com',
+          age: 40
+        },
+        result => {
+          expect(result).toMatchObject({
+            username: { hasError: true, errorMessage: '最少7个字符' },
+            email: { hasError: false },
+            age: { hasError: true, errorMessage: '年应该在 18 到 30 岁' }
+          });
+        }
+      );
+
+      setTimeout(() => done(), 250);
+    });
+  });
+});

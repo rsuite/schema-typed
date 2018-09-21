@@ -26,13 +26,14 @@ const model = SchemaModel({
   age: NumberType('年龄应该是一个数字').range(18, 30, '年龄应该在 18 到 30 岁之间')
 });
 
-const checkResult = model.check({
-  username: 'foobar',
-  email: 'foo@bar.com',
-  age: 40
-});
-
-console.log(checkResult);
+model.check(
+  {
+    username: 'foobar',
+    email: 'foo@bar.com',
+    age: 40
+  },
+  checkResult => console.log(checkResult)
+);
 ```
 
 `checkResult` 返回结构是:
@@ -62,13 +63,14 @@ StringType()
 
 ```js
 const model = SchemaModel({
-  field1: StringType().addRule((value, data) => {
-    return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
-  }, '请输入合法字符'),
+  field1: StringType().addRule(
+    (value, data, callback) => callback(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value)),
+    '请输入合法字符'
+  ),
   field2: StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, '请输入合法字符')
 });
 
-model.check({ field1: '', field2: '' });
+model.check({ field1: '', field2: '' }, checkResult => console.dir(checkResult));
 
 /**
 {
@@ -91,15 +93,16 @@ model.check({ field1: '', field2: '' });
 ```js
 const model = SchemaModel({
   password1: StringType().isRequired('该字段不能为空'),
-  password2: StringType().addRule((value, data) => {
+  password2: StringType().addRule((value, data, callback) => {
     if (value !== data.password1) {
-      return false;
+      return callback(false);
     }
-    return true;
+
+    return callback(true);
   }, '两次密码不一致')
 });
 
-model.check({ password1: '123456', password2: 'root' });
+model.check({ password1: '123456', password2: 'root' }, checkResult => console.dir(checkResult));
 
 /**
 {
@@ -110,6 +113,20 @@ model.check({ password1: '123456', password2: 'root' });
   }
 };
 **/
+```
+
+## 异步校验
+
+```js
+const model = SchemaModel({
+  username: StringType()
+    .addRule((value, data, callback) => {
+      fetch('https://example.com/validateUsername', { username: value })
+        .then(({ result }) => callback(result))
+        .catch(() => callback());
+    }, 'Username is not valid')
+    .isRequired('Username is required')
+});
 ```
 
 ## 嵌套对象
@@ -123,15 +140,36 @@ const model = SchemaModel({
   info: ObjectType().shape({
     email: StringType().isEmail('应该是一个 email'),
     age: NumberType().min(18, '年龄应该大于18岁')
-  });
+  })
 });
+
+model.check(
+  {
+    id: 1,
+    name: 'schema-type',
+    info: {
+      email: 'schema-type@gmail.com',
+      age: 17
+    }
+  },
+  checkResult => console.dir(checkResult)
+);
+
+/**
+{
+  id: { hasError: false },
+  name: { hasError: false },
+  info: {
+    hasError: true,
+    errorMessage: '年龄应该大于18岁'
+  }
+}
+**/
 ```
 
-另外，更推荐把对象扁平化设计
+你也使用形如 `a.b` 的语法格式。
 
 ```js
-import { flaser } from 'object-flaser';
-
 const model = SchemaModel({
   id: NumberType().isRequired('该字段不能为空'),
   name: StringType().isRequired('用户名不能为空'),
@@ -139,16 +177,31 @@ const model = SchemaModel({
   'info.age': NumberType().min(18, '年龄应该大于18岁')
 });
 
-const user = flaser({
-  id: 1,
-  name: 'schema-type',
-  info: {
-    email: 'schema-type@gmail.com',
-    age: 17
-  }
-});
+model.check(
+  {
+    id: 1,
+    name: 'schema-type',
+    info: {
+      email: 'schema-type@gmail.com',
+      age: 17
+    }
+  },
+  checkResult => console.dir(checkResult)
+);
 
-model.check(data);
+/**
+{
+  id: { hasError: false },
+  name: { hasError: false },
+  info: {
+    email: { hasError: false },
+    age：{
+      hasError: true,
+      errorMessage: '年龄应该大于18岁'
+    }
+  }
+}
+**/
 ```
 
 ## 组合
@@ -167,17 +220,20 @@ const model2 = SchemaModel({
 });
 
 const model3 = SchemaModel({
-  groupId: NumberType().isRequired('该字段不能为空')
+  groupId: NumberType().isRequired('This field required')
 });
 
 const model4 = SchemaModel.combine(model1, model2, model3);
 
-model4.check({
-  username: 'foobar',
-  email: 'foo@bar.com',
-  age: 40,
-  groupId: 1
-});
+model4.check(
+  {
+    username: 'foobar',
+    email: 'foo@bar.com',
+    age: 40,
+    groupId: 1
+  },
+  checkResult => console.dir(checkResult)
+);
 ```
 
 ## API
@@ -214,10 +270,13 @@ const model = SchemaModel({
   email: StringType().isEmail('请输入正确的邮箱')
 });
 
-model.check({
-  username: 'root',
-  email: 'root@email.com'
-});
+model.check(
+  {
+    username: 'root',
+    email: 'root@email.com'
+  },
+  checkResult => console.dir(checkResult)
+);
 ```
 
 - checkForField(fieldName: string, fieldValue: any, data: Object)
@@ -228,7 +287,7 @@ const model = SchemaModel({
   email: StringType().isEmail('请输入正确的邮箱')
 });
 
-model.checkForField('username', 'root');
+model.checkForField('username', 'root', checkResult => console.dir(checkResult));
 ```
 
 ### StringType
@@ -314,8 +373,8 @@ StringType().maxLength(30, '最大只能30个字符');
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-StringType().addRule((value, data) => {
-  return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
+StringType().addRule((value, data, callback) => {
+  return callback(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value));
 }, '请输入合法字符');
 ```
 
@@ -366,8 +425,8 @@ NumberType().max(40, '最大值 40');
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-NumberType().addRule((value, data) => {
-  return value % 5 === 0;
+NumberType().addRule((value, data, callback) => {
+  return callback(value % 5 === 0);
 }, '请输入有效的数字');
 ```
 
@@ -412,8 +471,8 @@ ArrayType().of(StringType().isEmail(), '格式错误');
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-ArrayType().addRule((value, data) => {
-  return value.length % 2 === 0;
+ArrayType().addRule((value, data, callback) => {
+  return callback(value.length % 2 === 0);
 }, '好事成双');
 ```
 
@@ -450,8 +509,8 @@ DateType().max(new Date('08/30/2017'), '时间的最大值 08/30/2017');
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-DateType().addRule((value, data) => {
-  return value.getDay() === 2;
+DateType().addRule((value, data, callback) => {
+  return callback(value.getDay() === 2);
 }, '只能选择周二');
 ```
 
@@ -475,11 +534,11 @@ ObjectType().shape({
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-ObjectType().addRule((value, data) => {
+ObjectType().addRule((value, data, callback) => {
   if (value.id || value.email) {
-    return true;
+    return callback(true);
   }
-  return false;
+  return callback(false);
 }, 'id 与 email 必须有一个不能为空');
 ```
 
@@ -494,19 +553,15 @@ BooleanType().isRequired('该字段不能为空');
 - addRule(onValid: Function, errorMessage: string)
 
 ```js
-ObjectType().addRule((value, data) => {
+ObjectType().addRule((value, data, callback) => {
   if (typeof value === 'undefined' && A === 10) {
-    return false;
+    return callback(false);
   }
-  return true;
+  return callback(true);
 }, '当 A 等于 10 的时候，该值必须为空');
 ```
 
-## License
-
-`schema-typed` is [MIT licensed](https://github.com/rsuite/schema-typed/blob/master/LICENSE).
-
-[readm-en]: https://github.com/rsuite/schema-typed/blob/master/README.md
+[readm-cn]: https://github.com/rsuite/schema-typed/blob/master/README_zh.md
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
 [npm]: https://www.npmjs.com/package/schema-typed
 [npm-beta-badge]: https://img.shields.io/npm/v/schema-typed/beta.svg

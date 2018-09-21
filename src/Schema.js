@@ -1,36 +1,59 @@
-import StringType from './StringType';
+import _ from 'lodash';
 
-export class Schema {
+import { asyncParallelArray } from './util';
+
+class Schema {
   constructor(schema) {
     this.schema = schema;
   }
 
   getFieldType(fieldName) {
-    return this.schema[fieldName] || new StringType();
+    return this.schema[fieldName];
   }
 
   getKeys() {
     return Object.keys(this.schema);
   }
 
-  checkForField(fieldName, fieldValue, data) {
-    let fieldChecker = this.schema[fieldName];
-    if (!fieldChecker) {
-      return { hasError: false }; // fieldValue can be anything if no schema defined
+  checkForField(fieldName, fieldValue, data, cb) {
+    if (_.isFunction(data)) {
+      cb = data;
+      data = {};
     }
-    return fieldChecker.check(fieldValue, data);
+
+    let fieldChecker = this.schema[fieldName];
+
+    return new Promise(resolve => {
+      if (!fieldChecker) {
+        cb && cb({ hasError: false }); // fieldValue can be anything if no schema defined
+
+        return resolve({ hasError: false });
+      }
+
+      return fieldChecker.check(fieldValue, data, result => {
+        cb && cb(result);
+
+        return resolve(result);
+      });
+    });
   }
 
-  check(data) {
-    let checkResult = {};
-    Object.keys(this.schema).forEach(key => {
-      checkResult[key] = this.checkForField(key, data[key], data);
+  check(data, cb) {
+    return new Promise(resolve => {
+      asyncParallelArray(
+        Object.keys(this.schema),
+        (key, index, next) => this.checkForField(key, _.get(data, key), data, next),
+        result => {
+          cb && cb(result);
+
+          return resolve(result);
+        }
+      );
     });
-    return checkResult;
   }
 }
 
-export const SchemaModel = o => new Schema(o);
+const SchemaModel = o => new Schema(o);
 
 SchemaModel.combine = (...models) =>
   new Schema(
@@ -38,3 +61,5 @@ SchemaModel.combine = (...models) =>
       .map(model => model.schema)
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {})
   );
+
+export { Schema, SchemaModel };
