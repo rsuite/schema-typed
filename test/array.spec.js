@@ -1,4 +1,5 @@
 import ArrayType from '../src/ArrayType';
+import StringType from '../src/StringType';
 
 describe('@ArrayType', () => {
   describe('#constructor', () => {
@@ -216,6 +217,69 @@ describe('@ArrayType', () => {
         expect(result).toMatchObject({
           hasError: true,
           errorMessage: 'it should be an array value'
+        });
+      });
+
+      setTimeout(() => done(), 250);
+    });
+  });
+
+  describe('#of', () => {
+    it('should be correct', done => {
+      expect.assertions(11);
+
+      const type = new ArrayType('it should be an array value');
+      const str = new StringType('it should be an string value');
+
+      expect(type.rules).toHaveLength(1);
+
+      str.isOneOf(['a', 'b', 'c'], 'it should be a correct value');
+      type.of(str, 'the item of array should be correct string value');
+
+      expect(type.rules).toHaveLength(2);
+
+      type.check(undefined, undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check(null, undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check('', undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check(['a', 'b', 'c'], undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check(['b', 'c'], undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check(['c'], undefined, result => {
+        expect(result).toMatchObject({ hasError: false });
+      });
+
+      type.check(['1', 'b', 'c'], undefined, result => {
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'the item of array should be correct string value'
+        });
+      });
+
+      type.check(['a', '2', 'c'], undefined, result => {
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'the item of array should be correct string value'
+        });
+      });
+
+      type.check(['a', 'b', '3'], undefined, result => {
+        expect(result).toMatchObject({
+          hasError: true,
+          errorMessage: 'the item of array should be correct string value'
         });
       });
 

@@ -34,9 +34,7 @@ export function asyncParallelArray(arr, func, callback) {
 
       total += 1;
 
-      if (total === length) {
-        callback(results);
-      }
+      if (total === length) callback(results);
     })
   );
 }
