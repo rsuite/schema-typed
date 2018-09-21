@@ -1,6 +1,6 @@
 const schema = require('../src');
 
-const { StringType, NumberType, Schema, SchemaModel } = schema;
+const { StringType, NumberType, ObjectType, Schema, SchemaModel } = schema;
 
 describe('#Schema', () => {
   it('save Schema as proporty', () => {
@@ -50,6 +50,67 @@ describe('#Schema', () => {
           username: { hasError: false },
           email: { hasError: false },
           age: { hasError: true, errorMessage: '年应该在 18 到 30 岁' }
+        });
+      }
+    );
+
+    setTimeout(() => done(), 250);
+  });
+
+  it('should be corrent for nested object', done => {
+    expect.assertions(2);
+
+    const model1 = SchemaModel({
+      id: NumberType().isRequired('该字段不能为空'),
+      name: StringType().isRequired('用户名不能为空'),
+      info: ObjectType().shape({
+        email: StringType().isEmail('应该是一个 email'),
+        age: NumberType().min(18, '年龄应该大于18岁')
+      })
+    });
+
+    model1.check(
+      {
+        id: 1,
+        name: 'schema-type',
+        info: {
+          email: 'schema-type@gmail.com',
+          age: 17
+        }
+      },
+      result => {
+        expect(result).toMatchObject({
+          id: { hasError: false },
+          name: { hasError: false },
+          info: { hasError: true, errorMessage: '年龄应该大于18岁' }
+        });
+      }
+    );
+
+    const model2 = SchemaModel({
+      id: NumberType().isRequired('该字段不能为空'),
+      name: StringType().isRequired('用户名不能为空'),
+      'info.email': StringType().isEmail('应该是一个 email'),
+      'info.age': NumberType().min(18, '年龄应该大于18岁')
+    });
+
+    model2.check(
+      {
+        id: 1,
+        name: 'schema-type',
+        info: {
+          email: 'schema-type@gmail.com',
+          age: 17
+        }
+      },
+      result => {
+        expect(result).toMatchObject({
+          id: { hasError: false },
+          name: { hasError: false },
+          info: {
+            email: { hasError: false },
+            age: { hasError: true, errorMessage: '年龄应该大于18岁' }
+          }
         });
       }
     );

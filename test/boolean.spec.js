@@ -5,7 +5,7 @@ describe('@BooleanType', () => {
     it('should be initialized correctly', done => {
       expect.assertions(10);
 
-      const type = new BooleanType('it should be a boolean value');
+      const type = BooleanType('it should be a boolean value');
 
       expect(type.name).toBe('boolean');
       expect(type.required).toBe(false);

@@ -5,7 +5,7 @@ describe('@NumberType', () => {
     it('should be initialized correctly', done => {
       expect.assertions(9);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.name).toBe('number');
       expect(type.required).toBe(false);
@@ -43,7 +43,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -86,7 +86,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -129,7 +129,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -175,7 +175,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(9);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -225,7 +225,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -271,7 +271,7 @@ describe('@NumberType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new NumberType('it should be a number value');
+      const type = NumberType('it should be a number value');
 
       expect(type.rules).toHaveLength(1);
 

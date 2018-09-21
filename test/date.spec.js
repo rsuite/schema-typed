@@ -5,7 +5,7 @@ describe('@DateType', () => {
     it('should be initialized correctly', done => {
       expect.assertions(9);
 
-      const type = new DateType('it should be a date value');
+      const type = DateType('it should be a date value');
 
       expect(type.name).toBe('date');
       expect(type.required).toBe(false);
@@ -43,7 +43,7 @@ describe('@DateType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new DateType('it should be a date value');
+      const type = DateType('it should be a date value');
       const now = new Date();
 
       expect(type.rules).toHaveLength(1);
@@ -94,7 +94,7 @@ describe('@DateType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new DateType('it should be a date value');
+      const type = DateType('it should be a date value');
       const now = new Date();
 
       expect(type.rules).toHaveLength(1);
@@ -141,7 +141,7 @@ describe('@DateType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new DateType('it should be a date value');
+      const type = DateType('it should be a date value');
       const now = new Date();
 
       expect(type.rules).toHaveLength(1);

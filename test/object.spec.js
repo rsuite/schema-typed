@@ -6,7 +6,7 @@ describe('@ObjectType', () => {
     it('should be initialized correctly', done => {
       expect.assertions(9);
 
-      const type = new ObjectType('it should be an object value');
+      const type = ObjectType('it should be an object value');
 
       expect(type.name).toBe('object');
       expect(type.required).toBe(false);
@@ -44,13 +44,13 @@ describe('@ObjectType', () => {
     it('should be correct when object is plain object', done => {
       expect.assertions(11);
 
-      const type = new ObjectType('it should be an object value');
+      const type = ObjectType('it should be an object value');
 
       expect(type.rules).toHaveLength(1);
 
       type.shape({
-        email: new StringType('it should be string value').isEmail('it should be email address'),
-        color: new StringType('it should be string value').isHex('it should be hex color value')
+        email: StringType('it should be string value').isEmail('it should be email address'),
+        color: StringType('it should be string value').isHex('it should be hex color value')
       });
 
       expect(type.rules).toHaveLength(2);

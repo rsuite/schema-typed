@@ -6,7 +6,7 @@ describe('@ArrayType', () => {
     it('should be initialized correctly', done => {
       expect.assertions(9);
 
-      const type = new ArrayType('it should be an array value');
+      const type = ArrayType('it should be an array value');
 
       expect(type.name).toBe('array');
       expect(type.required).toBe(false);
@@ -44,7 +44,7 @@ describe('@ArrayType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new ArrayType('it should be an array value');
+      const type = ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -90,7 +90,7 @@ describe('@ArrayType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new ArrayType('it should be an array value');
+      const type = ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -136,7 +136,7 @@ describe('@ArrayType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new ArrayType('it should be an array value');
+      const type = ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -182,7 +182,7 @@ describe('@ArrayType', () => {
     it('should be correct', done => {
       expect.assertions(8);
 
-      const type = new ArrayType('it should be an array value');
+      const type = ArrayType('it should be an array value');
 
       expect(type.rules).toHaveLength(1);
 
@@ -228,8 +228,8 @@ describe('@ArrayType', () => {
     it('should be correct', done => {
       expect.assertions(11);
 
-      const type = new ArrayType('it should be an array value');
-      const str = new StringType('it should be an string value');
+      const type = ArrayType('it should be an array value');
+      const str = StringType('it should be an string value');
 
       expect(type.rules).toHaveLength(1);
 
