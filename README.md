@@ -504,6 +504,14 @@ ObjectType().addRule((value, data) => {
 }, 'This value is required when A is equal to 10');
 ```
 
+## ⚠️ Notes
+
+Check priority:
+
+- 1.isRequired
+- 2.addRule
+- 3.Predefined rules (if there is no isRequired, value is empty, the rule is not executed)
+
 [readm-cn]: https://github.com/rsuite/schema-typed/blob/master/README_zh.md
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
 [npm]: https://www.npmjs.com/package/schema-typed
