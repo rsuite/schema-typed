@@ -7,7 +7,7 @@ class ObjectType extends Type {
 
   constructor(errorMessage = 'Please enter a valid `object`') {
     super('object');
-    super.addRule(v => typeof v === 'object', errorMessage);
+    super.pushCheck(v => typeof v === 'object', errorMessage);
   }
 
   /**
@@ -18,7 +18,7 @@ class ObjectType extends Type {
    * })
    */
   shape(types) {
-    super.addRule(values => {
+    super.pushCheck(values => {
       let valids = Object.entries(types).map(item => {
         let key = item[0];
         let type = item[1];
