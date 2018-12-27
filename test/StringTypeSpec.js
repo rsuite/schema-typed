@@ -7,7 +7,7 @@ describe('#StringType', () => {
     const schema = SchemaModel({
       str: StringType().minLength(5, ''),
       cjkStr: StringType().minLength(5, ''),
-      emojiStr: StringType().minLength(5, ''),
+      emojiStr: StringType().minLength(5, '')
     });
 
     schema.checkForField('str', 'abcde').hasError.should.equal(false);
@@ -16,13 +16,13 @@ describe('#StringType', () => {
     schema.checkForField('cjkStr', '岁寒三友').hasError.should.equal(true);
     schema.checkForField('emojiStr', '👌👍🐱🐶🐸').hasError.should.equal(false);
     schema.checkForField('emojiStr', '👌👍🐱🐶').hasError.should.equal(true);
-  })
+  });
 
   it('Should check min string length', () => {
     const schema = SchemaModel({
       str: StringType().maxLength(4, ''),
       cjkStr: StringType().maxLength(4, ''),
-      emojiStr: StringType().maxLength(4, ''),
+      emojiStr: StringType().maxLength(4, '')
     });
 
     schema.checkForField('str', 'abcde').hasError.should.equal(true);
@@ -31,5 +31,20 @@ describe('#StringType', () => {
     schema.checkForField('cjkStr', '岁寒三友').hasError.should.equal(false);
     schema.checkForField('emojiStr', '👌👍🐱🐶🐸').hasError.should.equal(true);
     schema.checkForField('emojiStr', '👌👍🐱🐶').hasError.should.equal(false);
-  })
+  });
+
+  it('Should be able to customize the rules', () => {
+    const schema = SchemaModel({
+      str: StringType()
+        .maxLength(4, 'error1')
+        .addRule(value => value !== '123', 'error2')
+    });
+
+    schema.checkForField('str', '12').hasError.should.equal(false);
+
+    schema.checkForField('str', '123').hasError.should.equal(true);
+    schema.checkForField('str', '123').errorMessage.should.equal('error2');
+    schema.checkForField('str', 'abcde').hasError.should.equal(true);
+    schema.checkForField('str', 'abcde').errorMessage.should.equal('error1');
+  });
 });

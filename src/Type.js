@@ -16,6 +16,23 @@ function checkRequired(value) {
   return !isEmpty(value);
 }
 
+function getCheck(data) {
+  return (value, rules) => {
+    for (let i = 0; i < rules.length; i += 1) {
+      let { onValid, errorMessage } = rules[i];
+      let checkResult = onValid(value, data);
+
+      if (typeof checkResult === 'boolean' && !checkResult) {
+        return { hasError: true, errorMessage };
+      } else if (typeof checkResult === 'object') {
+        return checkResult;
+      }
+    }
+
+    return null;
+  };
+}
+
 class Type {
   constructor(name) {
     this.name = name;
@@ -29,31 +46,45 @@ class Type {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
 
-    for (let i = 0; i < this.rules.length; i += 1) {
-      let { onValid, errorMessage } = this.rules[i];
+    const checkValue = getCheck(data);
+    let rules = [];
+    let customRules = [];
+    let checkStatus = null;
 
-      if (!this.required && isEmpty(value)) {
-        return { hasError: false };
+    this.rules.forEach(item => {
+      if (item.customRule) {
+        customRules.push(item);
+      } else {
+        rules.push(item);
       }
+    });
 
-      let checkStatus = onValid(value, data);
+    checkStatus = checkValue(value, customRules);
+    if (checkStatus !== null) {
+      return checkStatus;
+    }
 
-      if (typeof checkStatus === 'boolean' && !checkStatus) {
-        return { hasError: true, errorMessage };
-      } else if (typeof checkStatus === 'object') {
-        return checkStatus;
-      }
+    if (!this.required && isEmpty(value)) {
+      return { hasError: false };
+    }
+
+    checkStatus = checkValue(value, rules);
+    if (checkStatus !== null) {
+      return checkStatus;
     }
 
     return { hasError: false };
   }
-
-  addRule(onValid, errorMessage) {
+  pushCheck(onValid, errorMessage, customRule) {
     errorMessage = errorMessage || this.rules[0].errorMessage;
     this.rules.push({
       onValid,
-      errorMessage
+      errorMessage,
+      customRule
     });
+  }
+  addRule(onValid, errorMessage) {
+    this.pushCheck(onValid, errorMessage, true);
     return this;
   }
   isRequired(errorMessage) {
