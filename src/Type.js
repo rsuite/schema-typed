@@ -2,9 +2,9 @@ function isEmpty(value) {
   return typeof value === 'undefined' || value === null || value === '';
 }
 
-function checkRequired(value) {
+function checkRequired(value, trim) {
   // String trim
-  if (typeof value === 'string') {
+  if (trim && typeof value === 'string') {
     value = value.replace(/(^\s*)|(\s*$)/g, '');
   }
 
@@ -38,11 +38,12 @@ class Type {
     this.name = name;
     this.required = false;
     this.requiredMessage = '';
+    this.trim = false;
     this.rules = [];
   }
 
   check(value, data) {
-    if (this.required && !checkRequired(value)) {
+    if (this.required && !checkRequired(value, this.trim)) {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
 
@@ -87,8 +88,9 @@ class Type {
     this.pushCheck(onValid, errorMessage, true);
     return this;
   }
-  isRequired(errorMessage) {
+  isRequired(errorMessage, trim = true) {
     this.required = true;
+    this.trim = trim;
     this.requiredMessage = errorMessage;
     return this;
   }

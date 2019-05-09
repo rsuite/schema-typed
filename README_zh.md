@@ -233,7 +233,7 @@ model.checkForField('username', 'root');
 
 ### StringType
 
-- isRequired(errorMessage: string)
+- isRequired(errorMessage: string, trim: boolean = true)
 
 ```js
 StringType().isRequired('该字段不能为空');
