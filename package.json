@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint src  *.js",
     "build": "./node_modules/.bin/babel -d lib/ src/",
-    "prepublish": "npm run build",
+    "prepublish": "npm run test && npm run build",
     "tdd": "mocha --watch --compilers js:babel-register test/*Spec.js ",
     "test-once": "mocha --compilers js:babel-register test/*Spec.js ",
     "test": "npm run lint && npm run test-once"
