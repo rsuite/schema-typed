@@ -233,7 +233,7 @@ const model = SchemaModel({
 model.checkForField('username', 'root');
 ```
 
-### StringType
+### StringType(errorMessage: string)
 
 - isRequired(errorMessage: string, trim: boolean = true)
 
@@ -313,7 +313,7 @@ StringType().minLength(6, 'Minimum 6 characters required');
 StringType().maxLength(30, 'The maximum is only 30 characters.');
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 StringType().addRule((value, data) => {
@@ -321,7 +321,7 @@ StringType().addRule((value, data) => {
 }, 'Please enter a legal character.');
 ```
 
-### NumberType
+### NumberType(errorMessage: string)
 
 - isRequired(errorMessage: string)
 
@@ -365,7 +365,7 @@ NumberType().min(18, 'Minimum 18');
 NumberType().max(40, 'Maximum 40');
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 NumberType().addRule((value, data) => {
@@ -373,7 +373,7 @@ NumberType().addRule((value, data) => {
 }, 'Please enter a valid number');
 ```
 
-### ArrayType
+### ArrayType(errorMessage: string)
 
 - isRequired(errorMessage: string)
 
@@ -411,7 +411,7 @@ ArrayType().unrepeatable('Duplicate options cannot appear');
 ArrayType().of(StringType().isEmail(), 'wrong format');
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 ArrayType().addRule((value, data) => {
@@ -419,7 +419,7 @@ ArrayType().addRule((value, data) => {
 }, 'Good things are in pairs');
 ```
 
-### DateType
+### DateType(errorMessage: string)
 
 - isRequired(errorMessage: string)
 
@@ -449,7 +449,7 @@ DateType().min(new Date('08/01/2017'), 'Minimum date 08/01/2017');
 DateType().max(new Date('08/30/2017'), 'Maximum date 08/30/2017');
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 DateType().addRule((value, data) => {
@@ -457,7 +457,7 @@ DateType().addRule((value, data) => {
 }, 'Can only choose Tuesday');
 ```
 
-### ObjectType
+### ObjectType(errorMessage: string)
 
 - isRequired(errorMessage: string)
 
@@ -474,7 +474,7 @@ ObjectType().shape({
 });
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 ObjectType().addRule((value, data) => {
@@ -485,7 +485,7 @@ ObjectType().addRule((value, data) => {
 }, 'Id and email must have one that cannot be empty');
 ```
 
-### BooleanType
+### BooleanType(errorMessage: string)
 
 - isRequired(errorMessage: string)
 
@@ -493,7 +493,7 @@ ObjectType().addRule((value, data) => {
 BooleanType().isRequired('This field required');
 ```
 
-- addRule(onValid: Function, errorMessage: string)
+- addRule(onValid: Function, errorMessage: string, priority: boolean)
 
 ```js
 ObjectType().addRule((value, data) => {
@@ -506,10 +506,15 @@ ObjectType().addRule((value, data) => {
 
 ## ⚠️ Notes
 
-Check priority:
+Default check priority:
 
 - 1.isRequired
-- 2.addRule
+- 2.All other checks are executed in sequence
+
+If the third argument to addRule is `true`, the priority of the check is as follows:
+
+- 1.addRule
+- 2.isRequired
 - 3.Predefined rules (if there is no isRequired, value is empty, the rule is not executed)
 
 [readm-cn]: https://github.com/rsuite/schema-typed/blob/master/README_zh.md

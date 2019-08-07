@@ -61,6 +61,7 @@ class Type {
     });
 
     checkStatus = checkValue(value, customRules);
+
     if (checkStatus !== null) {
       return checkStatus;
     }
@@ -70,6 +71,7 @@ class Type {
     }
 
     checkStatus = checkValue(value, rules);
+
     if (checkStatus !== null) {
       return checkStatus;
     }
@@ -84,8 +86,8 @@ class Type {
       customRule
     });
   }
-  addRule(onValid, errorMessage) {
-    this.pushCheck(onValid, errorMessage, true);
+  addRule(onValid, errorMessage, priority) {
+    this.pushCheck(onValid, errorMessage, priority);
     return this;
   }
   isRequired(errorMessage, trim = true) {
