@@ -1,6 +1,6 @@
 {
   "name": "schema-typed",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "scripts": {
