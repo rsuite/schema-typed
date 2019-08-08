@@ -6,10 +6,9 @@ describe('#Type', () => {
   it('Should be the same password twice', () => {
     const schema = SchemaModel({
       password1: StringType().isRequired('Password is required'),
-      password2: StringType().addRule(
-        (value, data) => value === data.password1,
-        'The two passwords do not match'
-      )
+      password2: StringType()
+        .addRule((value, data) => value === data.password1, 'The two passwords do not match')
+        .isRequired('Password is required')
     });
 
     schema
@@ -28,6 +27,7 @@ describe('#Type', () => {
       password2: StringType()
         .addRule((value, data) => value !== 'root', 'Password cannot be root')
         .addRule((value, data) => value === data.password1, 'The two passwords do not match')
+        .isRequired('Password is required')
     });
 
     schema.check({ password1: 'root', password2: 'root' }).password2.hasError.should.equal(true);
@@ -37,10 +37,30 @@ describe('#Type', () => {
 
     schema
       .check({ password1: '123456', password2: '' })
-      .password2.errorMessage.should.equal('The two passwords do not match');
+      .password2.errorMessage.should.equal('Password is required');
     schema
       .check({ password1: '123456', password2: '123' })
       .password2.errorMessage.should.equal('The two passwords do not match');
+  });
+
+  it('Should have the correct priority', () => {
+    const schema = SchemaModel({
+      name: StringType()
+        .isEmail('error1')
+        .addRule(() => false, 'error2')
+    });
+
+    schema.check({ name: 'a' }).name.hasError.should.equal(true);
+    schema.check({ name: 'a' }).name.errorMessage.should.equal('error1');
+
+    const schema2 = SchemaModel({
+      name: StringType()
+        .isEmail('error1')
+        .addRule(() => false, 'error2', true)
+    });
+
+    schema2.check({ name: 'a' }).name.hasError.should.equal(true);
+    schema2.check({ name: 'a' }).name.errorMessage.should.equal('error2');
   });
 
   it('Should be isRequired with a higher priority than addRule', () => {
