@@ -7,11 +7,11 @@ class DateType extends Type {
 
   constructor(errorMessage = 'Please enter a valid date') {
     super('date');
-    super.pushCheck(value => !/Invalid|NaN/.test(new Date(value)), errorMessage);
+    super.pushRule(value => !/Invalid|NaN/.test(new Date(value)), errorMessage);
   }
 
   range(min, max, errorMessage) {
-    super.pushCheck(
+    super.pushRule(
       value => new Date(value) >= new Date(min) && new Date(value) <= new Date(max),
       errorMessage
     );
@@ -19,12 +19,12 @@ class DateType extends Type {
   }
 
   min(min, errorMessage) {
-    super.pushCheck(value => new Date(value) >= new Date(min), errorMessage);
+    super.pushRule(value => new Date(value) >= new Date(min), errorMessage);
     return this;
   }
 
   max(max, errorMessage) {
-    super.pushCheck(value => new Date(value) <= new Date(max), errorMessage);
+    super.pushRule(value => new Date(value) <= new Date(max), errorMessage);
     return this;
   }
 }

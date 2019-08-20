@@ -7,26 +7,26 @@ class ArrayType extends Type {
 
   constructor(errorMessage = 'Please enter a valid array') {
     super('array');
-    super.pushCheck(v => Array.isArray(v), errorMessage);
+    super.pushRule(v => Array.isArray(v), errorMessage);
   }
 
   rangeLength(minLength, maxLength, errorMessage) {
-    super.pushCheck(value => value.length >= minLength && value.length <= maxLength, errorMessage);
+    super.pushRule(value => value.length >= minLength && value.length <= maxLength, errorMessage);
     return this;
   }
 
   minLength(minLength, errorMessage) {
-    super.pushCheck(value => value.length >= minLength, errorMessage);
+    super.pushRule(value => value.length >= minLength, errorMessage);
     return this;
   }
 
   maxLength(maxLength, errorMessage) {
-    super.pushCheck(value => value.length <= maxLength, errorMessage);
+    super.pushRule(value => value.length <= maxLength, errorMessage);
     return this;
   }
 
   unrepeatable(errorMessage) {
-    super.pushCheck(items => {
+    super.pushRule(items => {
       let hash = {};
       /* eslint-disable */
       for (let i in items) {
@@ -48,7 +48,7 @@ class ArrayType extends Type {
    * )
    */
   of(type, errorMessage) {
-    super.pushCheck(items => {
+    super.pushRule(items => {
       let valids = items.map(value => type.check(value));
       let errors = valids.filter(item => item.hasError) || [];
 
