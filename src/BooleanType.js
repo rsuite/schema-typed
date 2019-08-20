@@ -7,7 +7,7 @@ class BooleanType extends Type {
 
   constructor(errorMessage = 'Please enter a valid `boolean`') {
     super('boolean');
-    super.pushCheck(v => typeof v === 'boolean', errorMessage);
+    super.pushRule(v => typeof v === 'boolean', errorMessage);
   }
 }
 
