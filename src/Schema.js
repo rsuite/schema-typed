@@ -14,19 +14,47 @@ export class Schema {
   }
 
   checkForField(fieldName, fieldValue, data) {
-    let fieldChecker = this.schema[fieldName];
+    const fieldChecker = this.schema[fieldName];
     if (!fieldChecker) {
-      return { hasError: false }; // fieldValue can be anything if no schema defined
+      // fieldValue can be anything if no schema defined
+      return { hasError: false };
     }
     return fieldChecker.check(fieldValue, data);
   }
 
   check(data) {
-    let checkResult = {};
+    const checkResult = {};
     Object.keys(this.schema).forEach(key => {
       checkResult[key] = this.checkForField(key, data[key], data);
     });
     return checkResult;
+  }
+
+  checkForFieldAsync(fieldName, fieldValue, data) {
+    const fieldChecker = this.schema[fieldName];
+    if (!fieldChecker) {
+      // fieldValue can be anything if no schema defined
+      return Promise.resolve({ hasError: false });
+    }
+    return fieldChecker.checkAsync(fieldValue, data);
+  }
+
+  checkAsync(data) {
+    const checkResult = {};
+    const promises = [];
+    const keys = [];
+
+    Object.keys(this.schema).forEach(key => {
+      keys.push(key);
+      promises.push(this.checkForFieldAsync(key, data[key], data));
+    });
+
+    return Promise.all(promises).then(values => {
+      for (let i = 0; i < values.length; i += 1) {
+        checkResult[keys[i]] = values[i];
+      }
+      return checkResult;
+    });
   }
 }
 

@@ -16,13 +16,13 @@ function checkRequired(value, trim) {
   return !isEmpty(value);
 }
 
-function getCheck(data) {
+function createValidator(data) {
   return (value, rules) => {
     for (let i = 0; i < rules.length; i += 1) {
-      let { onValid, errorMessage } = rules[i];
-      let checkResult = onValid(value, data);
+      const { onValid, errorMessage } = rules[i];
+      const checkResult = onValid(value, data);
 
-      if (typeof checkResult === 'boolean' && !checkResult) {
+      if (checkResult === false) {
         return { hasError: true, errorMessage };
       } else if (typeof checkResult === 'object') {
         return checkResult;
@@ -33,6 +33,28 @@ function getCheck(data) {
   };
 }
 
+function createValidatorAsync(data) {
+  function check(errorMessage) {
+    return checkResult => {
+      if (checkResult === false) {
+        return { hasError: true, errorMessage };
+      } else if (typeof checkResultAsync === 'object') {
+        return checkResult;
+      }
+      return null;
+    };
+  }
+
+  return (value, rules) => {
+    const promises = rules.map(rule => {
+      const { onValid, errorMessage } = rule;
+      return Promise.resolve(onValid(value, data)).then(check(errorMessage));
+    });
+
+    return Promise.all(promises).then(results => results.find(item => item && item.hasError));
+  };
+}
+
 class Type {
   constructor(name) {
     this.name = name;
@@ -40,29 +62,17 @@ class Type {
     this.requiredMessage = '';
     this.trim = false;
     this.rules = [];
+    this.priorityRules = []; // Priority check rule
   }
-
   check(value, data) {
     if (this.required && !checkRequired(value, this.trim)) {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
 
-    const checkValue = getCheck(data);
-    let rules = [];
-    let customRules = [];
-    let checkStatus = null;
+    const validator = createValidator(data);
+    const checkStatus = validator(value, this.priorityRules);
 
-    this.rules.forEach(item => {
-      if (item.customRule) {
-        customRules.push(item);
-      } else {
-        rules.push(item);
-      }
-    });
-
-    checkStatus = checkValue(value, customRules);
-
-    if (checkStatus !== null) {
+    if (checkStatus) {
       return checkStatus;
     }
 
@@ -70,24 +80,48 @@ class Type {
       return { hasError: false };
     }
 
-    checkStatus = checkValue(value, rules);
+    return validator(value, this.rules) || { hasError: false };
+  }
 
-    if (checkStatus !== null) {
-      return checkStatus;
+  checkAsync(value, data) {
+    if (this.required && !checkRequired(value, this.trim)) {
+      return Promise.resolve({ hasError: true, errorMessage: this.requiredMessage });
     }
 
-    return { hasError: false };
+    const validator = createValidatorAsync(data);
+
+    return new Promise(resolve =>
+      validator(value, this.priorityRules)
+        .then(checkStatus => {
+          if (checkStatus) {
+            resolve(checkStatus);
+          }
+        })
+        .then(() => {
+          if (!this.required && isEmpty(value)) {
+            resolve({ hasError: false });
+          }
+        })
+        .then(() => validator(value, this.rules))
+        .then(checkStatus => {
+          if (checkStatus) {
+            resolve(checkStatus);
+          }
+          return { hasError: false };
+        })
+    );
   }
-  pushCheck(onValid, errorMessage, customRule) {
+  pushRule(onValid, errorMessage, priority) {
     errorMessage = errorMessage || this.rules[0].errorMessage;
-    this.rules.push({
-      onValid,
-      errorMessage,
-      customRule
-    });
+
+    if (priority) {
+      this.priorityRules.push({ onValid, errorMessage });
+    } else {
+      this.rules.push({ onValid, errorMessage });
+    }
   }
   addRule(onValid, errorMessage, priority) {
-    this.pushCheck(onValid, errorMessage, priority);
+    this.pushRule(onValid, errorMessage, priority);
     return this;
   }
   isRequired(errorMessage, trim = true) {

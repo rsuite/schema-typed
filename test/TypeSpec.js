@@ -61,6 +61,12 @@ describe('#Type', () => {
 
     schema2.check({ name: 'a' }).name.hasError.should.equal(true);
     schema2.check({ name: 'a' }).name.errorMessage.should.equal('error2');
+
+    const schema3 = SchemaModel({
+      name: StringType().addRule(() => true, 'error2', true)
+    });
+
+    schema3.check({ name: 'a' }).name.hasError.should.equal(false);
   });
 
   it('Should be isRequired with a higher priority than addRule', () => {
@@ -82,5 +88,95 @@ describe('#Type', () => {
 
     schema2.checkForField('str', '12').hasError.should.equal(true);
     schema2.checkForField('str', '12').errorMessage.should.equal('error');
+  });
+
+  it('Should call asynchronous check', done => {
+    const schema = SchemaModel({
+      email: StringType('error1').isEmail('error2'),
+      name: StringType().addRule((value, data) => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(false);
+          }, 1000);
+        });
+      }, 'error1')
+    });
+
+    schema.checkAsync({ name: 'a', email: 'a' }).then(status => {
+      if (
+        status.name.hasError &&
+        status.name.errorMessage === 'error1' &&
+        status.email.hasError &&
+        status.email.errorMessage === 'error2'
+      ) {
+        done();
+      }
+    });
+  });
+
+  it('Should call asynchronous check', done => {
+    const schema = SchemaModel({
+      email: StringType('error1').isEmail('error2')
+    });
+
+    schema.checkAsync({ name: 'a', email: 'a' }).then(status => {
+      if (status.email.hasError && status.email.errorMessage === 'error2') {
+        done();
+      }
+    });
+  });
+
+  it('Should call asynchronous checkForFieldAsync', done => {
+    const schema = SchemaModel({
+      name: StringType().addRule((value, data) => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(false);
+          }, 500);
+        });
+      }, 'error1')
+    });
+
+    schema.checkForFieldAsync('name', 'a').then(status => {
+      if (status.hasError && status.errorMessage === 'error1') {
+        done();
+      }
+    });
+  });
+
+  it('Should call asynchronous checkForFieldAsync', done => {
+    const schema = SchemaModel({
+      email: StringType('error1').isEmail('error2')
+    });
+
+    schema.checkForFieldAsync('email', 'a').then(status => {
+      if (status.hasError && status.errorMessage === 'error2') {
+        done();
+      }
+    });
+  });
+
+  it('Should call asynchronous checkForFieldAsync', done => {
+    const schema = SchemaModel({
+      name: StringType()
+        .addRule((value, data) => {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve(false);
+            }, 200);
+          });
+        }, 'error1')
+        .addRule((value, data) => {
+          return new Promise(resolve => {
+            resolve(false);
+          });
+        }, 'error2')
+    });
+
+    schema.checkForFieldAsync('name', 'a').then(status => {
+      if (status.hasError && status.errorMessage === 'error1') {
+        done();
+      }
+    });
   });
 });

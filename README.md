@@ -114,6 +114,46 @@ model.check({ password1: '123456', password2: 'root' });
 **/
 ```
 
+## Custom verification - Asynchronous check
+
+For example, verify that the mailbox is duplicated
+
+```js
+function asyncCheckEmail(email) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (email === 'foo@domain.com') {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    }, 500);
+  });
+}
+
+const model = SchemaModel({
+  email: StringType()
+    .isEmail('Please input the correct email address')
+    .addRule((value, data) => {
+      return asyncCheckEmail(value);
+    }, 'Email address already exists')
+    .isRequired('This field cannot be empty')
+});
+
+model.checkAsync({ email: 'foo@domain.com' }).then(result => {
+  console.log(result);
+});
+
+/**
+{
+  email: {
+    hasError: true,
+    errorMessage: 'Email address already exists'
+  }
+};
+**/
+```
+
 ## Validate nested objects
 
 Validate nested objects, which can be defined using the `ObjectType().shape` method. E.g:
@@ -222,6 +262,30 @@ model.check({
 });
 ```
 
+- checkAsync(data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType()
+    .isRequired('This field required')
+    .addRule(value => {
+      return new Promise(resolve => {
+        // Asynchronous processing logic
+      });
+    }, 'Username already exists'),
+  email: StringType().isEmail('Please input the correct email address')
+});
+
+model
+  .checkAsync({
+    username: 'root',
+    email: 'root@email.com'
+  })
+  .then(result => {
+    // Data verification result
+  });
+```
+
 - checkForField(fieldName: string, fieldValue: any, data: Object)
 
 ```js
@@ -231,6 +295,25 @@ const model = SchemaModel({
 });
 
 model.checkForField('username', 'root');
+```
+
+- checkForFieldAsync(fieldName: string, fieldValue: any, data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType()
+    .isRequired('This field required')
+    .addRule(value => {
+      return new Promise(resolve => {
+        // Asynchronous processing logic
+      });
+    }, 'Username already exists'),
+  email: StringType().isEmail('Please input the correct email address')
+});
+
+model.checkForFieldAsync('username', 'root').then(result => {
+  // Data verification result
+});
 ```
 
 ### StringType(errorMessage: string)

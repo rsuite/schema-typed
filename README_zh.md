@@ -112,6 +112,46 @@ model.check({ password1: '123456', password2: 'root' });
 **/
 ```
 
+## 自定义验证 - 异步校验
+
+例如，校验邮箱是否重复
+
+```js
+function asyncCheckEmail(email) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      if (email === 'foo@domain.com') {
+        resolve(false);
+      } else {
+        resolve(true);
+      }
+    }, 500);
+  });
+}
+
+const model = SchemaModel({
+  email: StringType()
+    .isEmail('请输入正确的邮箱')
+    .addRule((value, data) => {
+      return asyncCheckEmail(value);
+    }, '邮箱地址已经存在')
+    .isRequired('该字段不能为空')
+});
+
+model.checkAsync({ email: 'foo@domain.com' }).then(result => {
+  console.log(result);
+});
+
+/**
+{
+  email: {
+    hasError: true,
+    errorMessage: '邮箱地址已经存在'
+  }
+};
+**/
+```
+
 ## 嵌套对象
 
 对于复杂的嵌套的 Object , 可以使用 ObjectType().shape 方法进行定义，比如：
@@ -220,6 +260,30 @@ model.check({
 });
 ```
 
+- checkAsync(data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType()
+    .isRequired('该字段不能为空')
+    .addRule(value => {
+      return new Promise(resolve => {
+        // 异步处理逻辑
+      });
+    }, '用户名已经存在'),
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+model
+  .checkAsync({
+    username: 'root',
+    email: 'root@email.com'
+  })
+  .then(result => {
+    // result 校验结果
+  });
+```
+
 - checkForField(fieldName: string, fieldValue: any, data: Object)
 
 ```js
@@ -229,6 +293,25 @@ const model = SchemaModel({
 });
 
 model.checkForField('username', 'root');
+```
+
+- checkForFieldAsync(fieldName: string, fieldValue: any, data: Object)
+
+```js
+const model = SchemaModel({
+  username: StringType()
+    .isRequired('该字段不能为空')
+    .addRule(value => {
+      return new Promise(resolve => {
+        // 异步处理逻辑
+      });
+    }, '用户名已经存在'),
+  email: StringType().isEmail('请输入正确的邮箱')
+});
+
+model.checkForFieldAsync('username', 'root').then(result => {
+  // result 校验结果
+});
 ```
 
 ### StringType
@@ -502,9 +585,18 @@ ObjectType().addRule((value, data) => {
 }, '当 A 等于 10 的时候，该值必须为空');
 ```
 
-## License
+## ⚠️ 注意事项
 
-`schema-typed` is [MIT licensed](https://github.com/rsuite/schema-typed/blob/master/LICENSE).
+默认检查优先级：
+
+- 1.isRequired
+- 2.所有其他校验规则按顺序执行
+
+如果 `addRule` 的第三个参数是 `true`，则检查的优先级如下：
+
+- 1.addRule
+- 2.isRequired
+- 3.预定义规则（如果未设置 `isRequired`，并且值为空，则不执行规则）
 
 [readm-en]: https://github.com/rsuite/schema-typed/blob/master/README.md
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
