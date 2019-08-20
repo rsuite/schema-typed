@@ -126,7 +126,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync', done => {
+  it('Should call asynchronous checkForFieldAsync and verify pass', done => {
     const schema = SchemaModel({
       name: StringType().addRule((value, data) => {
         return new Promise(resolve => {
@@ -144,7 +144,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync', done => {
+  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2')
     });
@@ -156,7 +156,25 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync', done => {
+  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+    const schema = SchemaModel({
+      name: StringType().addRule((value, data) => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(true);
+          }, 200);
+        });
+      }, 'error1')
+    });
+
+    schema.checkForFieldAsync('name', 'a').then(status => {
+      if (status.hasError === false) {
+        done();
+      }
+    });
+  });
+
+  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType()
         .addRule((value, data) => {

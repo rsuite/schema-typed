@@ -107,7 +107,7 @@ class Type {
           if (checkStatus) {
             resolve(checkStatus);
           }
-          return { hasError: false };
+          resolve({ hasError: false });
         })
     );
   }
