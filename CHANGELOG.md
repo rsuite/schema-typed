@@ -1,3 +1,9 @@
+# 1.2.2
+
+> Aug 30, 2019
+
+- **Bugfix**: Fix an issue where addRule is not called
+
 # 1.2.0
 
 > Aug 20, 2019
