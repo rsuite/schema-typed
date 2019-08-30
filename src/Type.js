@@ -24,7 +24,7 @@ function createValidator(data) {
 
       if (checkResult === false) {
         return { hasError: true, errorMessage };
-      } else if (typeof checkResult === 'object') {
+      } else if (typeof checkResult === 'object' && checkResult.hasError) {
         return checkResult;
       }
     }
@@ -38,7 +38,7 @@ function createValidatorAsync(data) {
     return checkResult => {
       if (checkResult === false) {
         return { hasError: true, errorMessage };
-      } else if (typeof checkResultAsync === 'object') {
+      } else if (typeof checkResult === 'object' && checkResult.hasError) {
         return checkResult;
       }
       return null;

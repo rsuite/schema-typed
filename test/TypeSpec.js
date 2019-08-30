@@ -197,4 +197,44 @@ describe('#Type', () => {
       }
     });
   });
+
+  it('Should check the wrong verification object', () => {
+    const schema = SchemaModel({
+      name: StringType()
+        .isRequired('This field is required.')
+        .addRule(() => ({
+          hasError: false,
+          errorMessage: 'No Error'
+        }))
+        .addRule(() => ({
+          hasError: true,
+          errorMessage: 'Error!!'
+        }))
+    });
+
+    const checkResult = schema.checkForField('name', 'a');
+    checkResult.hasError.should.equal(true);
+    checkResult.errorMessage.should.equal('Error!!');
+  });
+
+  it('Should check the wrong verification object by Async', done => {
+    const schema = SchemaModel({
+      name: StringType()
+        .isRequired('This field is required.')
+        .addRule(() => ({
+          hasError: false,
+          errorMessage: 'No Error'
+        }))
+        .addRule(() => ({
+          hasError: true,
+          errorMessage: 'Error!!'
+        }))
+    });
+
+    schema.checkForFieldAsync('name', 'a').then(checkResult => {
+      if (checkResult.hasError && checkResult.errorMessage === 'Error!!') {
+        done();
+      }
+    });
+  });
 });
