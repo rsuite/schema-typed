@@ -1,3 +1,7 @@
+# 1.3.0
+
+- Added support for ESM
+
 # 1.2.2
 
 > Aug 30, 2019
