@@ -38,7 +38,7 @@ class StringType extends Type {
   }
 
   isOneOf(strArr, errorMessage) {
-    super.pushRule(v => strArr.includes(v), errorMessage);
+    super.pushRule(v => !!~strArr.indexOf(v), errorMessage);
     return this;
   }
 
