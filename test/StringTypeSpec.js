@@ -62,4 +62,13 @@ describe('#StringType', () => {
     schema.checkForField('str', 'abcde').hasError.should.equal(true);
     schema.checkForField('str', 'abcde').errorMessage.should.equal('error1');
   });
+
+  it('Should be one of value in array', () => {
+    const schema = SchemaModel({
+      str: StringType().isOneOf(['A', 'B', 'C'], 'error')
+    })
+    schema.checkForField('str', 'A').hasError.should.equal(false)
+    schema.checkForField('str', 'D').hasError.should.equal(true)
+    schema.checkForField('str', 'D').errorMessage.should.equal('error')
+  })
 });
