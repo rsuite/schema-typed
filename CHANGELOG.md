@@ -1,3 +1,7 @@
+# 1.3.1
+
+- Fixed an issue where `isOneOf` was not valid in `StringType` (#18)
+
 # 1.3.0
 
 - Added support for ESM
