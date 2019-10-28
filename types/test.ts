@@ -16,12 +16,12 @@ interface PassObj {s: string}
 interface Pass {n: number, b: boolean, s: string, d: Date, a: Array<string>, o: PassObj }
 
 const passSchema = new Schema<Pass>({
-    n: NumberType<Pass>(),
-    b: BooleanType<Pass>(),
-    s: StringType<Pass>(),
-    d: DateType<Pass>(),
-    a: ArrayType<string, Pass>(),
-    o: ObjectType<PassObj, Pass>(),
+    n: NumberType(),
+    b: BooleanType(),
+    s: StringType(),
+    d: DateType(),
+    a: ArrayType<string>(),
+    o: ObjectType<PassObj>(),
 });
 
 passSchema.check({a: ['a'], b: false, d: new Date(), n: 0, o: {s: ""}, s: ""});
@@ -37,6 +37,38 @@ SchemaModel.combine<{x: string, y: string}>(
     new Schema<{x: string}>({x: StringType()}),
     new Schema<{y: string}>({y: StringType()}));
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PASSING SCENARIO 3: Should allows adding custom rules which have proper types on callback
+
+SchemaModel<{password1: string, password2: string}>({
+    password1: StringType(),
+    password2: StringType().addRule((value, data) => value.toLowerCase() === data.password1.toLowerCase())
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PASSING SCENARIO 4: Should allows to use custom error message type
+SchemaModel<{a: string}, number>({
+    a: StringType<{a: string}, number>().addRule(() => ({
+        hasError: true,
+        errorMessage: 500,
+    }))
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PASSING SCENARIO 5: Should allows to use NumberType on string field
+SchemaModel<{a: string}>({
+    a: NumberType<{a: string}>()
+});
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PASSING SCENARIO 6: Should allows to use DataType on string field
+SchemaModel<{a: string}>({
+    a: DateType<{a: string}>()
+});
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@ import { StringType } from './StringType';
 import { ObjectType } from './ObjectType';
 
 export type CheckType<X, T, ErrorMsgType> =
-    X extends string ? StringType<T, ErrorMsgType> | DateType<T, ErrorMsgType> :
+    X extends string ? StringType<T, ErrorMsgType> | DateType<T, ErrorMsgType> | NumberType<T, ErrorMsgType>:
         X extends number ? NumberType<T, ErrorMsgType>:
             X extends boolean ? BooleanType<T, ErrorMsgType>:
                 X extends Date ? DateType<T, ErrorMsgType>:
