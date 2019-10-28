@@ -77,14 +77,9 @@ SchemaModel<{a: string}>({
 interface F1 {a: string}
 new Schema<F1>({
     // $ExpectError
-    a: NumberType()
-    // TS2322: Type 'NumberType<F1>' is not assignable to type 'StringType<F1> | DateType<F1>'.
-    //   Type 'NumberType<F1>' is not assignable to type 'DateType<F1>'.
-    //     Types of property 'range' are incompatible.
-    //       Type '(min: number, max: number, errorMessage: string) => NumberType<F1>' is not assignable to type '(min: string | Date, max: string | Date, errorMessage: string) => DateType<F1>'.
-    //         Types of parameters 'min' and 'min' are incompatible.
-    //           Type 'string | Date' is not assignable to type 'number'.
-    //             Type 'string' is not assignable to type 'number'.
+    a: BooleanType()
+    // TS2322: Type 'BooleanType<F1, string>' is not assignable to type 'StringType<F1, string> | DateType<F1, string> | NumberType<F1, string>'.
+    //   Type 'BooleanType<F1, string>' is missing the following properties from type 'NumberType<F1, string>': isInteger, pattern, isOneOf, range, and 2 more.
 });
 
 
@@ -201,14 +196,9 @@ schemaF8.checkForFieldAsync('c', 'a');
 interface F9 {a: string}
 ObjectType<F9>().shape({
     // $ExpectError
-    a: NumberType()
-    // TS2322: Type 'NumberType<F9>' is not assignable to type 'StringType<F9> | DateType<F9>'.
-    //   Type 'NumberType<F9>' is not assignable to type 'DateType<F9>'.
-    //     Types of property 'range' are incompatible.
-    //       Type '(min: number, max: number, errorMessage: string) => NumberType<F9>' is not assignable to type '(min: string | Date, max: string | Date, errorMessage: string) => DateType<F9>'.
-    //         Types of parameters 'min' and 'min' are incompatible.
-    //           Type 'string | Date' is not assignable to type 'number'.
-    //             Type 'string' is not assignable to type 'number'.
+    a: BooleanType()
+    // TS2322: Type 'BooleanType<F9, string>' is not assignable to type 'StringType<F9, string> | DateType<F9, string> | NumberType<F9, string>'.
+    //   Type 'BooleanType<F9, string>' is missing the following properties from type 'NumberType<F9, string>': isInteger, pattern, isOneOf, range, and 2 more.
 });
 ObjectType<F9>().shape({
     // $ExpectError
