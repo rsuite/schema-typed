@@ -1,6 +1,7 @@
 import { Type } from './Type';
 
 export declare class NumberType<DataType = any, ErrorMsgType = string> extends Type<number, DataType, ErrorMsgType> {
+    name: 'number';
     constructor(errorMessage?: ErrorMsgType);
     isInteger: (errorMessage?: ErrorMsgType) => this;
     pattern: (regexp: RegExp, errorMessage?: ErrorMsgType) => this;

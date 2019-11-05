@@ -1,6 +1,7 @@
 import { Type } from './Type';
 
 export declare class BooleanType<DataType = any, ErrorMsgType = string> extends Type<boolean, DataType, ErrorMsgType> {
+    name: 'boolean';
     constructor(errorMessage?: ErrorMsgType);
 }
 

@@ -4,7 +4,8 @@ interface CheckResult<ErrorMsgType = string> {
 }
 
 declare class Type<ValueType = any, DataType = any, ErrorMsgType = string> {
-    constructor(name: PropertyKey);
+    name: string;
+    constructor(name: string);
     check: (value: ValueType, data: any) => CheckResult<ErrorMsgType>;
     addRule: (
         onValid: (value: ValueType, data: DataType) =>
