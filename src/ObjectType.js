@@ -18,6 +18,7 @@ class ObjectType extends Type {
    * })
    */
   shape(types) {
+    this.shapeType = types;
     super.pushRule(values => {
       let valids = Object.entries(types).map(item => {
         let key = item[0];
