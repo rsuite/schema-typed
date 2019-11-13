@@ -1,7 +1,7 @@
 import { Type } from './Type';
 
 export declare class DateType<DataType = any, ErrorMsgType = string> extends Type<string | Date, DataType, ErrorMsgType> {
-    name: 'date';
+    readonly name: 'date';
     constructor(errorMessage?: ErrorMsgType);
     range: (min: string | Date, max: string | Date, errorMessage?: ErrorMsgType) => this;
     min: (min: string | Date, errorMessage?: ErrorMsgType) => this;

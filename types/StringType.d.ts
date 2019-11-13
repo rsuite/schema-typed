@@ -1,7 +1,7 @@
 import { Type } from './Type';
 
 export declare class StringType<DataType = any, ErrorMsgType = string> extends Type<string, DataType, ErrorMsgType> {
-    name: 'string';
+    readonly name: 'string';
     constructor(errorMessage?: ErrorMsgType);
     containsLetter: (errorMessage?: ErrorMsgType) => this;
     containsUppercaseLetter: (errorMessage?: ErrorMsgType) => this;

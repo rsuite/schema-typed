@@ -2,7 +2,7 @@ import { CheckType } from './SchemaDeclaration';
 import { Type } from './Type';
 
 export declare class ArrayType<ValueType = any, DataType = any, ErrorMsgType = string> extends Type<ValueType, DataType, ErrorMsgType> {
-    name: 'array';
+    readonly name: 'array';
     readonly ofType: CheckType<ValueType, DataType, ErrorMsgType>;
     constructor(errorMessage?: ErrorMsgType);
     rangeLength: (minLength: number, maxLength: number, errorMessage?: ErrorMsgType) => this;
