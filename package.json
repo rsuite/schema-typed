@@ -4,14 +4,16 @@
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "module": "es/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "lint": "eslint src  *.js",
     "build": "./node_modules/.bin/babel -d lib/ src/",
     "build-es": "NODE_ENV=esm ./node_modules/.bin/babel -d es/ src/",
-    "prepublish": "npm run test && npm run build && npm run build-es",
+    "prepublish": "npm run test && npm run test-types && npm run build && npm run build-es",
     "tdd": "mocha --watch --compilers js:@babel/register test/*Spec.js ",
     "test-once": "mocha --compilers js:@babel/register test/*Spec.js ",
-    "test": "npm run lint && npm run test-once"
+    "test": "npm run lint && npm run test-once",
+    "test-types": "dtslint --expectOnly --localTs node_modules/typescript/lib types"
   },
   "repository": {
     "type": "git",
@@ -31,7 +33,8 @@
   },
   "files": [
     "lib",
-    "es"
+    "es",
+    "types"
   ],
   "homepage": "https://github.com/rsuite/schema-typed#readme",
   "devDependencies": {
@@ -60,6 +63,7 @@
     "babel-eslint": "^9.0.0",
     "chai": "^3.5.0",
     "coveralls": "^2.13.1",
+    "dtslint": "^0.9.9",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^15.0.1",
     "eslint-plugin-babel": "^3.2.0",
@@ -70,6 +74,7 @@
     "eslint-plugin-react": "^7.3.0",
     "istanbul": "^0.4.5",
     "mocha": "^2.5.3",
-    "object-flaser": "^0.1.1"
+    "object-flaser": "^0.1.1",
+    "typescript": "^3.6.4"
   }
 }

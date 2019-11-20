@@ -1,1 +1,4 @@
 src/
+types/*.json
+types/test.ts
+
