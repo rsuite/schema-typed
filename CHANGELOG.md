@@ -1,4 +1,4 @@
-# Next
+# 1.4.0
 
 - Adding the typescript types declaration in to package
 
