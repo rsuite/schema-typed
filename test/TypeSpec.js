@@ -1,6 +1,6 @@
 const should = require('chai').should();
 const schema = require('../src');
-const { StringType, SchemaModel } = schema;
+const { StringType, SchemaModel, ArrayType } = schema;
 
 describe('#Type', () => {
   it('Should be the same password twice', () => {
@@ -88,6 +88,78 @@ describe('#Type', () => {
 
     schema2.checkForField('str', '12').hasError.should.equal(true);
     schema2.checkForField('str', '12').errorMessage.should.equal('error');
+  });
+
+  it('Should be error for undefined string with isRequired', () => {
+    const schema = SchemaModel({
+      str: StringType()
+        .isRequired('required')
+    });
+    let obj = {
+      str: undefined
+    };
+    let result = schema.check(obj);
+    result.str.hasError.should.equal(true);
+  });
+
+  it('Should be error for empty string with isRequired', () => {
+    const schema = SchemaModel({
+      str: StringType()
+        .isRequired('required')
+    });
+    let obj = {
+      str: ''
+    }; 
+    let result = schema.check(obj);
+    result.str.hasError.should.equal(true);
+  });
+
+  it('Should be error for empty array with isRequired', () => {
+    const schema = SchemaModel({
+      arr: ArrayType()
+        .isRequired('required')
+    });
+    let obj = {
+      arr: []
+    };
+    let result = schema.check(obj);
+    result.arr.hasError.should.equal(true);
+  });
+
+  it('Should be without error for empty string with isRequiredOrEmpty', () => {
+    const schema = SchemaModel({
+      str: StringType()
+        .isRequiredOrEmpty('required')
+    });
+    let obj = {
+      str: ''
+    };
+    let result = schema.check(obj);
+    result.str.hasError.should.equal(false);
+  });
+
+  it('Should be without error for empty array with isRequiredOrEmpty', () => {
+    const schema = SchemaModel({
+      arr: ArrayType()
+        .isRequiredOrEmpty('required')
+    });
+    let obj = {
+      arr: []
+    };
+    let result = schema.check(obj);
+    result.arr.hasError.should.equal(false);
+  });
+
+  it('Should be error for undefined string with isRequiredOrEmpty', () => {
+    const schema = SchemaModel({
+      str: StringType()
+        .isRequiredOrEmpty('required')
+    });
+    let obj = {
+      str: undefined
+    };
+    let result = schema.check(obj);
+    result.str.hasError.should.equal(true);
   });
 
   it('Should call asynchronous check', done => {
