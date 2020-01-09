@@ -8,7 +8,8 @@
   "scripts": {
     "lint": "eslint src  *.js",
     "build": "./node_modules/.bin/babel -d lib/ src/",
-    "build-es": "NODE_ENV=esm ./node_modules/.bin/babel -d es/ src/",
+    "es": "./node_modules/.bin/babel -d es/ src/",
+    "build-es": "cross-env NODE_ENV=esm && npm run es",
     "prepublish": "npm run test && npm run test-types && npm run build && npm run build-es",
     "tdd": "mocha --watch --compilers js:@babel/register test/*Spec.js ",
     "test-once": "mocha --compilers js:@babel/register test/*Spec.js ",
@@ -63,6 +64,7 @@
     "babel-eslint": "^9.0.0",
     "chai": "^3.5.0",
     "coveralls": "^2.13.1",
+    "cross-env": "^6.0.3",
     "dtslint": "^0.9.9",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^15.0.1",
