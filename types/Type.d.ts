@@ -13,6 +13,7 @@ declare class Type<ValueType = any, DataType = any, ErrorMsgType = string> {
         errorMessage?: ErrorMsgType
     ) => this;
     isRequired: (errorMessage?: ErrorMsgType) => this;
+    isRequiredOrEmpty: (errorMessage?: ErrorMsgType) => this;
 }
 
 export { CheckResult, Type };

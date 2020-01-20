@@ -1,11 +1,17 @@
 function isEmpty(value) {
   return typeof value === 'undefined' || value === null || value === '';
 }
-
-function checkRequired(value, trim) {
+function basicEmptyCheck(value) {
+  return typeof value === 'undefined' || value === null;
+}
+function checkRequired(value, trim, emptyAllowed) {
   // String trim
   if (trim && typeof value === 'string') {
     value = value.replace(/(^\s*)|(\s*$)/g, '');
+  }
+
+  if (emptyAllowed) {
+    return !basicEmptyCheck(value);
   }
 
   // Array
@@ -61,11 +67,12 @@ class Type {
     this.required = false;
     this.requiredMessage = '';
     this.trim = false;
+    this.emptyAllowed = false;
     this.rules = [];
     this.priorityRules = []; // Priority check rule
   }
   check(value, data) {
-    if (this.required && !checkRequired(value, this.trim)) {
+    if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return { hasError: true, errorMessage: this.requiredMessage };
     }
 
@@ -84,7 +91,7 @@ class Type {
   }
 
   checkAsync(value, data) {
-    if (this.required && !checkRequired(value, this.trim)) {
+    if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return Promise.resolve({ hasError: true, errorMessage: this.requiredMessage });
     }
 
@@ -127,6 +134,13 @@ class Type {
   isRequired(errorMessage, trim = true) {
     this.required = true;
     this.trim = trim;
+    this.requiredMessage = errorMessage;
+    return this;
+  }
+  isRequiredOrEmpty(errorMessage, trim = true) {
+    this.required = true;
+    this.trim = trim;
+    this.emptyAllowed = true;
     this.requiredMessage = errorMessage;
     return this;
   }
