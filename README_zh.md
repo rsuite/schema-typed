@@ -322,6 +322,12 @@ model.checkForFieldAsync('username', 'root').then(result => {
 StringType().isRequired('该字段不能为空');
 ```
 
+- isRequiredOrEmpty(errorMessage: string, trim: boolean = true)
+
+```js
+StringType().isRequiredOrEmpty('该字段不能为空');
+```
+
 - isEmail(errorMessage: string)
 
 ```js
@@ -460,6 +466,12 @@ NumberType().addRule((value, data) => {
 
 ```js
 ArrayType().isRequired('该字段必填');
+```
+
+- isRequiredOrEmpty(errorMessage: string, trim: boolean = true)
+
+```js
+ArrayType().isRequiredOrEmpty('该字段不能为空');
 ```
 
 - rangeLength(minLength: number, maxLength: number, errorMessage: string)

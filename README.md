@@ -324,6 +324,12 @@ model.checkForFieldAsync('username', 'root').then(result => {
 StringType().isRequired('This field required');
 ```
 
+- isRequiredOrEmpty(errorMessage: string, trim: boolean = true)
+
+```js
+StringType().isRequiredOrEmpty('This field required');
+```
+
 - isEmail(errorMessage: string)
 
 ```js
@@ -462,6 +468,12 @@ NumberType().addRule((value, data) => {
 
 ```js
 ArrayType().isRequired('This field required');
+```
+
+- isRequiredOrEmpty(errorMessage: string)
+
+```js
+ArrayType().isRequiredOrEmpty('This field required');
 ```
 
 - rangeLength(minLength: number, maxLength: number, errorMessage: string)
