@@ -48,6 +48,7 @@ class ArrayType extends Type {
    * )
    */
   of(type, errorMessage) {
+    this.ofType = type;
     super.pushRule(items => {
       let valids = items.map(value => type.check(value));
       let errors = valids.filter(item => item.hasError) || [];
