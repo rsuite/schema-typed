@@ -1,3 +1,7 @@
+# 1.5.1
+
+- Update the typescript definition of `addRule`
+
 # 1.5.0
 
 - Added support for `isRequiredOrEmpty` in StringType and ArrayType
