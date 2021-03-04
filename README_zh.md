@@ -163,32 +163,29 @@ const model = SchemaModel({
   info: ObjectType().shape({
     email: StringType().isEmail('应该是一个 email'),
     age: NumberType().min(18, '年龄应该大于18岁')
-  });
-});
-```
-
-另外，更推荐把对象扁平化设计
-
-```js
-import { flaser } from 'object-flaser';
-
-const model = SchemaModel({
-  id: NumberType().isRequired('该字段不能为空'),
-  name: StringType().isRequired('用户名不能为空'),
-  'info.email': StringType().isEmail('应该是一个 email'),
-  'info.age': NumberType().min(18, '年龄应该大于18岁')
+  })
 });
 
-const user = flaser({
+const user = {
   id: 1,
-  name: 'schema-type',
-  info: {
-    email: 'schema-type@gmail.com',
-    age: 17
-  }
-});
+  name: '',
+  info: { email: 'schema-type', age: 17 }
+};
 
 model.check(data);
+
+/**
+ {
+  "id": { "hasError": false },
+  "name": { "hasError": true, "errorMessage": "用户名不能为空" },
+  "info": {
+    "shape": {
+      "email": { "hasError": true, "errorMessage": "应该是一个 email" },
+      "age": { "hasError": true, "errorMessage": "年龄应该大于 18 岁" }
+    }
+  }
+}
+*/
 ```
 
 ## 组合

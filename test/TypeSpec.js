@@ -92,8 +92,7 @@ describe('#Type', () => {
 
   it('Should be error for undefined string with isRequired', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequired('required')
+      str: StringType().isRequired('required')
     });
     let obj = {
       str: undefined
@@ -104,20 +103,18 @@ describe('#Type', () => {
 
   it('Should be error for empty string with isRequired', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequired('required')
+      str: StringType().isRequired('required')
     });
     let obj = {
       str: ''
-    }; 
+    };
     let result = schema.check(obj);
     result.str.hasError.should.equal(true);
   });
 
   it('Should be error for empty array with isRequired', () => {
     const schema = SchemaModel({
-      arr: ArrayType()
-        .isRequired('required')
+      arr: ArrayType().isRequired('required')
     });
     let obj = {
       arr: []
@@ -128,8 +125,7 @@ describe('#Type', () => {
 
   it('Should be without error for empty string with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequiredOrEmpty('required')
+      str: StringType().isRequiredOrEmpty('required')
     });
     let obj = {
       str: ''
@@ -140,8 +136,7 @@ describe('#Type', () => {
 
   it('Should be without error for empty array with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      arr: ArrayType()
-        .isRequiredOrEmpty('required')
+      arr: ArrayType().isRequiredOrEmpty('required')
     });
     let obj = {
       arr: []
@@ -152,8 +147,7 @@ describe('#Type', () => {
 
   it('Should be error for undefined string with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequiredOrEmpty('required')
+      str: StringType().isRequiredOrEmpty('required')
     });
     let obj = {
       str: undefined
@@ -162,7 +156,7 @@ describe('#Type', () => {
     result.str.hasError.should.equal(true);
   });
 
-  it('Should call asynchronous check', done => {
+  it('Should call async check', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2'),
       name: StringType().addRule((value, data) => {
@@ -186,7 +180,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous check', done => {
+  it('Should call async check', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2')
     });
@@ -198,7 +192,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and verify pass', done => {
+  it('Should call async checkForFieldAsync and verify pass', done => {
     const schema = SchemaModel({
       name: StringType().addRule((value, data) => {
         return new Promise(resolve => {
@@ -216,7 +210,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2')
     });
@@ -228,7 +222,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType().addRule((value, data) => {
         return new Promise(resolve => {
@@ -246,7 +240,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType()
         .addRule((value, data) => {

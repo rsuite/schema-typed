@@ -12,9 +12,11 @@ describe('#StringType', () => {
 
     schema.checkForField('str', 'abcde').hasError.should.equal(false);
     schema.checkForField('str', 'abcd').hasError.should.equal(true);
+
     schema.checkForField('cjkStr', '鲤鱼跃龙门').hasError.should.equal(false);
     schema.checkForField('cjkStr', '岁寒三友').hasError.should.equal(true);
     schema.checkForField('emojiStr', '👌👍🐱🐶🐸').hasError.should.equal(false);
+
     schema.checkForField('emojiStr', '👌👍🐱🐶').hasError.should.equal(true);
   });
 
@@ -66,9 +68,9 @@ describe('#StringType', () => {
   it('Should be one of value in array', () => {
     const schema = SchemaModel({
       str: StringType().isOneOf(['A', 'B', 'C'], 'error')
-    })
-    schema.checkForField('str', 'A').hasError.should.equal(false)
-    schema.checkForField('str', 'D').hasError.should.equal(true)
-    schema.checkForField('str', 'D').errorMessage.should.equal('error')
-  })
+    });
+    schema.checkForField('str', 'A').hasError.should.equal(false);
+    schema.checkForField('str', 'D').hasError.should.equal(true);
+    schema.checkForField('str', 'D').errorMessage.should.equal('error');
+  });
 });
