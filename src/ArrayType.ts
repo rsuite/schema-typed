@@ -1,7 +1,7 @@
-import Type from './Type';
+import { MixedType } from './MixedType';
 import { CheckType, PlainObject } from './types';
 
-export class ArrayType<DataType = any, ErrorMsgType = string> extends Type<
+export class ArrayType<DataType = any, ErrorMsgType = string> extends MixedType<
   any[],
   DataType,
   ErrorMsgType
@@ -50,7 +50,7 @@ export class ArrayType<DataType = any, ErrorMsgType = string> extends Type<
   of(type: CheckType<any[], DataType, ErrorMsgType>, errorMessage?: ErrorMsgType) {
     super.pushRule(items => {
       return {
-        each: items.map(value => type.check(value))
+        array: items.map(value => type.check(value))
       };
     }, errorMessage);
 

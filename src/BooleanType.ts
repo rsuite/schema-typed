@@ -1,6 +1,6 @@
-import Type from './Type';
+import { MixedType } from './MixedType';
 
-export class BooleanType<DataType = any, ErrorMsgType = string> extends Type<
+export class BooleanType<DataType = any, ErrorMsgType = string> extends MixedType<
   boolean,
   DataType,
   ErrorMsgType

@@ -1,7 +1,7 @@
-import Type from './Type';
+import { MixedType } from './MixedType';
 import { PlainObject, SchemaDeclaration } from './types';
 
-export class ObjectType<DataType = any, ErrorMsgType = string> extends Type<
+export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType<
   PlainObject,
   DataType,
   ErrorMsgType

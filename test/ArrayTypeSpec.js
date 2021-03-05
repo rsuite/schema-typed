@@ -15,16 +15,16 @@ describe('#ArrayType', () => {
       'ddd@bbb.com'
     ]);
 
-    check1.each[0].hasError.should.equal(false);
-    check1.each[1].hasError.should.equal(false);
-    check1.each[2].hasError.should.equal(false);
+    check1.array[0].hasError.should.equal(false);
+    check1.array[1].hasError.should.equal(false);
+    check1.array[2].hasError.should.equal(false);
 
     const check2 = schema.check({
       data: ['simon.guo@hypers.com', 'error_email', 'ddd@bbb.com']
     });
 
-    check2.data.each[1].hasError.should.equal(true);
-    check2.data.each[1].errorMessage.should.equal('应该是一个 email');
+    check2.data.array[1].hasError.should.equal(true);
+    check2.data.array[1].errorMessage.should.equal('应该是一个 email');
   });
 
   it('Should output default error message ', () => {
@@ -36,8 +36,8 @@ describe('#ArrayType', () => {
       'ddd@bbb.com'
     ]);
 
-    checkStatus.each[1].hasError.should.equal(true);
-    checkStatus.each[1].errorMessage.should.equal('Please enter a valid string');
+    checkStatus.array[1].hasError.should.equal(true);
+    checkStatus.array[1].errorMessage.should.equal('Please enter a valid string');
   });
 
   it('Should support array nested objects', () => {
@@ -58,16 +58,16 @@ describe('#ArrayType', () => {
       ]
     });
 
-    checkStatus.users.each[0].hasError.should.equal(true);
-    checkStatus.users.each[0].errorMessage.should.equal('应该是一个对象');
-    checkStatus.users.each[1].shape.email.hasError.should.equal(true);
-    checkStatus.users.each[1].shape.email.errorMessage.should.equal('应该是一个 email');
-    checkStatus.users.each[1].shape.age.hasError.should.equal(false);
+    checkStatus.users.array[0].hasError.should.equal(true);
+    checkStatus.users.array[0].errorMessage.should.equal('应该是一个对象');
+    checkStatus.users.array[1].object.email.hasError.should.equal(true);
+    checkStatus.users.array[1].object.email.errorMessage.should.equal('应该是一个 email');
+    checkStatus.users.array[1].object.age.hasError.should.equal(false);
 
-    checkStatus.users.each[2].shape.email.hasError.should.equal(true);
-    checkStatus.users.each[2].shape.email.errorMessage.should.equal('应该是一个 email');
-    checkStatus.users.each[2].shape.age.hasError.should.equal(true);
-    checkStatus.users.each[2].shape.age.errorMessage.should.equal('年龄应该大于18岁');
+    checkStatus.users.array[2].object.email.hasError.should.equal(true);
+    checkStatus.users.array[2].object.email.errorMessage.should.equal('应该是一个 email');
+    checkStatus.users.array[2].object.age.hasError.should.equal(true);
+    checkStatus.users.array[2].object.age.errorMessage.should.equal('年龄应该大于18岁');
   });
 
   it('Should be unrepeatable ', () => {

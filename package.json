@@ -13,9 +13,9 @@
     "build-es": "cross-env NODE_ENV=esm && npm run es",
     "prepublishOnly": "npm run test && npm run test-types && npm run build && npm run build-es",
     "tdd": "mocha --watch",
-    "test-once": "mocha",
-    "test": "npm run lint && npm run test-once",
-    "test-types": "dtslint --expectOnly --localTs node_modules/typescript/lib types"
+    "test": "npm run lint && npm run test:once && npm run test:types",
+    "test:once": "mocha",
+    "test:types": "dtslint --expectOnly --localTs node_modules/typescript/lib types"
   },
   "repository": {
     "type": "git",

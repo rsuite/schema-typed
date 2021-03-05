@@ -18,18 +18,18 @@ describe('#ObjectType', () => {
 
     schema
       .checkForField('user', { email: 'simon.guo@hypers.com', age: 19 })
-      .shape.email.hasError.should.equal(false);
+      .object.email.hasError.should.equal(false);
     schema
       .checkForField('user', { email: 'simon.guo', age: 19 })
-      .shape.email.hasError.should.equal(true);
+      .object.email.hasError.should.equal(true);
 
     let checkStatus = schema.checkForField('user', {
       email: 'simon.guo@hypers.com',
       age: 17
     });
 
-    checkStatus.shape.age.hasError.should.equal(true);
-    checkStatus.shape.age.errorMessage.should.equal('年龄应该大于18岁');
+    checkStatus.object.age.hasError.should.equal(true);
+    checkStatus.object.age.errorMessage.should.equal('年龄应该大于18岁');
   });
 
   it('Should be checked for object nesting.', () => {
@@ -62,11 +62,11 @@ describe('#ObjectType', () => {
       parent: { email: 'zicheng', age: 40 }
     });
 
-    checkStatus.shape.email.hasError.should.equal(false);
-    checkStatus.shape.age.hasError.should.equal(true);
-    checkStatus.shape.age.errorMessage.should.equal('年龄应该大于18岁');
+    checkStatus.object.email.hasError.should.equal(false);
+    checkStatus.object.age.hasError.should.equal(true);
+    checkStatus.object.age.errorMessage.should.equal('年龄应该大于18岁');
 
-    const parentCheckStatus = checkStatus.shape.parent.shape;
+    const parentCheckStatus = checkStatus.object.parent.object;
 
     parentCheckStatus.email.hasError.should.equal(true);
     parentCheckStatus.email.errorMessage.should.equal('应该是一个邮箱');
@@ -107,7 +107,7 @@ describe('#ObjectType', () => {
     });
 
     schema.checkAsync({ url: 'url', user: { email: 'a', age: '10' } }).then(status => {
-      const user = status.user.shape;
+      const user = status.user.object;
       if (
         user.age.hasError &&
         user.age.errorMessage === 'error2' &&

@@ -1,10 +1,10 @@
-import Type from './Type';
+import { MixedType } from './MixedType';
 
 function FN(value: string | number) {
   return +value;
 }
 
-export class NumberType<DataType = any, ErrorMsgType = string> extends Type<
+export class NumberType<DataType = any, ErrorMsgType = string> extends MixedType<
   number | string,
   DataType,
   ErrorMsgType

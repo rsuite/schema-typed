@@ -8,8 +8,8 @@ import { ObjectType } from './ObjectType';
 export interface CheckResult<E = string> {
   hasError?: boolean;
   errorMessage?: E | string;
-  shape?: CheckResult<E>;
-  each?: CheckResult<E>[];
+  object?: CheckResult<E>;
+  array?: CheckResult<E>[];
 }
 
 export type ValidCallbackType<V, D, E> = (value: V, data?: D) => CheckResult<E> | boolean;

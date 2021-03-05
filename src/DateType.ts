@@ -1,6 +1,6 @@
-import Type from './Type';
+import { MixedType } from './MixedType';
 
-export class DateType<DataType = any, ErrorMsgType = string> extends Type<
+export class DateType<DataType = any, ErrorMsgType = string> extends MixedType<
   string | Date,
   DataType,
   ErrorMsgType

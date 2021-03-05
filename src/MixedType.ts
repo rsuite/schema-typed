@@ -24,6 +24,10 @@ function checkRequired(value: any, trim: boolean, emptyAllowed: boolean) {
   return !isEmpty(value);
 }
 
+/**
+ * Create a data validator
+ * @param data
+ */
 function createValidator<V, D, E>(data?: D) {
   return (value: V, rules: RuleType<V, D, E>[]): CheckResult<E> | null => {
     for (let i = 0; i < rules.length; i += 1) {
@@ -32,7 +36,7 @@ function createValidator<V, D, E>(data?: D) {
 
       if (checkResult === false) {
         return { hasError: true, errorMessage };
-      } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.each)) {
+      } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.array)) {
         return checkResult;
       }
     }
@@ -41,12 +45,16 @@ function createValidator<V, D, E>(data?: D) {
   };
 }
 
+/**
+ * Create a data asynchronous validator
+ * @param data
+ */
 function createValidatorAsync<V, D, E>(data?: D) {
-  function check(errorMessage: E) {
+  function check(errorMessage?: E) {
     return (checkResult: CheckResult<E> | boolean): CheckResult<E> | null => {
       if (checkResult === false) {
         return { hasError: true, errorMessage };
-      } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.each)) {
+      } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.array)) {
         return checkResult;
       }
       return null;
@@ -65,8 +73,8 @@ function createValidatorAsync<V, D, E>(data?: D) {
   };
 }
 
-class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
-  readonly name: string;
+export class MixedType<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
+  readonly name?: string;
   private required = false;
   private requiredMessage: ErrorMsgType | string = '';
   private trim = false;
@@ -75,7 +83,7 @@ class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
   private rules: RuleType<ValueType, DataType, ErrorMsgType | string>[] = [];
   private priorityRules: RuleType<ValueType, DataType, ErrorMsgType | string>[] = [];
 
-  constructor(name: string) {
+  constructor(name?: string) {
     this.name = name;
   }
   check(value: ValueType, data?: DataType) {
@@ -90,7 +98,7 @@ class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
           checkResult[k] = check(value[k], value, v);
         });
 
-        return { shape: checkResult };
+        return { object: checkResult };
       }
 
       const validator = createValidator<ValueType, DataType, ErrorMsgType | string>(data);
@@ -138,7 +146,7 @@ class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
               checkResult[keys[index]] = v;
             });
 
-            resolve({ shape: checkResult });
+            resolve({ object: checkResult });
           });
         }
 
@@ -170,7 +178,7 @@ class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
     errorMessage?: ErrorMsgType | string,
     priority?: boolean
   ) {
-    errorMessage = errorMessage || this.rules[0].errorMessage;
+    errorMessage = errorMessage || this.rules?.[0]?.errorMessage;
 
     if (priority) {
       this.priorityRules.push({ onValid, errorMessage });
@@ -205,4 +213,6 @@ class Type<ValueType = any, DataType = PlainObject, ErrorMsgType = string> {
   }
 }
 
-export default Type;
+export default function getMixedType<DataType = any, ErrorMsgType = string>() {
+  return new MixedType<DataType, ErrorMsgType>();
+}

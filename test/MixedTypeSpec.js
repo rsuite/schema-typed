@@ -1,8 +1,8 @@
 const should = require('chai').should();
 const schema = require('../src');
-const { StringType, SchemaModel, ArrayType } = schema;
+const { StringType, SchemaModel, NumberType, ObjectType, ArrayType, MixedType } = schema;
 
-describe('#Type', () => {
+describe('#MixedType', () => {
   it('Should be the same password twice', () => {
     const schema = SchemaModel({
       password1: StringType().isRequired('Password is required'),
@@ -303,4 +303,51 @@ describe('#Type', () => {
       }
     });
   });
+
+  it('Should be able to check by `check` ', () => {
+    const type = MixedType()
+      .addRule(v => {
+        if (typeof v === 'number') {
+          return true;
+        }
+
+        return false;
+      }, 'error1')
+      .isRequired('error2');
+
+    type.check('').hasError.should.equal(true);
+    type.check('').errorMessage.should.equal('error2');
+    type.check('1').hasError.should.equal(true);
+    type.check('1').errorMessage.should.equal('error1');
+    type.check(1).hasError.should.equal(false);
+  });
+
+  it('Should be able to check by `checkAsync` ', done => {
+    const type = MixedType()
+      .addRule(v => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            if (typeof v === 'number') {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          }, 500);
+        });
+      }, 'error1')
+      .isRequired('error2');
+
+    Promise.all([type.checkAsync(''), type.checkAsync('1'), type.checkAsync(1)]).then(res => {
+      if (res[0].hasError && res[1].hasError && !res[2].hasError) {
+        done();
+      }
+    });
+  });
 });
+
+const type = MixedType().addRule(v => {
+  if (typeof v === 'number') {
+    return true;
+  }
+  return false;
+}, 'Please enter a valid number');
