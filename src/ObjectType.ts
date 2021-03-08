@@ -7,7 +7,8 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
   DataType,
   ErrorMsgType
 > {
-  private objectTypeSchemaSpec: SchemaDeclaration<DataType, ErrorMsgType>;
+  objectTypeSchemaSpec: SchemaDeclaration<DataType, ErrorMsgType>;
+
   constructor(errorMessage?: ErrorMsgType) {
     super('object');
     super.pushRule(v => typeof v === 'object', errorMessage || 'Please enter a valid `object`');
