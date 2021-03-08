@@ -15,7 +15,8 @@
     "tdd": "mocha --watch",
     "test": "npm run lint && npm run test:once && npm run test:types",
     "test:once": "mocha",
-    "test:types": "dtslint --expectOnly --localTs node_modules/typescript/lib types"
+    "test:types": "dtslint --expectOnly --localTs node_modules/typescript/lib types",
+    "doctoc:": "doctoc README.md"
   },
   "repository": {
     "type": "git",

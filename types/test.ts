@@ -16,11 +16,11 @@ interface PassObj {
   s: string;
 }
 interface Pass {
-  n: number;
-  b: boolean;
-  s: string;
-  d: Date;
-  a: Array<string>;
+  n?: number;
+  b?: boolean;
+  s?: string;
+  d?: Date;
+  a?: Array<string>;
   o: PassObj;
 }
 
@@ -35,8 +35,8 @@ const passSchema = new Schema<Pass>({
 
 passSchema.check({ a: ['a'], b: false, d: new Date(), n: 0, o: { s: '' }, s: '' });
 passSchema.checkAsync({ a: ['a'], b: false, d: new Date(), n: 0, o: { s: '' }, s: '' });
-passSchema.checkForField('o', { s: '1' });
-passSchema.checkForFieldAsync('o', { s: '1' });
+passSchema.checkForField('o', { o: { s: '1' } });
+passSchema.checkForFieldAsync('o', { o: { s: '1' } });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PASSING SCENARIO 2: Should allows combine proper schemas

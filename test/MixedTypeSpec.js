@@ -76,18 +76,18 @@ describe('#MixedType', () => {
         .addRule(value => value === '', 'error')
     });
 
-    schema.checkForField('str', '').hasError.should.equal(true);
-    schema.checkForField('str', '').errorMessage.should.equal('required');
+    schema.checkForField('str', { str: '' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '' }).errorMessage.should.equal('required');
 
-    schema.checkForField('str', '12').hasError.should.equal(true);
-    schema.checkForField('str', '12').errorMessage.should.equal('error');
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '12' }).errorMessage.should.equal('error');
 
     const schema2 = SchemaModel({
       str: StringType().addRule(value => value === '', 'error')
     });
 
-    schema2.checkForField('str', '12').hasError.should.equal(true);
-    schema2.checkForField('str', '12').errorMessage.should.equal('error');
+    schema2.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema2.checkForField('str', { str: '12' }).errorMessage.should.equal('error');
   });
 
   it('Should be error for undefined string with isRequired', () => {
@@ -203,7 +203,7 @@ describe('#MixedType', () => {
       }, 'error1')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error1') {
         done();
       }
@@ -215,7 +215,7 @@ describe('#MixedType', () => {
       email: StringType('error1').isEmail('error2')
     });
 
-    schema.checkForFieldAsync('email', 'a').then(status => {
+    schema.checkForFieldAsync('email', { email: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error2') {
         done();
       }
@@ -233,7 +233,7 @@ describe('#MixedType', () => {
       }, 'error1')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError === false) {
         done();
       }
@@ -257,7 +257,7 @@ describe('#MixedType', () => {
         }, 'error2')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error1') {
         done();
       }
@@ -278,7 +278,7 @@ describe('#MixedType', () => {
         }))
     });
 
-    const checkResult = schema.checkForField('name', 'a');
+    const checkResult = schema.checkForField('name', { name: 'a' });
     checkResult.hasError.should.equal(true);
     checkResult.errorMessage.should.equal('Error!!');
   });
@@ -297,7 +297,7 @@ describe('#MixedType', () => {
         }))
     });
 
-    schema.checkForFieldAsync('name', 'a').then(checkResult => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(checkResult => {
       if (checkResult.hasError && checkResult.errorMessage === 'Error!!') {
         done();
       }
@@ -343,11 +343,55 @@ describe('#MixedType', () => {
       }
     });
   });
-});
 
-const type = MixedType().addRule(v => {
-  if (typeof v === 'number') {
-    return true;
-  }
-  return false;
-}, 'Please enter a valid number');
+  it('Should type be changed by condition', () => {
+    const model = SchemaModel({
+      filed1: NumberType().min(10),
+      filed2: MixedType().when(schema => {
+        const checkResult = schema.filed1.check();
+        return checkResult.hasError
+          ? NumberType().min(10, 'error1')
+          : NumberType().min(2, 'error2');
+      })
+    });
+
+    const checkResult1 = model.check({ filed1: 20, filed2: 2 });
+
+    checkResult1.filed1.hasError.should.equal(false);
+    checkResult1.filed2.hasError.should.equal(false);
+
+    const checkResult2 = model.check({ filed1: 1, filed2: 1 });
+
+    checkResult2.filed1.hasError.should.equal(true);
+    checkResult2.filed2.hasError.should.equal(true);
+    checkResult2.filed2.errorMessage.should.equal('error1');
+
+    const checkResult3 = model.check({ filed1: 10, filed2: 1 });
+
+    checkResult3.filed1.hasError.should.equal(false);
+    checkResult3.filed2.hasError.should.equal(true);
+    checkResult3.filed2.errorMessage.should.equal('error2');
+
+    const checkResult4 = model.checkForField('filed2', { filed1: 20, filed2: 1 });
+    checkResult4.errorMessage.should.equal('error2');
+
+    const checkResult5 = model.checkForField('filed2', { filed1: 9, filed2: 1 });
+    checkResult5.errorMessage.should.equal('error1');
+  });
+
+  it('Should be high priority even if it is empty', () => {
+    const model = SchemaModel({
+      age: NumberType().min(18, 'error1'),
+      contact: StringType().when(schema => {
+        const checkResult = schema.age.check();
+        return checkResult.hasError ? StringType().isRequired('error2') : StringType();
+      })
+    });
+
+    const checkResult = model.check({ age: 17, contact: '' });
+
+    checkResult.age.hasError.should.equal(true);
+    checkResult.contact.hasError.should.equal(true);
+    checkResult.contact.errorMessage.should.equal('error2');
+  });
+});

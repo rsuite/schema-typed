@@ -1,51 +1,69 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
+import { MixedType } from './MixedType';
 
 export class Schema<DataType = any, ErrorMsgType = string> {
-  readonly schemaShape: SchemaDeclaration<DataType, ErrorMsgType>;
+  readonly spec: SchemaDeclaration<DataType, ErrorMsgType>;
+  private data: PlainObject;
+
   constructor(schema: SchemaDeclaration<DataType, ErrorMsgType>) {
-    this.schemaShape = schema;
+    this.spec = schema;
   }
 
   getFieldType<T extends keyof DataType>(fieldName: T) {
-    return this.schemaShape?.[fieldName];
+    return this.spec?.[fieldName];
   }
 
   getKeys() {
-    return Object.keys(this.schemaShape);
+    return Object.keys(this.spec);
   }
 
-  checkForField<T extends keyof DataType>(fieldName: T, fieldValue: DataType[T], data?: DataType) {
-    const fieldChecker = this.schemaShape[fieldName];
+  setSchemaOptionsForAllType(data: PlainObject) {
+    if (data === this.data) {
+      return;
+    }
 
+    Object.entries(this.spec).forEach(([key, type]) => {
+      (type as MixedType).setSchemaOptions(this.spec as any, data?.[key]);
+    });
+
+    this.data = data;
+  }
+
+  checkForField<T extends keyof DataType>(fieldName: T, data: DataType) {
+    this.setSchemaOptionsForAllType(data);
+
+    const fieldChecker = this.spec[fieldName];
     if (!fieldChecker) {
       // fieldValue can be anything if no schema defined
       return { hasError: false };
     }
-    return fieldChecker.check((fieldValue as unknown) as never, data);
-  }
 
-  check<T extends keyof DataType>(data: DataType) {
-    const checkResult: PlainObject = {};
-    Object.keys(this.schemaShape).forEach(key => {
-      if (typeof data === 'object') {
-        checkResult[key] = this.checkForField(key as T, data[key as keyof DataType], data);
-      }
-    });
-
-    return checkResult as SchemaCheckResult<DataType, ErrorMsgType>;
+    return fieldChecker.check((data[fieldName] as unknown) as never, data);
   }
 
   checkForFieldAsync<T extends keyof DataType>(
     fieldName: T,
-    fieldValue: DataType[T],
-    data?: DataType
+    data: DataType
   ): Promise<CheckResult<ErrorMsgType | string>> {
-    const fieldChecker = this.schemaShape[fieldName];
+    this.setSchemaOptionsForAllType(data);
+
+    const fieldChecker = this.spec[fieldName];
     if (!fieldChecker) {
       // fieldValue can be anything if no schema defined
       return Promise.resolve({ hasError: false });
     }
-    return fieldChecker.checkAsync((fieldValue as unknown) as never, data);
+    return fieldChecker.checkAsync((data[fieldName] as unknown) as never, data);
+  }
+
+  check<T extends keyof DataType>(data: DataType) {
+    const checkResult: PlainObject = {};
+    Object.keys(this.spec).forEach(key => {
+      if (typeof data === 'object') {
+        checkResult[key] = this.checkForField(key as T, data);
+      }
+    });
+
+    return checkResult as SchemaCheckResult<DataType, ErrorMsgType>;
   }
 
   checkAsync<T extends keyof DataType>(data: DataType) {
@@ -53,9 +71,9 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     const promises: Promise<CheckResult<ErrorMsgType | string>>[] = [];
     const keys: string[] = [];
 
-    Object.keys(this.schemaShape).forEach((key: string) => {
+    Object.keys(this.spec).forEach((key: string) => {
       keys.push(key);
-      promises.push(this.checkForFieldAsync(key as T, data[key as keyof DataType], data));
+      promises.push(this.checkForFieldAsync(key as T, data));
     });
 
     return Promise.all(promises).then(values => {
@@ -74,11 +92,11 @@ export function SchemaModel<DataType = PlainObject, ErrorMsgType = string>(
 }
 
 SchemaModel.combine = function combine<DataType = any, ErrorMsgType = string>(
-  ...models: Array<Schema<any, ErrorMsgType>>
+  ...specs: Schema<any, ErrorMsgType>[]
 ) {
   return new Schema<DataType, ErrorMsgType>(
-    models
-      .map(model => model.schemaShape)
+    specs
+      .map(model => model.spec)
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {} as any)
   );
 };

@@ -17,15 +17,17 @@ describe('#ObjectType', () => {
     let schema = new Schema(schemaData);
 
     schema
-      .checkForField('user', { email: 'simon.guo@hypers.com', age: 19 })
+      .checkForField('user', { user: { email: 'simon.guo@hypers.com', age: 19 } })
       .object.email.hasError.should.equal(false);
     schema
-      .checkForField('user', { email: 'simon.guo', age: 19 })
+      .checkForField('user', { user: { email: 'simon.guo', age: 19 } })
       .object.email.hasError.should.equal(true);
 
     let checkStatus = schema.checkForField('user', {
-      email: 'simon.guo@hypers.com',
-      age: 17
+      user: {
+        email: 'simon.guo@hypers.com',
+        age: 17
+      }
     });
 
     checkStatus.object.age.hasError.should.equal(true);
@@ -47,8 +49,7 @@ describe('#ObjectType', () => {
 
     const schema = new Schema(schemaData);
 
-    const abc = schema.check({
-      url: 'hsd',
+    const checkStatus = schema.checkForField('user', {
       user: {
         email: 'simon.guo@hypers.com',
         age: 17,
@@ -56,15 +57,11 @@ describe('#ObjectType', () => {
       }
     });
 
-    const checkStatus = schema.checkForField('user', {
-      email: 'simon.guo@hypers.com',
-      age: 17,
-      parent: { email: 'zicheng', age: 40 }
-    });
-
+    checkStatus.hasError.should.equal(true);
     checkStatus.object.email.hasError.should.equal(false);
     checkStatus.object.age.hasError.should.equal(true);
     checkStatus.object.age.errorMessage.should.equal('年龄应该大于18岁');
+    checkStatus.object.parent.hasError.should.equal(true);
 
     const parentCheckStatus = checkStatus.object.parent.object;
 
@@ -72,6 +69,22 @@ describe('#ObjectType', () => {
     parentCheckStatus.email.errorMessage.should.equal('应该是一个邮箱');
     parentCheckStatus.age.hasError.should.equal(true);
     parentCheckStatus.age.errorMessage.should.equal('年龄应该大于50岁');
+
+    const checkStatus2 = schema.checkForField('user', {
+      user: {
+        email: 'simon.guo@hypers.com',
+        age: 18,
+        parent: { email: 'zicheng@dd.com', age: 50 }
+      }
+    });
+
+    checkStatus2.hasError.should.equal(false);
+    checkStatus2.object.age.hasError.should.equal(false);
+    checkStatus2.object.age.hasError.should.equal(false);
+    checkStatus2.object.parent.hasError.should.equal(false);
+    const parentCheckStatus2 = checkStatus2.object.parent.object;
+    parentCheckStatus2.email.hasError.should.equal(false);
+    parentCheckStatus2.age.hasError.should.equal(false);
   });
 
   it('Should be a valid object by flaser', () => {

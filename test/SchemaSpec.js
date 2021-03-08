@@ -8,7 +8,7 @@ describe('#Schema', () => {
     let schemaData = { data: StringType() };
     let schema = new Schema(schemaData);
 
-    schema.schemaShape.should.equal(schemaData);
+    schema.spec.should.equal(schemaData);
   });
 
   it('Should be able to get the field value type for the given field name', () => {

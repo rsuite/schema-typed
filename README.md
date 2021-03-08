@@ -20,50 +20,51 @@ Schema for data modeling & validation
   - [Combine](#combine)
 - [API](#api)
   - [SchemaModel](#schemamodel)
-    - [`static` combine(...models)](#static-combinemodels)
-    - [check(data: Object)](#checkdata-object)
-    - [checkAsync(data: Object)](#checkasyncdata-object)
-    - [checkForField(fieldName: string, fieldValue: any, data: Object)](#checkforfieldfieldname-string-fieldvalue-any-data-object)
-    - [checkForFieldAsync(fieldName: string, fieldValue: any, data: Object)](#checkforfieldasyncfieldname-string-fieldvalue-any-data-object)
+    - [`static combine(...models)`](#static-combinemodels)
+    - [`check(data: object)`](#checkdata-object)
+    - [`checkAsync(data: object)`](#checkasyncdata-object)
+    - [`checkForField(fieldName: string, data: object)`](#checkforfieldfieldname-string-data-object)
+    - [`checkForFieldAsync(fieldName: string, data: object)`](#checkforfieldasyncfieldname-string-data-object)
   - [MixedType()](#mixedtype)
-    - [isRequired(errorMessage?: string, trim: boolean = true)](#isrequirederrormessage-string-trim-boolean--true)
-    - [isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)](#isrequiredoremptyerrormessage-string-trim-boolean--true)
-    - [addRule(onValid: Function, errorMessage?: string, priority: boolean)](#addruleonvalid-function-errormessage-string-priority-boolean)
-    - [check(value: ValueType, data?: DataType):CheckResult](#checkvalue-valuetype-data-datatypecheckresult)
-    - [checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
+    - [`isRequired(errorMessage?: string, trim: boolean = true)`](#isrequirederrormessage-string-trim-boolean--true)
+    - [`isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)`](#isrequiredoremptyerrormessage-string-trim-boolean--true)
+    - [`addRule(onValid: Function, errorMessage?: string, priority: boolean)`](#addruleonvalid-function-errormessage-string-priority-boolean)
+    - [`when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`](#whencondition-schemaspec-schemadeclarationdatatype-errormsgtype--type)
+    - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
+    - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
-    - [isEmail(errorMessage?: string)](#isemailerrormessage-string)
-    - [isURL(errorMessage?: string)](#isurlerrormessage-string)
-    - [isOneOf(items: Array, errorMessage?: string)](#isoneofitems-array-errormessage-string)
-    - [containsLetter(errorMessage?: string)](#containslettererrormessage-string)
-    - [containsUppercaseLetter(errorMessage?: string)](#containsuppercaselettererrormessage-string)
-    - [containsLowercaseLetter(errorMessage?: string)](#containslowercaselettererrormessage-string)
-    - [containsLetterOnly(errorMessage?: string)](#containsletteronlyerrormessage-string)
-    - [containsNumber(errorMessage?: string)](#containsnumbererrormessage-string)
-    - [pattern(regExp: RegExp, errorMessage?: string)](#patternregexp-regexp-errormessage-string)
-    - [rangeLength(minLength: number, maxLength: number, errorMessage?: string)](#rangelengthminlength-number-maxlength-number-errormessage-string)
-    - [minLength(minLength: number, errorMessage?: string)](#minlengthminlength-number-errormessage-string)
-    - [maxLength(maxLength: number, errorMessage?: string)](#maxlengthmaxlength-number-errormessage-string)
+    - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
+    - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
+    - [`isOneOf(items: Array, errorMessage?: string)`](#isoneofitems-array-errormessage-string)
+    - [`containsLetter(errorMessage?: string)`](#containslettererrormessage-string)
+    - [`containsUppercaseLetter(errorMessage?: string)`](#containsuppercaselettererrormessage-string)
+    - [`containsLowercaseLetter(errorMessage?: string)`](#containslowercaselettererrormessage-string)
+    - [`containsLetterOnly(errorMessage?: string)`](#containsletteronlyerrormessage-string)
+    - [`containsNumber(errorMessage?: string)`](#containsnumbererrormessage-string)
+    - [`pattern(regExp: RegExp, errorMessage?: string)`](#patternregexp-regexp-errormessage-string)
+    - [`rangeLength(minLength: number, maxLength: number, errorMessage?: string)`](#rangelengthminlength-number-maxlength-number-errormessage-string)
+    - [`minLength(minLength: number, errorMessage?: string)`](#minlengthminlength-number-errormessage-string)
+    - [`maxLength(maxLength: number, errorMessage?: string)`](#maxlengthmaxlength-number-errormessage-string)
   - [NumberType(errorMessage?: string)](#numbertypeerrormessage-string)
-    - [isInteger(errorMessage?: string)](#isintegererrormessage-string)
-    - [isOneOf(items: Array, errorMessage?: string)](#isoneofitems-array-errormessage-string-1)
-    - [pattern(regExp: RegExp, errorMessage?: string)](#patternregexp-regexp-errormessage-string-1)
-    - [range(minLength: number, maxLength: number, errorMessage?: string)](#rangeminlength-number-maxlength-number-errormessage-string)
-    - [min(min: number, errorMessage?: string)](#minmin-number-errormessage-string)
-    - [max(max: number, errorMessage?: string)](#maxmax-number-errormessage-string)
+    - [`isInteger(errorMessage?: string)`](#isintegererrormessage-string)
+    - [`isOneOf(items: Array, errorMessage?: string)`](#isoneofitems-array-errormessage-string-1)
+    - [`pattern(regExp: RegExp, errorMessage?: string)`](#patternregexp-regexp-errormessage-string-1)
+    - [`range(minLength: number, maxLength: number, errorMessage?: string)`](#rangeminlength-number-maxlength-number-errormessage-string)
+    - [`min(min: number, errorMessage?: string)`](#minmin-number-errormessage-string)
+    - [`max(max: number, errorMessage?: string)`](#maxmax-number-errormessage-string)
   - [ArrayType(errorMessage?: string)](#arraytypeerrormessage-string)
-    - [isRequiredOrEmpty(errorMessage?: string)](#isrequiredoremptyerrormessage-string)
-    - [rangeLength(minLength: number, maxLength: number, errorMessage?: string)](#rangelengthminlength-number-maxlength-number-errormessage-string-1)
-    - [minLength(minLength: number, errorMessage?: string)](#minlengthminlength-number-errormessage-string-1)
-    - [maxLength(maxLength: number, errorMessage?: string)](#maxlengthmaxlength-number-errormessage-string-1)
-    - [unrepeatable(errorMessage?: string)](#unrepeatableerrormessage-string)
-    - [of(type: Object, errorMessage?: string)](#oftype-object-errormessage-string)
+    - [`isRequiredOrEmpty(errorMessage?: string)`](#isrequiredoremptyerrormessage-string)
+    - [`rangeLength(minLength: number, maxLength: number, errorMessage?: string)`](#rangelengthminlength-number-maxlength-number-errormessage-string-1)
+    - [`minLength(minLength: number, errorMessage?: string)`](#minlengthminlength-number-errormessage-string-1)
+    - [`maxLength(maxLength: number, errorMessage?: string)`](#maxlengthmaxlength-number-errormessage-string-1)
+    - [`unrepeatable(errorMessage?: string)`](#unrepeatableerrormessage-string)
+    - [`of(type: object, errorMessage?: string)`](#oftype-object-errormessage-string)
   - [DateType(errorMessage?: string)](#datetypeerrormessage-string)
-    - [range(min: Date, max: Date, errorMessage?: string)](#rangemin-date-max-date-errormessage-string)
-    - [min(min: Date, errorMessage?: string)](#minmin-date-errormessage-string)
-    - [max(max: Date, errorMessage?: string)](#maxmax-date-errormessage-string)
+    - [`range(min: Date, max: Date, errorMessage?: string)`](#rangemin-date-max-date-errormessage-string)
+    - [`min(min: Date, errorMessage?: string)`](#minmin-date-errormessage-string)
+    - [`max(max: Date, errorMessage?: string)`](#maxmax-date-errormessage-string)
   - [ObjectType(errorMessage?: string)](#objecttypeerrormessage-string)
-    - [shape(type: Object)](#shapetype-object)
+    - [`shape(fields: object)`](#shapefields-object)
   - [BooleanType(errorMessage?: string)](#booleantypeerrormessage-string)
 - [⚠️ Notes](#-notes)
 
@@ -112,6 +113,7 @@ console.log(checkResult);
   email: { hasError: false },
   age: { hasError: true, errorMessage: 'Over the age limit' },
   tags: {
+    hasError: true,
     array: [
       { hasError: false },
       { hasError: false },
@@ -119,6 +121,7 @@ console.log(checkResult);
     ]
   },
   role: {
+    hasError: true,
     object: {
       name: { hasError: false },
       permissions: { hasError: true, errorMessage: 'Permissions required' }
@@ -233,6 +236,8 @@ model.checkAsync({ email: 'foo@domain.com' }).then(checkResult => {
 });
 ```
 
+####
+
 ### Validate nested objects
 
 Validate nested objects, which can be defined using the `ObjectType().shape` method. E.g:
@@ -260,7 +265,8 @@ model.check(data);
   "id": { "hasError": false },
   "name": { "hasError": true, "errorMessage": "This field required" },
   "info": {
-    "shape": {
+    "hasError": true,
+    "object": {
       "email": { "hasError": true, "errorMessage": "Should be an email" },
       "age": { "hasError": true, "errorMessage": "Age should be greater than 18 years old" }
     }
@@ -304,7 +310,7 @@ model4.check({
 
 SchemaModel is a JavaScript schema builder for data model creation and validation.
 
-#### `static` combine(...models)
+#### `static combine(...models)`
 
 A static method for merging multiple models.
 
@@ -320,7 +326,7 @@ const model2 = SchemaModel({
 const model3 = SchemaModel.combine(model1, model2);
 ```
 
-#### check(data: Object)
+#### `check(data: object)`
 
 Check whether the data conforms to the model shape definition. Return a check result.
 
@@ -336,7 +342,7 @@ model.check({
 });
 ```
 
-#### checkAsync(data: Object)
+#### `checkAsync(data: object)`
 
 Asynchronously check whether the data conforms to the model shape definition. Return a check result.
 
@@ -362,7 +368,7 @@ model
   });
 ```
 
-#### checkForField(fieldName: string, fieldValue: any, data: Object)
+#### `checkForField(fieldName: string, data: object)`
 
 Check whether a field in the data conforms to the model shape definition. Return a check result.
 
@@ -372,10 +378,14 @@ const model = SchemaModel({
   email: StringType().isEmail('Please input the correct email address')
 });
 
-model.checkForField('username', 'root');
+const data = {
+  username: 'root'
+};
+
+model.checkForField('username', data);
 ```
 
-#### checkForFieldAsync(fieldName: string, fieldValue: any, data: Object)
+#### `checkForFieldAsync(fieldName: string, data: object)`
 
 Asynchronously check whether a field in the data conforms to the model shape definition. Return a check result.
 
@@ -391,28 +401,32 @@ const model = SchemaModel({
   email: StringType().isEmail('Please input the correct email address')
 });
 
-model.checkForFieldAsync('username', 'root').then(result => {
+const data = {
+  username: 'root'
+};
+
+model.checkForFieldAsync('username', data).then(result => {
   // Data verification result
 });
 ```
 
 ### MixedType()
 
-Creates a type that matches all types. All types inherit from this base type
+Creates a type that matches all types. All types inherit from this base type.
 
-#### isRequired(errorMessage?: string, trim: boolean = true)
+#### `isRequired(errorMessage?: string, trim: boolean = true)`
 
 ```js
 MixedType().isRequired('This field required');
 ```
 
-#### isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)
+#### `isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)`
 
 ```js
 MixedType().isRequiredOrEmpty('This field required');
 ```
 
-#### addRule(onValid: Function, errorMessage?: string, priority: boolean)
+#### `addRule(onValid: Function, errorMessage?: string, priority: boolean)`
 
 ```js
 MixedType().addRule((value, data) => {
@@ -420,7 +434,42 @@ MixedType().addRule((value, data) => {
 }, 'Please enter a legal character.');
 ```
 
-#### check(value: ValueType, data?: DataType):CheckResult
+#### `when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`
+
+Define data verification rules based on conditions.
+
+```js
+const model = SchemaModel({
+  age: NumberType().min(18, 'error'),
+  contact: MixedType().when(schema => {
+    const checkResult = schema.age.check();
+    return checkResult.hasError
+      ? StringType().isRequired('Please provide contact information')
+      : StringType();
+  })
+});
+
+/**
+{ 
+  age: { hasError: false }, 
+  contact: { hasError: false } 
+}
+*/
+model.check({ age: 18, contact: '' });
+
+/*
+{
+  age: { hasError: true, errorMessage: 'error' },
+  contact: {
+    hasError: true,
+    errorMessage: 'Please provide contact information'
+  }
+}
+*/
+model.check({ age: 17, contact: '' });
+```
+
+#### `check(value: ValueType, data?: DataType):CheckResult`
 
 ```js
 const type = MixedType().addRule(v => {
@@ -434,7 +483,7 @@ type.check('1'); //  { hasError: true, errorMessage: 'Please enter a valid numbe
 type.check(1); //  { hasError: false }
 ```
 
-#### checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>
+#### `checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`
 
 ```js
 const type = MixedType().addRule(v => {
@@ -461,73 +510,73 @@ type.checkAsync(1).then(checkResult => {
 
 Define a string type. Supports all the same methods as [MixedType](#mixedtype).
 
-#### isEmail(errorMessage?: string)
+#### `isEmail(errorMessage?: string)`
 
 ```js
 StringType().isEmail('Please input the correct email address');
 ```
 
-#### isURL(errorMessage?: string)
+#### `isURL(errorMessage?: string)`
 
 ```js
 StringType().isURL('Please enter the correct URL address');
 ```
 
-#### isOneOf(items: Array, errorMessage?: string)
+#### `isOneOf(items: Array, errorMessage?: string)`
 
 ```js
 StringType().isOneOf(['Javascript', 'CSS'], 'Can only type `Javascript` and `CSS`');
 ```
 
-#### containsLetter(errorMessage?: string)
+#### `containsLetter(errorMessage?: string)`
 
 ```js
 StringType().containsLetter('Must contain English characters');
 ```
 
-#### containsUppercaseLetter(errorMessage?: string)
+#### `containsUppercaseLetter(errorMessage?: string)`
 
 ```js
 StringType().containsUppercaseLetter('Must contain uppercase English characters');
 ```
 
-#### containsLowercaseLetter(errorMessage?: string)
+#### `containsLowercaseLetter(errorMessage?: string)`
 
 ```js
 StringType().containsLowercaseLetter('Must contain lowercase English characters');
 ```
 
-#### containsLetterOnly(errorMessage?: string)
+#### `containsLetterOnly(errorMessage?: string)`
 
 ```js
 StringType().containsLetterOnly('English characters that can only be included');
 ```
 
-#### containsNumber(errorMessage?: string)
+#### `containsNumber(errorMessage?: string)`
 
 ```js
 StringType().containsNumber('Must contain numbers');
 ```
 
-#### pattern(regExp: RegExp, errorMessage?: string)
+#### `pattern(regExp: RegExp, errorMessage?: string)`
 
 ```js
 StringType().pattern(/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/, 'Please enter legal characters');
 ```
 
-#### rangeLength(minLength: number, maxLength: number, errorMessage?: string)
+#### `rangeLength(minLength: number, maxLength: number, errorMessage?: string)`
 
 ```js
 StringType().rangeLength(6, 30, 'The number of characters can only be between 6 and 30');
 ```
 
-#### minLength(minLength: number, errorMessage?: string)
+#### `minLength(minLength: number, errorMessage?: string)`
 
 ```js
 StringType().minLength(6, 'Minimum 6 characters required');
 ```
 
-#### maxLength(maxLength: number, errorMessage?: string)
+#### `maxLength(maxLength: number, errorMessage?: string)`
 
 ```js
 StringType().maxLength(30, 'The maximum is only 30 characters.');
@@ -537,37 +586,37 @@ StringType().maxLength(30, 'The maximum is only 30 characters.');
 
 Define a number type. Supports all the same methods as [MixedType](#mixedtype).
 
-#### isInteger(errorMessage?: string)
+#### `isInteger(errorMessage?: string)`
 
 ```js
 NumberType().isInteger('It can only be an integer');
 ```
 
-#### isOneOf(items: Array, errorMessage?: string)
+#### `isOneOf(items: Array, errorMessage?: string)`
 
 ```js
 NumberType().isOneOf([5, 10, 15], 'Can only be `5`, `10`, `15`');
 ```
 
-#### pattern(regExp: RegExp, errorMessage?: string)
+#### `pattern(regExp: RegExp, errorMessage?: string)`
 
 ```js
 NumberType().pattern(/^[1-9][0-9]{3}$/, 'Please enter a legal character.');
 ```
 
-#### range(minLength: number, maxLength: number, errorMessage?: string)
+#### `range(minLength: number, maxLength: number, errorMessage?: string)`
 
 ```js
 NumberType().range(18, 40, 'Please enter a number between 18 - 40');
 ```
 
-#### min(min: number, errorMessage?: string)
+#### `min(min: number, errorMessage?: string)`
 
 ```js
 NumberType().min(18, 'Minimum 18');
 ```
 
-#### max(max: number, errorMessage?: string)
+#### `max(max: number, errorMessage?: string)`
 
 ```js
 NumberType().max(40, 'Maximum 40');
@@ -577,43 +626,47 @@ NumberType().max(40, 'Maximum 40');
 
 Define a array type. Supports all the same methods as [MixedType](#mixedtype).
 
-#### isRequiredOrEmpty(errorMessage?: string)
+#### `isRequiredOrEmpty(errorMessage?: string)`
 
 ```js
 ArrayType().isRequiredOrEmpty('This field required');
 ```
 
-#### rangeLength(minLength: number, maxLength: number, errorMessage?: string)
+#### `rangeLength(minLength: number, maxLength: number, errorMessage?: string)`
 
 ```js
 ArrayType().rangeLength(1, 3, 'Choose at least one, but no more than three');
 ```
 
-#### minLength(minLength: number, errorMessage?: string)
+#### `minLength(minLength: number, errorMessage?: string)`
 
 ```js
 ArrayType().minLength(1, 'Choose at least one');
 ```
 
-#### maxLength(maxLength: number, errorMessage?: string)
+#### `maxLength(maxLength: number, errorMessage?: string)`
 
 ```js
 ArrayType().maxLength(3, "Can't exceed three");
 ```
 
-#### unrepeatable(errorMessage?: string)
+#### `unrepeatable(errorMessage?: string)`
 
 ```js
 ArrayType().unrepeatable('Duplicate options cannot appear');
 ```
 
-#### of(type: Object, errorMessage?: string)
+#### `of(type: object, errorMessage?: string)`
+
+```js
+ArrayType().of(StringType('The tag should be a string').isRequired());
+```
 
 ### DateType(errorMessage?: string)
 
 Define a date type. Supports all the same methods as [MixedType](#mixedtype).
 
-#### range(min: Date, max: Date, errorMessage?: string)
+#### `range(min: Date, max: Date, errorMessage?: string)`
 
 ```js
 DateType().range(
@@ -623,13 +676,13 @@ DateType().range(
 );
 ```
 
-#### min(min: Date, errorMessage?: string)
+#### `min(min: Date, errorMessage?: string)`
 
 ```js
 DateType().min(new Date('08/01/2017'), 'Minimum date 08/01/2017');
 ```
 
-#### max(max: Date, errorMessage?: string)
+#### `max(max: Date, errorMessage?: string)`
 
 ```js
 DateType().max(new Date('08/30/2017'), 'Maximum date 08/30/2017');
@@ -639,7 +692,7 @@ DateType().max(new Date('08/30/2017'), 'Maximum date 08/30/2017');
 
 Define a object type. Supports all the same methods as [MixedType](#mixedtype).
 
-#### shape(type: Object)
+#### `shape(fields: object)`
 
 ```js
 ObjectType().shape({
