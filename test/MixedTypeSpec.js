@@ -1,8 +1,8 @@
 const should = require('chai').should();
 const schema = require('../src');
-const { StringType, SchemaModel, ArrayType } = schema;
+const { StringType, SchemaModel, NumberType, ObjectType, ArrayType, MixedType } = schema;
 
-describe('#Type', () => {
+describe('#MixedType', () => {
   it('Should be the same password twice', () => {
     const schema = SchemaModel({
       password1: StringType().isRequired('Password is required'),
@@ -76,24 +76,23 @@ describe('#Type', () => {
         .addRule(value => value === '', 'error')
     });
 
-    schema.checkForField('str', '').hasError.should.equal(true);
-    schema.checkForField('str', '').errorMessage.should.equal('required');
+    schema.checkForField('str', { str: '' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '' }).errorMessage.should.equal('required');
 
-    schema.checkForField('str', '12').hasError.should.equal(true);
-    schema.checkForField('str', '12').errorMessage.should.equal('error');
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '12' }).errorMessage.should.equal('error');
 
     const schema2 = SchemaModel({
       str: StringType().addRule(value => value === '', 'error')
     });
 
-    schema2.checkForField('str', '12').hasError.should.equal(true);
-    schema2.checkForField('str', '12').errorMessage.should.equal('error');
+    schema2.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema2.checkForField('str', { str: '12' }).errorMessage.should.equal('error');
   });
 
   it('Should be error for undefined string with isRequired', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequired('required')
+      str: StringType().isRequired('required')
     });
     let obj = {
       str: undefined
@@ -104,20 +103,18 @@ describe('#Type', () => {
 
   it('Should be error for empty string with isRequired', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequired('required')
+      str: StringType().isRequired('required')
     });
     let obj = {
       str: ''
-    }; 
+    };
     let result = schema.check(obj);
     result.str.hasError.should.equal(true);
   });
 
   it('Should be error for empty array with isRequired', () => {
     const schema = SchemaModel({
-      arr: ArrayType()
-        .isRequired('required')
+      arr: ArrayType().isRequired('required')
     });
     let obj = {
       arr: []
@@ -128,8 +125,7 @@ describe('#Type', () => {
 
   it('Should be without error for empty string with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequiredOrEmpty('required')
+      str: StringType().isRequiredOrEmpty('required')
     });
     let obj = {
       str: ''
@@ -140,8 +136,7 @@ describe('#Type', () => {
 
   it('Should be without error for empty array with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      arr: ArrayType()
-        .isRequiredOrEmpty('required')
+      arr: ArrayType().isRequiredOrEmpty('required')
     });
     let obj = {
       arr: []
@@ -152,8 +147,7 @@ describe('#Type', () => {
 
   it('Should be error for undefined string with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      str: StringType()
-        .isRequiredOrEmpty('required')
+      str: StringType().isRequiredOrEmpty('required')
     });
     let obj = {
       str: undefined
@@ -162,7 +156,7 @@ describe('#Type', () => {
     result.str.hasError.should.equal(true);
   });
 
-  it('Should call asynchronous check', done => {
+  it('Should call async check', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2'),
       name: StringType().addRule((value, data) => {
@@ -186,7 +180,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous check', done => {
+  it('Should call async check', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2')
     });
@@ -198,7 +192,7 @@ describe('#Type', () => {
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and verify pass', done => {
+  it('Should call async checkForFieldAsync and verify pass', done => {
     const schema = SchemaModel({
       name: StringType().addRule((value, data) => {
         return new Promise(resolve => {
@@ -209,26 +203,26 @@ describe('#Type', () => {
       }, 'error1')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error1') {
         done();
       }
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2')
     });
 
-    schema.checkForFieldAsync('email', 'a').then(status => {
+    schema.checkForFieldAsync('email', { email: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error2') {
         done();
       }
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType().addRule((value, data) => {
         return new Promise(resolve => {
@@ -239,14 +233,14 @@ describe('#Type', () => {
       }, 'error1')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError === false) {
         done();
       }
     });
   });
 
-  it('Should call asynchronous checkForFieldAsync and the validation fails', done => {
+  it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType()
         .addRule((value, data) => {
@@ -263,7 +257,7 @@ describe('#Type', () => {
         }, 'error2')
     });
 
-    schema.checkForFieldAsync('name', 'a').then(status => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(status => {
       if (status.hasError && status.errorMessage === 'error1') {
         done();
       }
@@ -284,7 +278,7 @@ describe('#Type', () => {
         }))
     });
 
-    const checkResult = schema.checkForField('name', 'a');
+    const checkResult = schema.checkForField('name', { name: 'a' });
     checkResult.hasError.should.equal(true);
     checkResult.errorMessage.should.equal('Error!!');
   });
@@ -303,10 +297,101 @@ describe('#Type', () => {
         }))
     });
 
-    schema.checkForFieldAsync('name', 'a').then(checkResult => {
+    schema.checkForFieldAsync('name', { name: 'a' }).then(checkResult => {
       if (checkResult.hasError && checkResult.errorMessage === 'Error!!') {
         done();
       }
     });
+  });
+
+  it('Should be able to check by `check` ', () => {
+    const type = MixedType()
+      .addRule(v => {
+        if (typeof v === 'number') {
+          return true;
+        }
+
+        return false;
+      }, 'error1')
+      .isRequired('error2');
+
+    type.check('').hasError.should.equal(true);
+    type.check('').errorMessage.should.equal('error2');
+    type.check('1').hasError.should.equal(true);
+    type.check('1').errorMessage.should.equal('error1');
+    type.check(1).hasError.should.equal(false);
+  });
+
+  it('Should be able to check by `checkAsync` ', done => {
+    const type = MixedType()
+      .addRule(v => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            if (typeof v === 'number') {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          }, 500);
+        });
+      }, 'error1')
+      .isRequired('error2');
+
+    Promise.all([type.checkAsync(''), type.checkAsync('1'), type.checkAsync(1)]).then(res => {
+      if (res[0].hasError && res[1].hasError && !res[2].hasError) {
+        done();
+      }
+    });
+  });
+
+  it('Should type be changed by condition', () => {
+    const model = SchemaModel({
+      filed1: NumberType().min(10),
+      filed2: MixedType().when(schema => {
+        const checkResult = schema.filed1.check();
+        return checkResult.hasError
+          ? NumberType().min(10, 'error1')
+          : NumberType().min(2, 'error2');
+      })
+    });
+
+    const checkResult1 = model.check({ filed1: 20, filed2: 2 });
+
+    checkResult1.filed1.hasError.should.equal(false);
+    checkResult1.filed2.hasError.should.equal(false);
+
+    const checkResult2 = model.check({ filed1: 1, filed2: 1 });
+
+    checkResult2.filed1.hasError.should.equal(true);
+    checkResult2.filed2.hasError.should.equal(true);
+    checkResult2.filed2.errorMessage.should.equal('error1');
+
+    const checkResult3 = model.check({ filed1: 10, filed2: 1 });
+
+    checkResult3.filed1.hasError.should.equal(false);
+    checkResult3.filed2.hasError.should.equal(true);
+    checkResult3.filed2.errorMessage.should.equal('error2');
+
+    const checkResult4 = model.checkForField('filed2', { filed1: 20, filed2: 1 });
+    checkResult4.errorMessage.should.equal('error2');
+
+    const checkResult5 = model.checkForField('filed2', { filed1: 9, filed2: 1 });
+    checkResult5.errorMessage.should.equal('error1');
+  });
+
+  it('Should be high priority even if it is empty', () => {
+    const model = SchemaModel({
+      age: NumberType().min(18, 'error1'),
+      contact: StringType().when(schema => {
+        const checkResult = schema.age.check();
+        return checkResult.hasError ? StringType().isRequired('error2') : StringType();
+      })
+    });
+
+    const checkResult = model.check({ age: 17, contact: '' });
+
+    checkResult.age.hasError.should.equal(true);
+    checkResult.contact.hasError.should.equal(true);
+    checkResult.contact.errorMessage.should.equal('error2');
   });
 });

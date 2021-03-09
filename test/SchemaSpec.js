@@ -7,7 +7,8 @@ describe('#Schema', () => {
   it('The schema should be saved as proporty', () => {
     let schemaData = { data: StringType() };
     let schema = new Schema(schemaData);
-    schema.schema.should.equal(schemaData);
+
+    schema.spec.should.equal(schemaData);
   });
 
   it('Should be able to get the field value type for the given field name', () => {
@@ -74,9 +75,7 @@ describe('#Schema', () => {
       model1CheckStatus.email.hasError.should.equal(false);
 
       const model2 = SchemaModel({
-        username: StringType()
-          .isRequired('用户名不能为空')
-          .minLength(7, '最少7个字符'),
+        username: StringType().isRequired('用户名不能为空').minLength(7, '最少7个字符'),
         age: NumberType().range(18, 30, '年应该在 18 到 30 岁')
       });
 
