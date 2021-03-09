@@ -2,7 +2,7 @@
 
 Schema for data modeling & validation
 
-[![npm][npm-badge]][npm]
+[![npm][npm-badge]][npm] [![GitHub Actions][actions-svg]][actions-home]
 
 ## Table of Contents
 
@@ -16,6 +16,7 @@ Schema for data modeling & validation
   - [Custom verification](#custom-verification)
     - [Multi-field cross validation](#multi-field-cross-validation)
     - [Asynchronous check](#asynchronous-check)
+    - [](#)
   - [Validate nested objects](#validate-nested-objects)
   - [Combine](#combine)
 - [API](#api)
@@ -35,7 +36,7 @@ Schema for data modeling & validation
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
-    - [`isOneOf(items: Array, errorMessage?: string)`](#isoneofitems-array-errormessage-string)
+    - [`isOneOf(items: string[], errorMessage?: string)`](#isoneofitems-string-errormessage-string)
     - [`containsLetter(errorMessage?: string)`](#containslettererrormessage-string)
     - [`containsUppercaseLetter(errorMessage?: string)`](#containsuppercaselettererrormessage-string)
     - [`containsLowercaseLetter(errorMessage?: string)`](#containslowercaselettererrormessage-string)
@@ -47,7 +48,7 @@ Schema for data modeling & validation
     - [`maxLength(maxLength: number, errorMessage?: string)`](#maxlengthmaxlength-number-errormessage-string)
   - [NumberType(errorMessage?: string)](#numbertypeerrormessage-string)
     - [`isInteger(errorMessage?: string)`](#isintegererrormessage-string)
-    - [`isOneOf(items: Array, errorMessage?: string)`](#isoneofitems-array-errormessage-string-1)
+    - [`isOneOf(items: number[], errorMessage?: string)`](#isoneofitems-number-errormessage-string)
     - [`pattern(regExp: RegExp, errorMessage?: string)`](#patternregexp-regexp-errormessage-string-1)
     - [`range(minLength: number, maxLength: number, errorMessage?: string)`](#rangeminlength-number-maxlength-number-errormessage-string)
     - [`min(min: number, errorMessage?: string)`](#minmin-number-errormessage-string)
@@ -522,7 +523,7 @@ StringType().isEmail('Please input the correct email address');
 StringType().isURL('Please enter the correct URL address');
 ```
 
-#### `isOneOf(items: Array, errorMessage?: string)`
+#### `isOneOf(items: string[], errorMessage?: string)`
 
 ```js
 StringType().isOneOf(['Javascript', 'CSS'], 'Can only type `Javascript` and `CSS`');
@@ -592,7 +593,7 @@ Define a number type. Supports all the same methods as [MixedType](#mixedtype).
 NumberType().isInteger('It can only be an integer');
 ```
 
-#### `isOneOf(items: Array, errorMessage?: string)`
+#### `isOneOf(items: number[], errorMessage?: string)`
 
 ```js
 NumberType().isOneOf([5, 10, 15], 'Can only be `5`, `10`, `15`');
@@ -720,3 +721,5 @@ If the third argument to addRule is `true`, the priority of the check is as foll
 
 [npm-badge]: https://img.shields.io/npm/v/schema-typed.svg
 [npm]: https://www.npmjs.com/package/schema-typed
+[actions-svg]: https://github.com/rsuite/schema-typed/workflows/Node.js%20CI/badge.svg?branch=master
+[actions-home]: https://github.com/rsuite/schema-typed/actions/workflows/nodejs-ci.yml
