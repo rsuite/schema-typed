@@ -16,7 +16,6 @@ Schema for data modeling & validation
   - [Custom verification](#custom-verification)
     - [Multi-field cross validation](#multi-field-cross-validation)
     - [Asynchronous check](#asynchronous-check)
-    - [](#)
   - [Validate nested objects](#validate-nested-objects)
   - [Combine](#combine)
 - [API](#api)
@@ -236,8 +235,6 @@ model.checkAsync({ email: 'foo@domain.com' }).then(checkResult => {
   **/
 });
 ```
-
-####
 
 ### Validate nested objects
 

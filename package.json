@@ -1,6 +1,6 @@
 {
   "name": "schema-typed",
-  "version": "1.5.1",
+  "version": "2.0.0-alpha.1",
   "description": "Schema for data modeling & validation",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -9,14 +9,13 @@
     "lint": "eslint src/**/*.ts",
     "build": "gulp build && npm run build:types",
     "build:types": "npx tsc --emitDeclarationOnly --outDir lib && npx tsc --emitDeclarationOnly --outDir es",
-    "es": "npx babel src --out-dir lib",
-    "build-es": "cross-env NODE_ENV=esm && npm run es",
-    "prepublishOnly": "npm run test && npm run test-types && npm run build && npm run build-es",
+    "prepublishOnly": "npm run test && npm run build",
     "tdd": "mocha --watch",
     "test": "npm run lint && npm run test:once && npm run test:types",
     "test:once": "mocha",
     "test:types": "dtslint --expectOnly --localTs node_modules/typescript/lib types",
-    "doctoc:": "doctoc README.md"
+    "doctoc:": "doctoc README.md",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "repository": {
     "type": "git",
@@ -60,6 +59,7 @@
     "@typescript-eslint/parser": "^4.16.1",
     "babel-eslint": "^9.0.0",
     "chai": "^3.5.0",
+    "conventional-changelog-cli": "^2.1.1",
     "coveralls": "^2.13.1",
     "cross-env": "^6.0.3",
     "del": "^6.0.0",

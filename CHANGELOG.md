@@ -1,3 +1,10 @@
+# 2.0.0
+
+- refactor: refactor the project through typescript.
+- feat(MixedType): Added support for `when` method on all types
+- feat(MixedType): Replace Type with MixedType.
+- feat(ObjectType): Support nested objects in the `shape` method of ObjectType.
+
 # 1.5.1
 
 - Update the typescript definition of `addRule`

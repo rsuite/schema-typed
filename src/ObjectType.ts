@@ -36,7 +36,7 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
 
       const validator = createValidator<PlainObject, DataType, ErrorMsgType | string>(data);
 
-      let checkStatus = validator(value, type.priorityRules);
+      const checkStatus = validator(value, type.priorityRules);
 
       if (checkStatus) {
         return checkStatus;
