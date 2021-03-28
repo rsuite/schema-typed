@@ -1,4 +1,5 @@
-const should = require('chai').should();
+/* eslint-disable @typescript-eslint/no-var-requires */
+require('chai').should();
 const schema = require('../src');
 
 const { StringType, NumberType, Schema, SchemaModel } = schema;

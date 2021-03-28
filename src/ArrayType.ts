@@ -1,69 +1,94 @@
 import { MixedType } from './MixedType';
-import { CheckType, PlainObject, CheckResult } from './types';
+import { CheckType, PlainObject, CheckResult, ErrorMessageType } from './types';
+import { ArrayTypeLocale } from './locales';
 
-export class ArrayType<DataType = any, ErrorMsgType = string> extends MixedType<
+export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   any[],
   DataType,
-  ErrorMsgType
+  E,
+  ArrayTypeLocale
 > {
-  constructor(errorMessage?: ErrorMsgType) {
+  constructor(errorMessage?: E | string) {
     super('array');
-    super.pushRule(v => Array.isArray(v), errorMessage || 'Please enter a valid array');
+    super.pushRule({
+      onValid: v => Array.isArray(v),
+      errorMessage: errorMessage || this.locale.type
+    });
   }
 
-  rangeLength(minLength: number, maxLength: number, errorMessage?: ErrorMsgType) {
-    super.pushRule(
-      (value: string[]) => value.length >= minLength && value.length <= maxLength,
-      errorMessage
-    );
+  rangeLength(
+    minLength: number,
+    maxLength: number,
+    errorMessage: E | string = this.locale.rangeLength
+  ) {
+    super.pushRule({
+      onValid: (value: string[]) => value.length >= minLength && value.length <= maxLength,
+      errorMessage,
+      params: { minLength, maxLength }
+    });
     return this;
   }
 
-  minLength(minLength: number, errorMessage?: ErrorMsgType) {
-    super.pushRule(value => value.length >= minLength, errorMessage);
+  minLength(minLength: number, errorMessage: E | string = this.locale.minLength) {
+    super.pushRule({
+      onValid: value => value.length >= minLength,
+      errorMessage,
+      params: { minLength }
+    });
+
     return this;
   }
 
-  maxLength(maxLength: number, errorMessage?: ErrorMsgType) {
-    super.pushRule(value => value.length <= maxLength, errorMessage);
+  maxLength(maxLength: number, errorMessage: E | string = this.locale.minLength) {
+    super.pushRule({
+      onValid: value => value.length <= maxLength,
+      errorMessage,
+      params: { maxLength }
+    });
     return this;
   }
 
-  unrepeatable(errorMessage?: ErrorMsgType) {
-    super.pushRule(items => {
-      const hash: PlainObject = {};
-      for (const i in items) {
-        if (hash[items[i]]) {
-          return false;
+  unrepeatable(errorMessage: E | string = this.locale.unrepeatable) {
+    super.pushRule({
+      onValid: items => {
+        const hash: PlainObject = {};
+        for (const i in items) {
+          if (hash[items[i]]) {
+            return false;
+          }
+          hash[items[i]] = true;
         }
-        hash[items[i]] = true;
-      }
-      return true;
-    }, errorMessage);
+        return true;
+      },
+      errorMessage
+    });
+
     return this;
   }
 
-  /**
-   * @example
-   * ArrayType().of(StringType().isOneOf(['数码','体育','游戏','旅途','其他'],'Can only be the value of a predefined option')
-   */
-  of(type: CheckType<any[], DataType, ErrorMsgType>, errorMessage?: ErrorMsgType) {
-    super.pushRule(items => {
-      const checkResults = items.map(value => type.check(value));
-      const hasError = !!checkResults.find(item => item?.hasError);
+  of(type: CheckType<any[], DataType, E>) {
+    super.pushRule({
+      onValid: (items, data, filedName) => {
+        const checkResults = items.map((value, index) => {
+          const name = Array.isArray(filedName)
+            ? [...filedName, `[${index}]`]
+            : [filedName, `[${index}]`];
 
-      return {
-        hasError,
-        array: checkResults
-      } as CheckResult<string | ErrorMsgType>;
-    }, errorMessage);
+          return type.check(value, data, name as string[]);
+        });
+        const hasError = !!checkResults.find(item => item?.hasError);
+
+        return {
+          hasError,
+          array: checkResults
+        } as CheckResult<string | E>;
+      }
+    });
 
     return this;
   }
 }
 
-export default function getArrayType<DataType = any, ErrorMsgType = string>(
-  errorMessage?: ErrorMsgType
-) {
-  return new ArrayType<DataType, ErrorMsgType>(errorMessage);
+export default function getArrayType<DataType = any, E = string>(errorMessage?: E) {
+  return new ArrayType<DataType, E>(errorMessage);
 }

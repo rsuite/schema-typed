@@ -1,6 +1,8 @@
-const should = require('chai').should();
+/* eslint-disable @typescript-eslint/no-var-requires */
+require('chai').should();
+
 const schema = require('../src');
-const { StringType, SchemaModel, NumberType, ObjectType, ArrayType, MixedType } = schema;
+const { StringType, SchemaModel, NumberType, ArrayType, MixedType } = schema;
 
 describe('#MixedType', () => {
   it('Should be the same password twice', () => {

@@ -1,6 +1,7 @@
-const should = require('chai').should();
+/* eslint-disable @typescript-eslint/no-var-requires */
+require('chai').should();
 const schema = require('../src');
-const { StringType, NumberType, Schema } = schema;
+const { NumberType, Schema } = schema;
 
 describe('#NumberType', () => {
   let schemaData = { data: NumberType() };
@@ -24,6 +25,7 @@ describe('#NumberType', () => {
     schema.checkForField('data', { data: '1abc' }).hasError.should.equal(true);
     schema.checkForField('data', { data: {} }).hasError.should.equal(true);
     schema.checkForField('data', { data: [] }).hasError.should.equal(true);
+    schema.checkForField('data', { data: [] }).errorMessage.should.equal('data must be a number');
   });
 
   it('True should be a invalid number', () => {

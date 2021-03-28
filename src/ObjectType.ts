@@ -1,20 +1,24 @@
 import { MixedType } from './MixedType';
 import { createValidator, createValidatorAsync, checkRequired, isEmpty } from './utils';
-import { PlainObject, SchemaDeclaration, CheckResult } from './types';
+import { PlainObject, SchemaDeclaration, CheckResult, ErrorMessageType } from './types';
+import { ObjectTypeLocale } from './locales';
 
-export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType<
+export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
   PlainObject,
   DataType,
-  ErrorMsgType
+  E,
+  ObjectTypeLocale
 > {
-  objectTypeSchemaSpec: SchemaDeclaration<DataType, ErrorMsgType>;
-
-  constructor(errorMessage?: ErrorMsgType) {
+  objectTypeSchemaSpec: SchemaDeclaration<DataType, E>;
+  constructor(errorMessage?: E | string) {
     super('object');
-    super.pushRule(v => typeof v === 'object', errorMessage || 'Please enter a valid `object`');
+    super.pushRule({
+      onValid: v => typeof v === 'object',
+      errorMessage: errorMessage || this.locale.type
+    });
   }
 
-  check(value: PlainObject = this.value, data?: DataType) {
+  check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
     const check = (value: any, data: any, type: any) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return { hasError: true, errorMessage: type.requiredMessage };
@@ -34,8 +38,7 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
         return { hasError, object: checkResultObject };
       }
 
-      const validator = createValidator<PlainObject, DataType, ErrorMsgType | string>(data);
-
+      const validator = createValidator<PlainObject, DataType, E | string>(data, fieldName);
       const checkStatus = validator(value, type.priorityRules);
 
       if (checkStatus) {
@@ -49,16 +52,16 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
       return validator(value, type.rules) || { hasError: false };
     };
 
-    return check(value, data, this) as CheckResult<ErrorMsgType | string>;
+    return check(value, data, this) as CheckResult<E | string>;
   }
 
-  checkAsync(value: PlainObject = this.value, data?: DataType) {
+  checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
     const check = (value: any, data: any, type: any) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return Promise.resolve({ hasError: true, errorMessage: this.requiredMessage });
       }
 
-      const validator = createValidatorAsync<PlainObject, DataType, ErrorMsgType | string>(data);
+      const validator = createValidatorAsync<PlainObject, DataType, E | string>(data, fieldName);
 
       return new Promise(resolve => {
         if (type.objectTypeSchemaSpec && typeof value === 'object') {
@@ -80,7 +83,7 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
         }
 
         return validator(value, type.priorityRules)
-          .then((checkStatus: CheckResult<ErrorMsgType | string> | void | null) => {
+          .then((checkStatus: CheckResult<E | string> | void | null) => {
             if (checkStatus) {
               resolve(checkStatus);
             }
@@ -91,7 +94,7 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
             }
           })
           .then(() => validator(value, type.rules))
-          .then((checkStatus: CheckResult<ErrorMsgType | string> | void | null) => {
+          .then((checkStatus: CheckResult<E | string> | void | null) => {
             if (checkStatus) {
               resolve(checkStatus);
             }
@@ -100,7 +103,7 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
       });
     };
 
-    return check(value, data, this) as Promise<CheckResult<ErrorMsgType | string>>;
+    return check(value, data, this) as Promise<CheckResult<E | string>>;
   }
 
   /**
@@ -110,14 +113,12 @@ export class ObjectType<DataType = any, ErrorMsgType = string> extends MixedType
    *  age: NumberType()
    * })
    */
-  shape(fields: SchemaDeclaration<DataType, ErrorMsgType>) {
+  shape(fields: SchemaDeclaration<DataType, E>) {
     this.objectTypeSchemaSpec = fields;
     return this;
   }
 }
 
-export default function getObjectType<DataType = any, ErrorMsgType = string>(
-  errorMessage?: ErrorMsgType
-) {
-  return new ObjectType<DataType, ErrorMsgType>(errorMessage);
+export default function getObjectType<DataType = any, E = string>(errorMessage?: E) {
+  return new ObjectType<DataType, E>(errorMessage);
 }
