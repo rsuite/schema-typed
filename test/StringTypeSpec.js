@@ -91,4 +91,126 @@ describe('#StringType', () => {
       .checkForField('str1', { str1: 'D' })
       .errorMessage.should.equal('str1 must be one of the following values: A,B,C');
   });
+
+  it('Should contain letters', () => {
+    const schema = SchemaModel({
+      str: StringType().containsLetter()
+    });
+    schema.checkForField('str', { str: '12A' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'a12' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema
+      .checkForField('str', { str: '-' })
+      .errorMessage.should.equal('str field must contain letters');
+  });
+
+  it('Should only contain letters', () => {
+    const schema = SchemaModel({
+      str: StringType().containsLetterOnly()
+    });
+    schema.checkForField('str', { str: 'aA' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '12A' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: 'a12' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '1a' }).errorMessage.should.equal('str must all be letters');
+  });
+
+  it('Should contain uppercase letters', () => {
+    const schema = SchemaModel({
+      str: StringType().containsUppercaseLetter()
+    });
+    schema.checkForField('str', { str: '12A' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'a12' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema
+      .checkForField('str', { str: '-' })
+      .errorMessage.should.equal('str must be a upper case string');
+  });
+
+  it('Should contain lowercase letters', () => {
+    const schema = SchemaModel({
+      str: StringType().containsLowercaseLetter()
+    });
+    schema.checkForField('str', { str: '12A' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: 'a12' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(true);
+    schema
+      .checkForField('str', { str: '-' })
+      .errorMessage.should.equal('str must be a lowercase string');
+  });
+
+  it('Should contain numbers', () => {
+    const schema = SchemaModel({
+      str: StringType().containsNumber()
+    });
+    schema.checkForField('str', { str: '12' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'a12' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '12A' }).hasError.should.equal(false);
+    schema
+      .checkForField('str', { str: 'a' })
+      .errorMessage.should.equal('str field must contain numbers');
+  });
+
+  it('Should be a url', () => {
+    const schema = SchemaModel({
+      str: StringType().isURL()
+    });
+    schema.checkForField('str', { str: 'https://www.abc.com' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'http://www.abc.com' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'ftp://www.abc.com' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'http://127.0.0.1/home' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'www.abc.com' }).hasError.should.equal(true);
+    schema.checkForField('str', { str: 'a' }).errorMessage.should.equal('str must be a valid URL');
+  });
+
+  it('Should be a hexadecimal character', () => {
+    const schema = SchemaModel({
+      str: StringType().isHex()
+    });
+    schema.checkForField('str', { str: '#fff000' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'fff000' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '#fff' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: 'fff' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '#000' }).hasError.should.equal(false);
+    schema.checkForField('str', { str: '#00' }).hasError.should.equal(true);
+    schema
+      .checkForField('str', { str: 'a' })
+      .errorMessage.should.equal('str must be a valid hexadecimal');
+  });
+
+  it('Should allow custom rules', () => {
+    let schema = SchemaModel({ data: StringType().pattern(/^-?1\d+$/) });
+    schema.checkForField('data', { data: '11' }).hasError.should.equal(false);
+    schema.checkForField('data', { data: '12' }).hasError.should.equal(false);
+    schema.checkForField('data', { data: '22' }).hasError.should.equal(true);
+    schema.checkForField('data', { data: '22' }).errorMessage.should.equal('data is invalid');
+  });
+
+  it('Should be within the range of the number of characters', () => {
+    let schema = SchemaModel({ data: StringType().rangeLength(5, 10) });
+    schema.checkForField('data', { data: '12345' }).hasError.should.equal(false);
+    schema.checkForField('data', { data: '1234' }).hasError.should.equal(true);
+    schema.checkForField('data', { data: '12345678910' }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: '1234' })
+      .errorMessage.should.equal('data must contain 5 to 10 characters');
+  });
+
+  it('Should not be less than the minimum number of characters', () => {
+    let schema = SchemaModel({ data: StringType().minLength(5) });
+    schema.checkForField('data', { data: '12345' }).hasError.should.equal(false);
+    schema.checkForField('data', { data: '1234' }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: '1234' })
+      .errorMessage.should.equal('data must be at least 5 characters');
+  });
+
+  it('Should not exceed the maximum number of characters', () => {
+    let schema = SchemaModel({ data: StringType().maxLength(5) });
+    schema.checkForField('data', { data: '12345' }).hasError.should.equal(false);
+    schema.checkForField('data', { data: '123456' }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: '123456' })
+      .errorMessage.should.equal('data must be at most 5 characters');
+  });
 });

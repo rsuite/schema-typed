@@ -121,6 +121,8 @@ describe('#ArrayType', () => {
     const schema2 = new Schema(schemaData2);
     const checkStatus2 = schema2.checkForField('data', { data: ['abc', '123', 'abc'] });
     checkStatus2.errorMessage.should.equal('data must have non-repeatable items');
+
+    schema.checkForField('data', { data: ['1', '2', '3'] }).hasError.should.equal(false);
   });
 
   it('Should be required ', () => {
@@ -138,5 +140,40 @@ describe('#ArrayType', () => {
 
     schema.checkForField('data', { data: [] }).hasError.should.equal(true);
     schema.checkForField('data', { data: undefined }).hasError.should.equal(true);
+  });
+
+  it('Should be within the number of items', () => {
+    const schemaData = {
+      data: ArrayType().rangeLength(2, 4)
+    };
+    const schema = new Schema(schemaData);
+    schema.checkForField('data', { data: [1, 2] }).hasError.should.equal(false);
+    schema.checkForField('data', { data: [1] }).hasError.should.equal(true);
+    schema.checkForField('data', { data: [1, 2, 3, 4, 5] }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: [1] })
+      .errorMessage.should.equal('data must contain 2 to 4 items');
+  });
+
+  it('Should not exceed the maximum number of items', () => {
+    const schemaData = {
+      data: ArrayType().maxLength(2)
+    };
+    const schema = new Schema(schemaData);
+    schema.checkForField('data', { data: [1, 2, 3] }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: [1, 2, 3] })
+      .errorMessage.should.equal('data field must have less than or equal to 2 items');
+  });
+
+  it('Should not be less than the maximum number of items', () => {
+    const schemaData = {
+      data: ArrayType().minLength(2)
+    };
+    const schema = new Schema(schemaData);
+    schema.checkForField('data', { data: [1] }).hasError.should.equal(true);
+    schema
+      .checkForField('data', { data: [1] })
+      .errorMessage.should.equal('data field must have at least 2 items');
   });
 });
