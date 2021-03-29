@@ -110,7 +110,7 @@ describe('#ObjectType', () => {
     const schema = new Schema({
       url: StringType().isURL('error1'),
       user: ObjectType().shape({
-        email: StringType().addRule((value, data) => {
+        email: StringType().addRule(() => {
           return new Promise(resolve => {
             setTimeout(() => {
               resolve(false);

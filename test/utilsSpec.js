@@ -31,6 +31,11 @@ describe('#utils', () => {
       const str = formatErrorMessage('name is a required field');
       str.should.equal('name is a required field');
     });
+
+    it('Should return unprocessed parameters', () => {
+      const str = formatErrorMessage(true);
+      str.should.equal(true);
+    });
   });
 
   describe('## checkRequired', () => {

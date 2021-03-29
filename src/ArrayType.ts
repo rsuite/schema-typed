@@ -39,7 +39,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
     return this;
   }
 
-  maxLength(maxLength: number, errorMessage: E | string = this.locale.minLength) {
+  maxLength(maxLength: number, errorMessage: E | string = this.locale.maxLength) {
     super.pushRule({
       onValid: value => value.length <= maxLength,
       errorMessage,

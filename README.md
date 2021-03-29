@@ -2,7 +2,7 @@
 
 Schema for data modeling & validation
 
-[![npm][npm-badge]][npm] [![GitHub Actions][actions-svg]][actions-home]
+[![npm][npm-badge]][npm] [![GitHub Actions][actions-svg]][actions-home] [![Coverage Status][soverage-svg]][soverage]
 
 ## Table of Contents
 
@@ -720,3 +720,5 @@ If the third argument to addRule is `true`, the priority of the check is as foll
 [npm]: https://www.npmjs.com/package/schema-typed
 [actions-svg]: https://github.com/rsuite/schema-typed/workflows/Node.js%20CI/badge.svg?branch=master
 [actions-home]: https://github.com/rsuite/schema-typed/actions/workflows/nodejs-ci.yml
+[soverage-svg]: https://coveralls.io/repos/github/rsuite/schema-typed/badge.svg?branch=master
+[soverage]: https://coveralls.io/github/rsuite/schema-typed?branch=master

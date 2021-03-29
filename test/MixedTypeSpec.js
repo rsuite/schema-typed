@@ -27,7 +27,7 @@ describe('#MixedType', () => {
     const schema = SchemaModel({
       password1: StringType().isRequired('Password is required'),
       password2: StringType()
-        .addRule((value, data) => value !== 'root', 'Password cannot be root')
+        .addRule(value => value !== 'root', 'Password cannot be root')
         .addRule((value, data) => value === data.password1, 'The two passwords do not match')
         .isRequired('Password is required')
     });
@@ -127,13 +127,18 @@ describe('#MixedType', () => {
 
   it('Should be without error for empty string with isRequiredOrEmpty', () => {
     const schema = SchemaModel({
-      str: StringType().isRequiredOrEmpty('required')
+      str: StringType().isRequiredOrEmpty('required'),
+      str2: StringType().isRequiredOrEmpty()
     });
     let obj = {
-      str: ''
+      str: '',
+      str2: null
     };
     let result = schema.check(obj);
+
     result.str.hasError.should.equal(false);
+    result.str2.hasError.should.equal(true);
+    result.str2.errorMessage.should.equal('str2 is a required field');
   });
 
   it('Should be without error for empty array with isRequiredOrEmpty', () => {
@@ -161,7 +166,7 @@ describe('#MixedType', () => {
   it('Should call async check', done => {
     const schema = SchemaModel({
       email: StringType('error1').isEmail('error2'),
-      name: StringType().addRule((value, data) => {
+      name: StringType().addRule(() => {
         return new Promise(resolve => {
           setTimeout(() => {
             resolve(false);
@@ -196,7 +201,7 @@ describe('#MixedType', () => {
 
   it('Should call async checkForFieldAsync and verify pass', done => {
     const schema = SchemaModel({
-      name: StringType().addRule((value, data) => {
+      name: StringType().addRule(() => {
         return new Promise(resolve => {
           setTimeout(() => {
             resolve(false);
@@ -226,7 +231,7 @@ describe('#MixedType', () => {
 
   it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
-      name: StringType().addRule((value, data) => {
+      name: StringType().addRule(() => {
         return new Promise(resolve => {
           setTimeout(() => {
             resolve(true);
@@ -245,14 +250,14 @@ describe('#MixedType', () => {
   it('Should call async checkForFieldAsync and the validation fails', done => {
     const schema = SchemaModel({
       name: StringType()
-        .addRule((value, data) => {
+        .addRule(() => {
           return new Promise(resolve => {
             setTimeout(() => {
               resolve(false);
             }, 200);
           });
         }, 'error1')
-        .addRule((value, data) => {
+        .addRule(() => {
           return new Promise(resolve => {
             resolve(false);
           });

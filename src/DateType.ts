@@ -19,7 +19,8 @@ export class DateType<DataType = any, E = ErrorMessageType> extends MixedType<
   range(min: string | Date, max: string | Date, errorMessage: E | string = this.locale.range) {
     super.pushRule({
       onValid: value => new Date(value) >= new Date(min) && new Date(value) <= new Date(max),
-      errorMessage
+      errorMessage,
+      params: { min, max }
     });
     return this;
   }
@@ -27,7 +28,8 @@ export class DateType<DataType = any, E = ErrorMessageType> extends MixedType<
   min(min: string | Date, errorMessage: E | string = this.locale.min) {
     super.pushRule({
       onValid: value => new Date(value) >= new Date(min),
-      errorMessage
+      errorMessage,
+      params: { min }
     });
     return this;
   }
@@ -35,7 +37,8 @@ export class DateType<DataType = any, E = ErrorMessageType> extends MixedType<
   max(max: string | Date, errorMessage: E | string = this.locale.max) {
     super.pushRule({
       onValid: value => new Date(value) <= new Date(max),
-      errorMessage
+      errorMessage,
+      params: { max }
     });
     return this;
   }
