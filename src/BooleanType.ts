@@ -1,18 +1,22 @@
 import { MixedType } from './MixedType';
+import { ErrorMessageType } from './types';
+import { BooleanTypeLocale } from './locales';
 
-export class BooleanType<DataType = any, ErrorMsgType = string> extends MixedType<
+export class BooleanType<DataType = any, E = ErrorMessageType> extends MixedType<
   boolean,
   DataType,
-  ErrorMsgType
+  E,
+  BooleanTypeLocale
 > {
-  constructor(errorMessage?: ErrorMsgType) {
+  constructor(errorMessage?: E | string) {
     super('boolean');
-    super.pushRule(v => typeof v === 'boolean', errorMessage || 'Please enter a valid `boolean`');
+    super.pushRule({
+      onValid: v => typeof v === 'boolean',
+      errorMessage: errorMessage || this.locale.type
+    });
   }
 }
 
-export default function getBooleanType<DataType = any, ErrorMsgType = string>(
-  errorMessage?: ErrorMsgType
-) {
-  return new BooleanType<DataType, ErrorMsgType>(errorMessage);
+export default function getBooleanType<DataType = any, E = string>(errorMessage?: E) {
+  return new BooleanType<DataType, E>(errorMessage);
 }

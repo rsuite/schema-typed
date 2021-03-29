@@ -41,3 +41,4 @@ es
 
 .vscode
 yarn.lock
+.DS_Store

@@ -1,6 +1,8 @@
 import { flaser } from 'object-flaser';
 
-const should = require('chai').should();
+/* eslint-disable @typescript-eslint/no-var-requires */
+require('chai').should();
+
 const schema = require('../src');
 const { ObjectType, StringType, NumberType, Schema } = schema;
 
@@ -89,8 +91,8 @@ describe('#ObjectType', () => {
 
   it('Should be a valid object by flaser', () => {
     const schemaData = {
-      'data.email': StringType().isEmail('应该是一个 email'),
-      'data.age': NumberType().min(18, '年龄应该大于18岁')
+      'data.email': StringType().isEmail('error1'),
+      'data.age': NumberType().min(18, 'error1')
     };
 
     const data = {
@@ -106,7 +108,7 @@ describe('#ObjectType', () => {
 
   it('Should call async check', done => {
     const schema = new Schema({
-      url: StringType().isURL('应该是一个 url'),
+      url: StringType().isURL('error1'),
       user: ObjectType().shape({
         email: StringType().addRule((value, data) => {
           return new Promise(resolve => {

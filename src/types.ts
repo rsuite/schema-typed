@@ -5,48 +5,55 @@ import { NumberType } from './NumberType';
 import { StringType } from './StringType';
 import { ObjectType } from './ObjectType';
 
+export type TypeName = 'array' | 'string' | 'boolean' | 'number' | 'object' | 'date';
+
 export interface CheckResult<E = string> {
   hasError?: boolean;
   errorMessage?: E | string;
   object?: CheckResult<E>;
   array?: CheckResult<E>[];
 }
-
-export type ValidCallbackType<V, D, E> = (value: V, data?: D) => CheckResult<E> | boolean;
-
+export type ErrorMessageType = string;
+export type ValidCallbackType<V, D, E> = (
+  value: V,
+  data?: D,
+  filedName?: string | string[]
+) => CheckResult<E> | boolean;
 export type PlainObject<T extends Record<string, unknown> = any> = {
   [P in keyof T]: T;
 };
 
 export interface RuleType<V, D, E> {
   onValid: ValidCallbackType<V, D, E>;
-  errorMessage: E;
+  errorMessage?: E;
+  priority?: boolean;
+  params?: any;
 }
 
-export type CheckType<X, T, ErrorMsgType = string> = X extends string
-  ? StringType<T, ErrorMsgType> | DateType<T, ErrorMsgType> | NumberType<T, ErrorMsgType>
+export type CheckType<X, T, E = ErrorMessageType> = X extends string
+  ? StringType<T, E> | DateType<T, E> | NumberType<T, E>
   : X extends number
-  ? NumberType<T, ErrorMsgType>
+  ? NumberType<T, E>
   : X extends boolean
-  ? BooleanType<T, ErrorMsgType>
+  ? BooleanType<T, E>
   : X extends Date
-  ? DateType<T, ErrorMsgType>
+  ? DateType<T, E>
   : X extends Array<any>
-  ? ArrayType<T, ErrorMsgType>
+  ? ArrayType<T, E>
   : X extends Record<string, unknown>
-  ? ObjectType<T, ErrorMsgType>
+  ? ObjectType<T, E>
   :
-      | StringType<T, ErrorMsgType>
-      | NumberType<T, ErrorMsgType>
-      | BooleanType<T, ErrorMsgType>
-      | ArrayType<T, ErrorMsgType>
-      | DateType<T, ErrorMsgType>
-      | ObjectType<T, ErrorMsgType>;
+      | StringType<T, E>
+      | NumberType<T, E>
+      | BooleanType<T, E>
+      | ArrayType<T, E>
+      | DateType<T, E>
+      | ObjectType<T, E>;
 
-export type SchemaDeclaration<T, ErrorMsgType = string> = {
-  [P in keyof T]: CheckType<T[P], T, ErrorMsgType>;
+export type SchemaDeclaration<T, E = string> = {
+  [P in keyof T]: CheckType<T[P], T, E>;
 };
 
-export type SchemaCheckResult<T, ErrorMsgType> = {
-  [P in keyof T]: CheckResult<ErrorMsgType>;
+export type SchemaCheckResult<T, E> = {
+  [P in keyof T]: CheckResult<E>;
 };

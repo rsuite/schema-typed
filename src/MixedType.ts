@@ -1,35 +1,54 @@
-import { SchemaDeclaration, CheckResult, ValidCallbackType, RuleType } from './types';
-import { checkRequired, createValidator, createValidatorAsync, isEmpty } from './utils';
+import {
+  SchemaDeclaration,
+  CheckResult,
+  ValidCallbackType,
+  RuleType,
+  ErrorMessageType,
+  TypeName
+} from './types';
+import {
+  checkRequired,
+  createValidator,
+  createValidatorAsync,
+  isEmpty,
+  formatErrorMessage
+} from './utils';
+import locales, { MixedTypeLocale } from './locales';
 
-export class MixedType<ValueType = any, DataType = any, ErrorMsgType = string> {
-  readonly name?: string;
+export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L = any> {
+  readonly typeName?: string;
   protected required = false;
-  protected requiredMessage: ErrorMsgType | string = '';
+  protected requiredMessage: E | string = '';
   protected trim = false;
   protected emptyAllowed = false;
-  protected rules: RuleType<ValueType, DataType, ErrorMsgType | string>[] = [];
-  protected priorityRules: RuleType<ValueType, DataType, ErrorMsgType | string>[] = [];
+  protected rules: RuleType<ValueType, DataType, E | string>[] = [];
+  protected priorityRules: RuleType<ValueType, DataType, E | string>[] = [];
 
-  schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>;
+  schemaSpec: SchemaDeclaration<DataType, E>;
   value: any;
+  locale: L & MixedTypeLocale;
 
-  constructor(name?: string) {
-    this.name = name;
+  constructor(name?: TypeName) {
+    this.typeName = name;
+    this.locale = Object.assign(name ? locales[name] : {}, locales.mixed) as L & MixedTypeLocale;
   }
 
-  setSchemaOptions(schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>, value: any) {
+  setSchemaOptions(schemaSpec: SchemaDeclaration<DataType, E>, value: any) {
     this.schemaSpec = schemaSpec;
     this.value = value;
   }
 
-  check(value: ValueType = this.value, data?: DataType) {
+  check(value: ValueType = this.value, data?: DataType, fieldName?: string | string[]) {
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
-      return { hasError: true, errorMessage: this.requiredMessage };
+      return {
+        hasError: true,
+        errorMessage: formatErrorMessage(this.requiredMessage, { name: fieldName })
+      };
     }
 
-    const validator = createValidator<ValueType, DataType, ErrorMsgType | string>(data);
+    const validator = createValidator<ValueType, DataType, E | string>(data, fieldName);
 
-    let checkStatus = validator(value, this.priorityRules);
+    const checkStatus = validator(value, this.priorityRules);
 
     if (checkStatus) {
       return checkStatus;
@@ -44,17 +63,21 @@ export class MixedType<ValueType = any, DataType = any, ErrorMsgType = string> {
 
   checkAsync(
     value: ValueType = this.value,
-    data?: DataType
-  ): Promise<CheckResult<ErrorMsgType | string>> {
+    data?: DataType,
+    fieldName?: string | string[]
+  ): Promise<CheckResult<E | string>> {
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
-      return Promise.resolve({ hasError: true, errorMessage: this.requiredMessage });
+      return Promise.resolve({
+        hasError: true,
+        errorMessage: formatErrorMessage(this.requiredMessage, { name: fieldName })
+      });
     }
 
-    const validator = createValidatorAsync<ValueType, DataType, ErrorMsgType | string>(data);
+    const validator = createValidatorAsync<ValueType, DataType, E | string>(data, fieldName);
 
     return new Promise(resolve =>
       validator(value, this.priorityRules)
-        .then((checkStatus: CheckResult<ErrorMsgType | string> | void | null) => {
+        .then((checkStatus: CheckResult<E | string> | void | null) => {
           if (checkStatus) {
             resolve(checkStatus);
           }
@@ -65,7 +88,7 @@ export class MixedType<ValueType = any, DataType = any, ErrorMsgType = string> {
           }
         })
         .then(() => validator(value, this.rules))
-        .then((checkStatus: CheckResult<ErrorMsgType | string> | void | null) => {
+        .then((checkStatus: CheckResult<E | string> | void | null) => {
           if (checkStatus) {
             resolve(checkStatus);
           }
@@ -73,35 +96,36 @@ export class MixedType<ValueType = any, DataType = any, ErrorMsgType = string> {
         })
     );
   }
-  protected pushRule(
-    onValid: ValidCallbackType<ValueType, DataType, ErrorMsgType | string>,
-    errorMessage?: ErrorMsgType | string,
-    priority?: boolean
-  ) {
-    errorMessage = errorMessage || this.rules?.[0]?.errorMessage;
+  protected pushRule(rule: RuleType<ValueType, DataType, E | string>) {
+    const { onValid, errorMessage, priority, params } = rule;
+    const nextRule = {
+      onValid,
+      params,
+      errorMessage: errorMessage || this.rules?.[0]?.errorMessage
+    };
 
     if (priority) {
-      this.priorityRules.push({ onValid, errorMessage });
+      this.priorityRules.push(nextRule);
     } else {
-      this.rules.push({ onValid, errorMessage });
+      this.rules.push(nextRule);
     }
   }
   addRule(
-    onValid: ValidCallbackType<ValueType, DataType, ErrorMsgType | string>,
-    errorMessage?: ErrorMsgType | string,
+    onValid: ValidCallbackType<ValueType, DataType, E | string>,
+    errorMessage?: E | string,
     priority?: boolean
   ) {
-    this.pushRule(onValid, errorMessage, priority);
+    this.pushRule({ onValid, errorMessage, priority });
     return this;
   }
 
-  isRequired(errorMessage: ErrorMsgType | string, trim = true) {
+  isRequired(errorMessage: E | string = this.locale.isRequired, trim = true) {
     this.required = true;
     this.trim = trim;
     this.requiredMessage = errorMessage;
     return this;
   }
-  isRequiredOrEmpty(errorMessage: ErrorMsgType | string, trim = true) {
+  isRequiredOrEmpty(errorMessage: E | string = this.locale.isRequiredOrEmpty, trim = true) {
     this.required = true;
     this.trim = trim;
     this.emptyAllowed = true;
@@ -117,18 +141,18 @@ export class MixedType<ValueType = any, DataType = any, ErrorMsgType = string> {
    *   return schema.filed1.check() ? NumberType().min(5) : NumberType().min(0);
    * });
    */
-  when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => MixedType) {
+  when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
     this.addRule(
-      (value, data) => {
-        return condition(this.schemaSpec).check(value, data);
+      (value, data, filedName) => {
+        return condition(this.schemaSpec).check(value, data, filedName);
       },
-      'error',
+      undefined,
       true
     );
     return this;
   }
 }
 
-export default function getMixedType<DataType = any, ErrorMsgType = string>() {
-  return new MixedType<DataType, ErrorMsgType>();
+export default function getMixedType<DataType = any, E = ErrorMessageType>() {
+  return new MixedType<DataType, E>();
 }

@@ -38,7 +38,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
       return { hasError: false };
     }
 
-    return fieldChecker.check((data[fieldName] as unknown) as never, data);
+    return fieldChecker.check((data[fieldName] as unknown) as never, data, fieldName as string);
   }
 
   checkForFieldAsync<T extends keyof DataType>(
@@ -52,7 +52,11 @@ export class Schema<DataType = any, ErrorMsgType = string> {
       // fieldValue can be anything if no schema defined
       return Promise.resolve({ hasError: false });
     }
-    return fieldChecker.checkAsync((data[fieldName] as unknown) as never, data);
+    return fieldChecker.checkAsync(
+      (data[fieldName] as unknown) as never,
+      data,
+      fieldName as string
+    );
   }
 
   check<T extends keyof DataType>(data: DataType) {
