@@ -1,5 +1,6 @@
-# 2.0.0
+# 2.0.0 next
 
+- feat(locales): add default error messages for all checks ([#27](https://github.com/rsuite/schema-typed/issues/27)) ([03e21d7](https://github.com/rsuite/schema-typed/commit/03e21d77e9a6e0cd4fddcb1adfe8c485025f246b))
 - refactor: refactor the project through typescript.
 - feat(MixedType): Added support for `when` method on all types
 - feat(MixedType): Replace Type with MixedType.
