@@ -78,6 +78,16 @@ SchemaModel<{ a: string }>({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PASSING SCENARIO 7: Should allow other types to be included in ArrayType
+
+ArrayType().of(NumberType());
+ArrayType().of(ObjectType());
+ArrayType().of(ArrayType());
+ArrayType().of(BooleanType());
+ArrayType().of(StringType());
+ArrayType().of(DateType());
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FAIL SCENARIO 1: Should fail if type check is not matching declared type
 
 interface F1 {
@@ -194,12 +204,20 @@ const schemaF8 = new Schema({
 });
 
 // $ExpectError
-schemaF8.checkForField('c', 'a');
+schemaF8.checkForField('c', { a: 'str' });
 // TS2345: Argument of type '"c"' is not assignable to parameter of type '"a"'.
 
 // $ExpectError
-schemaF8.checkForFieldAsync('c', 'a');
+schemaF8.checkForFieldAsync('c', { a: 'str' });
 // TS2345: Argument of type '"c"' is not assignable to parameter of type '"a"'.
+
+// $ExpectError
+schemaF8.checkForField('a', { c: 'str' });
+// TS2345: Argument of type '{ c: string; }' is not assignable to parameter of type '{ a: unknown; }'.
+
+// $ExpectError
+schemaF8.checkForFieldAsync('a', { c: 'str' });
+// TS2345: Argument of type '{ c: string; }' is not assignable to parameter of type '{ a: unknown; }'.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // FAIL SCENARIO 9: Should fail if ObjectType will get not matched shape
@@ -219,14 +237,3 @@ ObjectType<F9>().shape({
   // TS2345: Argument of type '{ b: NumberType<any>; }' is not assignable to parameter of type 'SchemaDeclaration<F9>'.
   //   Object literal may only specify known properties, and 'b' does not exist in type 'SchemaDeclaration<F9>'.
 });
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// FAIL SCENARIO 10: Should fail if ArrayType will get not matched shape
-
-interface F10 {
-  a: string;
-}
-// $ExpectError
-ArrayType<F10>().of(StringType());
-// TS2345: Argument of type 'StringType<any>' is not assignable to parameter of type 'ObjectType<F10, any>'.
-//   Property 'shape' is missing in type 'StringType<any>' but required in type 'ObjectType<F10, any>'.

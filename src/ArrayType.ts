@@ -1,5 +1,5 @@
 import { MixedType } from './MixedType';
-import { CheckType, PlainObject, CheckResult, ErrorMessageType } from './types';
+import { PlainObject, CheckResult, ErrorMessageType } from './types';
 import { ArrayTypeLocale } from './locales';
 
 export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
@@ -66,7 +66,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
     return this;
   }
 
-  of(type: CheckType<any[], DataType, E>) {
+  of(type: MixedType<any, DataType, E>) {
     super.pushRule({
       onValid: (items, data, filedName) => {
         const checkResults = items.map((value, index) => {
