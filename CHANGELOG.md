@@ -1,3 +1,7 @@
+# 2.0.2
+
+- build(deps): add @babel/runtime #37
+
 # 2.0.1
 
 - fix ArrayType.of type error #35
