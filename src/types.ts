@@ -18,7 +18,7 @@ export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
   filedName?: string | string[]
-) => CheckResult<E> | boolean;
+) => CheckResult<E> | boolean | undefined;
 export type PlainObject<T extends Record<string, unknown> = any> = {
   [P in keyof T]: T;
 };
