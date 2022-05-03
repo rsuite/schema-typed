@@ -88,7 +88,7 @@ const model = SchemaModel({
   email: StringType().isEmail('Email required'),
   age: NumberType('Age should be a number').range(18, 30, 'Over the age limit'),
   tags: ArrayType().of(StringType('The tag should be a string').isRequired()),
-  role: ObjectType.shape({
+  role: ObjectType().shape({
     name: StringType().isRequired('Name required'),
     permissions: ArrayType().isRequired('Permissions required')
   })
