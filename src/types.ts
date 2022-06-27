@@ -7,10 +7,12 @@ import { ObjectType } from './ObjectType';
 
 export type TypeName = 'array' | 'string' | 'boolean' | 'number' | 'object' | 'date';
 
-export interface CheckResult<E = string> {
+export interface CheckResult<E = string, DataType = PlainObject> {
   hasError?: boolean;
   errorMessage?: E | string;
-  object?: CheckResult<E>;
+  object?: {
+    [P in keyof DataType]: CheckResult<E>;
+  };
   array?: CheckResult<E>[];
 }
 export type ErrorMessageType = string;
