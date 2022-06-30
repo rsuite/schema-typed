@@ -52,7 +52,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       return validator(value, type.rules) || { hasError: false };
     };
 
-    return check(value, data, this) as CheckResult<E | string>;
+    return check(value, data, this) as CheckResult<E | string, DataType>;
   }
 
   checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
@@ -83,7 +83,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
         }
 
         return validator(value, type.priorityRules)
-          .then((checkStatus: CheckResult<E | string> | void | null) => {
+          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
             if (checkStatus) {
               resolve(checkStatus);
             }
@@ -94,7 +94,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
             }
           })
           .then(() => validator(value, type.rules))
-          .then((checkStatus: CheckResult<E | string> | void | null) => {
+          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
             if (checkStatus) {
               resolve(checkStatus);
             }
@@ -103,7 +103,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       });
     };
 
-    return check(value, data, this) as Promise<CheckResult<E | string>>;
+    return check(value, data, this) as Promise<CheckResult<E | string, DataType>>;
   }
 
   /**
