@@ -1,3 +1,12 @@
+## [2.0.3](https://github.com/rsuite/schema-typed/compare/2.0.2...2.0.3) (2022-06-30)
+
+
+### Bug Fixes
+
+* **ObjectType:** specifies type of property `object` in the `ObjectType` check result ([#46](https://github.com/rsuite/schema-typed/issues/46)) ([0571e09](https://github.com/rsuite/schema-typed/commit/0571e097217b0c999acaf9e5780bdd289aa46a46))
+
+
+
 # 2.0.2
 
 - build(deps): add @babel/runtime #37
