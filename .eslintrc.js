@@ -18,6 +18,7 @@ module.exports = {
   rules: {
     quotes: [ERROR, 'single'],
     semi: [ERROR, 'always'],
+    "linebreak-style": 0,
     'space-infix-ops': ERROR,
     'prefer-spread': ERROR,
     'no-multi-spaces': ERROR,

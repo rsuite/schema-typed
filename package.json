@@ -6,7 +6,8 @@
   "module": "es/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "lint": "eslint src/**/*.ts",
+    "prepare": "npm run build",
+    "lint": "eslint src/**/*.ts --fix",
     "build": "gulp build && npm run build:types",
     "build:types": "npx tsc --emitDeclarationOnly --outDir lib && npx tsc --emitDeclarationOnly --outDir es",
     "prepublishOnly": "npm run test && npm run build",

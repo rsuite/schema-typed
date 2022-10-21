@@ -7,6 +7,26 @@ const schema = require('../src');
 const { ObjectType, StringType, NumberType, Schema } = schema;
 
 describe('#ObjectType', () => {
+  it('Should isRequiredIf worked in ObjectType', () => {
+    let schemaData = {
+      obj: ObjectType().shape({
+        type: StringType().isRequired(),
+        param: StringType().isRequiredIf((value, data) => {
+          return data.type === 'Other';
+        }, 'required')
+      })
+    };
+
+    let schema = new Schema(schemaData);
+
+    schema
+      .checkForField('obj', { obj: { type: 'Other', param: null } })
+      .object.param.hasError.should.equal(true);
+    schema
+      .checkForField('obj', { obj: { type: 'Other', param: '123' } })
+      .object.param.hasError.should.equal(false);
+  });
+
   it('Should be a valid object', () => {
     let schemaData = {
       url: StringType().isURL('应该是一个 url'),

@@ -20,6 +20,17 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
 
   check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
     const check = (value: any, data: any, type: any) => {
+      if (typeof type.requiredCondition === 'function') {
+        const conditionResult = type.requiredCondition(value, data);
+
+        if (conditionResult && !checkRequired(value, type.trim, type.emptyAllowed)) {
+          return {
+            hasError: true,
+            errorMessage: type.requiredMessage
+          };
+        }
+      }
+
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return { hasError: true, errorMessage: type.requiredMessage };
       }
@@ -27,6 +38,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       if (type.objectTypeSchemaSpec && typeof value === 'object') {
         const checkResultObject: any = {};
         let hasError = false;
+
         Object.entries(type.objectTypeSchemaSpec).forEach(([k, v]) => {
           const checkResult = check(value[k], value, v);
           if (checkResult?.hasError) {

@@ -18,6 +18,7 @@ import locales, { MixedTypeLocale } from './locales';
 export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L = any> {
   readonly typeName?: string;
   protected required = false;
+  protected requiredCondition: (value: ValueType, data?: DataType) => boolean;
   protected requiredMessage: E | string = '';
   protected trim = false;
   protected emptyAllowed = false;
@@ -39,6 +40,10 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   check(value: ValueType = this.value, data?: DataType, fieldName?: string | string[]) {
+    if (typeof this.requiredCondition === 'function') {
+      this.required = this.requiredCondition(value, data);
+    }
+
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return {
         hasError: true,
@@ -123,6 +128,17 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     this.required = true;
     this.trim = trim;
     this.requiredMessage = errorMessage;
+    return this;
+  }
+  isRequiredIf(
+    condition: (value: ValueType, data?: DataType) => boolean,
+    errorMessage: E | string = this.locale.isRequired,
+    trim = true
+  ) {
+    this.requiredCondition = condition;
+    this.trim = trim;
+    this.requiredMessage = errorMessage;
+
     return this;
   }
   isRequiredOrEmpty(errorMessage: E | string = this.locale.isRequiredOrEmpty, trim = true) {

@@ -4,6 +4,17 @@ const schema = require('../src');
 const { StringType, SchemaModel } = schema;
 
 describe('#StringType', () => {
+  it('Should check requiredIf condition', () => {
+    const schema = SchemaModel({
+      type: StringType().isRequired('type is required'),
+      param: StringType().isRequiredIf((value, data) => data.type === 'Other', 'required')
+    });
+
+    schema.checkForField('param', { type: 'Other', param: null }).hasError.should.equal(true);
+    schema.checkForField('param', { type: 'Other', param: '123' }).hasError.should.equal(false);
+    schema.checkForField('param', { type: 'Some', param: null }).hasError.should.equal(false);
+  });
+
   it('Should check min string length', () => {
     const schema = SchemaModel({
       str: StringType().minLength(5),
