@@ -1,3 +1,12 @@
+## [2.0.4](https://github.com/rsuite/schema-typed/compare/2.0.3...2.0.4) (2023-03-01)
+
+
+### Bug Fixes
+
+* promises where not allowed by type ([#61](https://github.com/rsuite/schema-typed/issues/61)) ([9cc665c](https://github.com/rsuite/schema-typed/commit/9cc665c4f72b5a22942d351c961263c179888a7a))
+
+
+
 ## [2.0.3](https://github.com/rsuite/schema-typed/compare/2.0.2...2.0.3) (2022-06-30)
 
 
