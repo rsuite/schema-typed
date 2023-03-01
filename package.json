@@ -11,9 +11,8 @@
     "build:types": "npx tsc --emitDeclarationOnly --outDir lib && npx tsc --emitDeclarationOnly --outDir es",
     "prepublishOnly": "npm run test && npm run build",
     "tdd": "mocha --watch",
-    "test": "npm run lint && npm run test:once && npm run test:types",
+    "test": "npm run lint && npm run test:once",
     "test:once": "nyc --reporter=lcovonly --reporter=html  mocha",
-    "test:types": "#dtslint --expectOnly --localTs node_modules/typescript/lib types",
     "doctoc:": "doctoc README.md",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
