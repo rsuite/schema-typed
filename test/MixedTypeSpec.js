@@ -437,7 +437,7 @@ describe('#MixedType', () => {
       }
     });
   });
-  it('Should be able to check by `check` with `addAsyncRule` and skip the async ', () => {
+  it('Should be able to check by `check` with `addAsyncRule` and skip the async ', (done) => {
     let called = false;
     const type = MixedType()
       .addRule(v => {
@@ -448,10 +448,12 @@ describe('#MixedType', () => {
         return false;
       }, 'error1')
       .isRequired('error2');
-
-    chai.expect(called).to.eq(false);
-    chai.expect(type.check('').hasError).to.eq(true);
-    chai.expect(type.check('1').hasError).to.eq(true);
-    chai.expect(type.check(1).hasError).to.eq(false);
+    setTimeout(() => {
+      chai.expect(called).to.eq(false);
+      chai.expect(type.check('').hasError).to.eq(true);
+      chai.expect(type.check('1').hasError).to.eq(true);
+      chai.expect(type.check(1).hasError).to.eq(false);
+      done();
+    }, 100);
   });
 });
