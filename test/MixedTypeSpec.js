@@ -416,4 +416,42 @@ describe('#MixedType', () => {
       .expect(err?.message)
       .to.eql('synchronous validator had an async result, you should probably call "checkAsync()"');
   });
+  it('Should be able to check by `checkAsync` with `addAsyncRule`', done => {
+    const type = MixedType()
+      .addAsyncRule(v => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            if (typeof v === 'number') {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          }, 500);
+        });
+      }, 'error1')
+      .isRequired('error2');
+
+    Promise.all([type.checkAsync(''), type.checkAsync('1'), type.checkAsync(1)]).then(res => {
+      if (res[0].hasError && res[1].hasError && !res[2].hasError) {
+        done();
+      }
+    });
+  });
+  it('Should be able to check by `check` with `addAsyncRule` and skip the async ', () => {
+    let called = false;
+    const type = MixedType()
+      .addRule(v => {
+        return typeof v === 'number';
+      }, 'This is not async')
+      .addAsyncRule(async () => {
+        called = true;
+        return false;
+      }, 'error1')
+      .isRequired('error2');
+
+    chai.expect(called).to.eq(false);
+    chai.expect(type.check('').hasError).to.eq(true);
+    chai.expect(type.check('1').hasError).to.eq(true);
+    chai.expect(type.check(1).hasError).to.eq(false);
+  });
 });

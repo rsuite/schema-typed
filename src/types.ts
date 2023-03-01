@@ -20,7 +20,14 @@ export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
   filedName?: string | string[]
+) => CheckResult<E> | boolean;
+
+export type AsyncValidCallbackType<V, D, E> = (
+  value: V,
+  data?: D,
+  filedName?: string | string[]
 ) => CheckResult<E> | boolean | Promise<boolean | CheckResult<E>>;
+
 export type PlainObject<T extends Record<string, unknown> = any> = {
   [P in keyof T]: T;
 };
