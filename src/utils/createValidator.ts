@@ -25,7 +25,9 @@ export function createValidator<V, D, E>(data?: D, name?: string | string[]) {
           })
         };
       } else if (isPromiseLike(checkResult)) {
-        throw new Error('synchronous validator had an async result');
+        throw new Error(
+          'synchronous validator had an async result, you should probably call "checkAsync()"'
+        );
       } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.array)) {
         return checkResult;
       }

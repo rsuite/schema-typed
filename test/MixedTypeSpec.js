@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const chai = require('chai');
-chai.should();
 const schema = require('../src');
+chai.should();
 const { StringType, SchemaModel, NumberType, ArrayType, MixedType } = schema;
 
 describe('#MixedType', () => {
@@ -412,6 +412,8 @@ describe('#MixedType', () => {
     } catch (e) {
       err = e;
     }
-    chai.expect(err?.message).to.eql('synchronous validator had an async result');
+    chai
+      .expect(err?.message)
+      .to.eql('synchronous validator had an async result, you should probably call "checkAsync()"');
   });
 });
