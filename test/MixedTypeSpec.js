@@ -437,7 +437,7 @@ describe('#MixedType', () => {
       }
     });
   });
-  it('Should be able to check by `check` with `addAsyncRule` and skip the async ', (done) => {
+  it('Should be able to check by `check` with `addAsyncRule` and skip the async ', done => {
     let called = false;
     const type = MixedType()
       .addRule(v => {
