@@ -7,7 +7,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "lint": "eslint src/**/*.ts",
-    "build": "tsc --outDir lib && tsc --config tsconfig-es.json --outDir es",
+    "build": "tsc --outDir lib && tsc -p tsconfig-es.json --outDir es",
     "prepublishOnly": "npm run test && npm run build",
     "tdd": "mocha --watch",
     "test": "npm run lint && npm run test:once",
