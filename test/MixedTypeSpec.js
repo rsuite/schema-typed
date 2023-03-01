@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-require('chai').should();
-
+const chai = require('chai');
 const schema = require('../src');
+chai.should();
 const { StringType, SchemaModel, NumberType, ArrayType, MixedType } = schema;
 
 describe('#MixedType', () => {
@@ -400,5 +400,20 @@ describe('#MixedType', () => {
     checkResult.age.hasError.should.equal(true);
     checkResult.contact.hasError.should.equal(true);
     checkResult.contact.errorMessage.should.equal('error2');
+  });
+
+  it('should error when an async rule is executed by the sync validator', () => {
+    const m = MixedType().addRule(async () => {
+      return true;
+    }, 'An async error');
+    let err;
+    try {
+      m.check({});
+    } catch (e) {
+      err = e;
+    }
+    chai
+      .expect(err?.message)
+      .to.eql('synchronous validator had an async result, you should probably call "checkAsync()"');
   });
 });
