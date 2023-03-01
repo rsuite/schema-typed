@@ -449,11 +449,15 @@ describe('#MixedType', () => {
       }, 'error1')
       .isRequired('error2');
     setTimeout(() => {
-      chai.expect(called).to.eq(false);
-      chai.expect(type.check('').hasError).to.eq(true);
-      chai.expect(type.check('1').hasError).to.eq(true);
-      chai.expect(type.check(1).hasError).to.eq(false);
-      done();
+      try {
+        chai.expect(called).to.eq(false);
+        chai.expect(type.check('').hasError).to.eq(true);
+        chai.expect(type.check('1').hasError).to.eq(true);
+        chai.expect(type.check(1).hasError).to.eq(false);
+        done();
+      } catch (e) {
+        done(e);
+      }
     }, 100);
   });
 });
