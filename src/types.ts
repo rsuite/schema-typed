@@ -33,10 +33,11 @@ export type PlainObject<T extends Record<string, unknown> = any> = {
 };
 
 export interface RuleType<V, D, E> {
-  onValid: ValidCallbackType<V, D, E>;
+  onValid: AsyncValidCallbackType<V, D, E>;
   errorMessage?: E;
   priority?: boolean;
   params?: any;
+  isAsync?: boolean;
 }
 
 export type CheckType<X, T, E = ErrorMessageType> = X extends string
