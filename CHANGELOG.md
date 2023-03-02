@@ -1,3 +1,12 @@
+# [2.1.0](https://github.com/rsuite/schema-typed/compare/2.0.4...2.1.0) (2023-03-02)
+
+
+### Features
+
+* addAsyncRule to allow sync and async rules to run ([#63](https://github.com/rsuite/schema-typed/issues/63)) ([574f9ad](https://github.com/rsuite/schema-typed/commit/574f9ad973af97b8c1bae44c3fcfa3dad608c4d6))
+
+
+
 ## [2.0.4](https://github.com/rsuite/schema-typed/compare/2.0.3...2.0.4) (2023-03-01)
 
 

@@ -29,6 +29,7 @@ Schema for data modeling & validation
     - [`isRequired(errorMessage?: string, trim: boolean = true)`](#isrequirederrormessage-string-trim-boolean--true)
     - [`isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)`](#isrequiredoremptyerrormessage-string-trim-boolean--true)
     - [`addRule(onValid: Function, errorMessage?: string, priority: boolean)`](#addruleonvalid-function-errormessage-string-priority-boolean)
+    - [`addAsyncRule(onValid: Function, errorMessage?: string, priority: boolean)`](#addasyncruleonvalid-function-errormessage-string-priority-boolean)
     - [`when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`](#whencondition-schemaspec-schemadeclarationdatatype-errormsgtype--type)
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
@@ -429,6 +430,16 @@ MixedType().isRequiredOrEmpty('This field required');
 ```js
 MixedType().addRule((value, data) => {
   return /^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/.test(value);
+}, 'Please enter a legal character.');
+```
+
+#### `addAsyncRule(onValid: Function, errorMessage?: string, priority: boolean)`
+
+```js
+MixedType().addAsyncRule((value, data) => {
+  return new Promise(resolve => {
+    // Asynchronous processing logic
+  });
 }, 'Please enter a legal character.');
 ```
 
