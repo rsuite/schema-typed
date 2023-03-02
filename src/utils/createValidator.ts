@@ -13,7 +13,8 @@ function isPromiseLike(v: unknown): v is Promise<unknown> {
 export function createValidator<V, D, E>(data?: D, name?: string | string[]) {
   return (value: V, rules: RuleType<V, D, E>[]): CheckResult<E> | null => {
     for (let i = 0; i < rules.length; i += 1) {
-      const { onValid, errorMessage, params } = rules[i];
+      const { onValid, errorMessage, params, isAsync } = rules[i];
+      if (isAsync) continue;
       const checkResult = onValid(value, data, name);
 
       if (checkResult === false) {

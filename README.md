@@ -217,7 +217,7 @@ function asyncCheckEmail(email) {
 const model = SchemaModel({
   email: StringType()
     .isEmail('Please input the correct email address')
-    .addRule((value, data) => {
+    .addAsyncRule((value, data) => {
       return asyncCheckEmail(value);
     }, 'Email address already exists')
     .isRequired('This field cannot be empty')
@@ -391,7 +391,7 @@ Asynchronously check whether a field in the data conforms to the model shape def
 const model = SchemaModel({
   username: StringType()
     .isRequired('This field required')
-    .addRule(value => {
+    .addAsyncRule(value => {
       return new Promise(resolve => {
         // Asynchronous processing logic
       });
