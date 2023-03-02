@@ -9,7 +9,7 @@ const config = {
   slow: 75,
   timeout: 2000,
   ui: 'bdd',
-  require: 'test/babel-register.js',
+  require: 'ts-node/register',
   'watch-files': ['src/**/*.ts', 'test/**/*.js']
 };
 
