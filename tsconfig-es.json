@@ -9,7 +9,7 @@
     "noUnusedLocals": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "target": "ESNext"
+    "target": "ES2019"
 
   },
   "include": ["./src/**/*.ts"]
