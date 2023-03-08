@@ -1,29 +1,24 @@
-# [2.1.0](https://github.com/rsuite/schema-typed/compare/2.0.4...2.1.0) (2023-03-02)
+## [2.1.1](https://github.com/rsuite/schema-typed/compare/2.1.0...2.1.1) (2023-03-08)
 
+- chore: change the compilation target of TypeScript from esnext to es2019
+
+# [2.1.0](https://github.com/rsuite/schema-typed/compare/2.0.4...2.1.0) (2023-03-02)
 
 ### Features
 
-* addAsyncRule to allow sync and async rules to run ([#63](https://github.com/rsuite/schema-typed/issues/63)) ([574f9ad](https://github.com/rsuite/schema-typed/commit/574f9ad973af97b8c1bae44c3fcfa3dad608c4d6))
-
-
+- addAsyncRule to allow sync and async rules to run ([#63](https://github.com/rsuite/schema-typed/issues/63)) ([574f9ad](https://github.com/rsuite/schema-typed/commit/574f9ad973af97b8c1bae44c3fcfa3dad608c4d6))
 
 ## [2.0.4](https://github.com/rsuite/schema-typed/compare/2.0.3...2.0.4) (2023-03-01)
 
-
 ### Bug Fixes
 
-* promises where not allowed by type ([#61](https://github.com/rsuite/schema-typed/issues/61)) ([9cc665c](https://github.com/rsuite/schema-typed/commit/9cc665c4f72b5a22942d351c961263c179888a7a))
-
-
+- promises where not allowed by type ([#61](https://github.com/rsuite/schema-typed/issues/61)) ([9cc665c](https://github.com/rsuite/schema-typed/commit/9cc665c4f72b5a22942d351c961263c179888a7a))
 
 ## [2.0.3](https://github.com/rsuite/schema-typed/compare/2.0.2...2.0.3) (2022-06-30)
 
-
 ### Bug Fixes
 
-* **ObjectType:** specifies type of property `object` in the `ObjectType` check result ([#46](https://github.com/rsuite/schema-typed/issues/46)) ([0571e09](https://github.com/rsuite/schema-typed/commit/0571e097217b0c999acaf9e5780bdd289aa46a46))
-
-
+- **ObjectType:** specifies type of property `object` in the `ObjectType` check result ([#46](https://github.com/rsuite/schema-typed/issues/46)) ([0571e09](https://github.com/rsuite/schema-typed/commit/0571e097217b0c999acaf9e5780bdd289aa46a46))
 
 # 2.0.2
 
