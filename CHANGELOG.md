@@ -1,3 +1,12 @@
+## [2.1.2](https://github.com/rsuite/schema-typed/compare/2.1.1...2.1.2) (2023-03-10)
+
+
+### Bug Fixes
+
+* **build:** fix unpublished source code ([#67](https://github.com/rsuite/schema-typed/issues/67)) ([c21ae0a](https://github.com/rsuite/schema-typed/commit/c21ae0a94578907e3fdd0467e5d1a1e3ec7c4d85))
+
+
+
 ## [2.1.1](https://github.com/rsuite/schema-typed/compare/2.1.0...2.1.1) (2023-03-08)
 
 - chore: change the compilation target of TypeScript from esnext to es2019
