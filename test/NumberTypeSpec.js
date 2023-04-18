@@ -81,8 +81,12 @@ describe('#NumberType', () => {
     schema.checkForField('data', { data: 0 }).hasError.should.equal(false);
     schema.checkForField('data', { data: 20 }).hasError.should.equal(false);
     schema.checkForField('data', { data: -1 }).hasError.should.equal(true);
+    schema.checkForField('data', { data: 21 }).hasError.should.equal(true);
     schema
       .checkForField('data', { data: -1 })
+      .errorMessage.should.equal('data field must be between 0 and 20');
+    schema
+      .checkForField('data', { data: 21 })
       .errorMessage.should.equal('data field must be between 0 and 20');
   });
 
