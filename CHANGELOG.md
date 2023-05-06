@@ -1,3 +1,12 @@
+## [2.1.3](https://github.com/rsuite/schema-typed/compare/2.1.2...2.1.3) (2023-05-06)
+
+
+### Bug Fixes
+
+* wrong error message when parameter is 0 ([#69](https://github.com/rsuite/schema-typed/issues/69)) ([8b399f7](https://github.com/rsuite/schema-typed/commit/8b399f78143dbf36dd2c837c992687c7560027b3))
+
+
+
 ## [2.1.2](https://github.com/rsuite/schema-typed/compare/2.1.1...2.1.2) (2023-03-10)
 
 
