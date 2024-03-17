@@ -124,6 +124,7 @@ describe('#ObjectType', () => {
     schema.checkAsync({ url: 'url', user: { email: 'a', age: '10' } }).then(status => {
       const user = status.user.object;
       if (
+        status.user.hasError &&
         user.age.hasError &&
         user.age.errorMessage === 'error2' &&
         user.email.hasError &&
