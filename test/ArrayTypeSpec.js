@@ -176,4 +176,33 @@ describe('#ArrayType', () => {
       .checkForField('data', { data: [1] })
       .errorMessage.should.equal('data field must have at least 2 items');
   });
+
+  it('Should call async check', done => {
+    const schema = new Schema({
+      arr1: ArrayType().addAsyncRule(() => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(false);
+          }, 1000);
+        });
+      }, 'error1'),
+      arr2: ArrayType().addAsyncRule(() => {
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(true);
+          }, 1000);
+        });
+      }, 'error2'),
+    });
+
+    schema.checkAsync({ arr1: [1, 2, 3], arr2: [1, 2, 3] }).then(status => {
+      if (
+        status.arr1.hasError &&
+        status.arr1.errorMessage === 'error1' &&
+        !status.arr2.hasError
+      ) {
+        done();
+      }
+    });
+  });
 });

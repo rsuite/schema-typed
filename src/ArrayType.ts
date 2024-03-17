@@ -68,11 +68,11 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
 
   of(type: MixedType<any, DataType, E>) {
     super.pushRule({
-      onValid: (items, data, filedName) => {
+      onValid: (items, data, fieldName) => {
         const checkResults = items.map((value, index) => {
-          const name = Array.isArray(filedName)
-            ? [...filedName, `[${index}]`]
-            : [filedName, `[${index}]`];
+          const name = Array.isArray(fieldName)
+            ? [...fieldName, `[${index}]`]
+            : [fieldName, `[${index}]`];
 
           return type.check(value, data, name as string[]);
         });
@@ -83,6 +83,29 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
           array: checkResults
         } as CheckResult<string | E>;
       }
+    });
+
+    super.pushRule({
+      onValid: (items, data, fieldName) => {
+        return new Promise(resolve => {
+          const checkAll: Promise<CheckResult<string | E, PlainObject<any>>>[] =
+            items.map((value, index) => {
+              const name = Array.isArray(fieldName)
+                ? [...fieldName, `[${index}]`]
+                : [fieldName, `[${index}]`];
+  
+              return type.checkAsync(value, data, name as string[]);
+            });
+  
+          return Promise.all(checkAll).then(checkResults => {
+            resolve({
+              hasError: !!checkResults.find(item => item?.hasError),
+              array: checkResults
+            });
+          });
+        })
+      },
+      isAsync: true
     });
 
     return this;
