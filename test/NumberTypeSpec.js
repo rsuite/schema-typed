@@ -76,14 +76,18 @@ describe('#NumberType', () => {
   });
 
   it('Should be within the range of optional values', () => {
-    let schemaData = { data: NumberType().range(10, 20) };
+    let schemaData = { data: NumberType().range(0, 20) };
     let schema = new Schema(schemaData);
-    schema.checkForField('data', { data: 10 }).hasError.should.equal(false);
+    schema.checkForField('data', { data: 0 }).hasError.should.equal(false);
     schema.checkForField('data', { data: 20 }).hasError.should.equal(false);
-    schema.checkForField('data', { data: 9 }).hasError.should.equal(true);
+    schema.checkForField('data', { data: -1 }).hasError.should.equal(true);
+    schema.checkForField('data', { data: 21 }).hasError.should.equal(true);
     schema
-      .checkForField('data', { data: 9 })
-      .errorMessage.should.equal('data field must be between 10 and 20');
+      .checkForField('data', { data: -1 })
+      .errorMessage.should.equal('data field must be between 0 and 20');
+    schema
+      .checkForField('data', { data: 21 })
+      .errorMessage.should.equal('data field must be between 0 and 20');
   });
 
   it('Should be within the following value range: 1,2,3,4', () => {

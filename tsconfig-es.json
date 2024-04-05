@@ -9,8 +9,6 @@
     "noUnusedLocals": true,
     "sourceMap": true,
     "moduleResolution": "node",
-    "lib": ["ES2019"],
-    "module": "commonjs",
     "target": "ES2019"
 
   },

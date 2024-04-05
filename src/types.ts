@@ -21,15 +21,23 @@ export type ValidCallbackType<V, D, E> = (
   data?: D,
   filedName?: string | string[]
 ) => CheckResult<E> | boolean;
+
+export type AsyncValidCallbackType<V, D, E> = (
+  value: V,
+  data?: D,
+  filedName?: string | string[]
+) => CheckResult<E> | boolean | Promise<boolean | CheckResult<E>>;
+
 export type PlainObject<T extends Record<string, unknown> = any> = {
   [P in keyof T]: T;
 };
 
 export interface RuleType<V, D, E> {
-  onValid: ValidCallbackType<V, D, E>;
+  onValid: AsyncValidCallbackType<V, D, E>;
   errorMessage?: E;
   priority?: boolean;
   params?: any;
+  isAsync?: boolean;
 }
 
 export type CheckType<X, T, E = ErrorMessageType> = X extends string

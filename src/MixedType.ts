@@ -2,6 +2,7 @@ import {
   SchemaDeclaration,
   CheckResult,
   ValidCallbackType,
+  AsyncValidCallbackType,
   RuleType,
   ErrorMessageType,
   TypeName
@@ -106,6 +107,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     const nextRule = {
       onValid,
       params,
+      isAsync: rule.isAsync,
       errorMessage: errorMessage || this.rules?.[0]?.errorMessage
     };
 
@@ -123,7 +125,14 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     this.pushRule({ onValid, errorMessage, priority });
     return this;
   }
-
+  addAsyncRule(
+    onValid: AsyncValidCallbackType<ValueType, DataType, E | string>,
+    errorMessage?: E | string,
+    priority?: boolean
+  ) {
+    this.pushRule({ onValid, isAsync: true, errorMessage, priority });
+    return this;
+  }
   isRequired(errorMessage: E | string = this.locale.isRequired, trim = true) {
     this.required = true;
     this.trim = trim;
