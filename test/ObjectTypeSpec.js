@@ -246,4 +246,56 @@ describe('#ObjectType', () => {
 
     expect(result2).to.deep.equal({ hasError: false });
   });
+
+  it('Should not allow empty object', () => {
+    const schema = new Schema({
+      user: ObjectType().isRequired('User is required')
+    });
+
+    const result = schema.check({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result2 = schema.check({ user: undefined });
+    expect(result2).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result3 = schema.check({ user: false });
+    expect(result3).to.deep.equal({
+      user: { hasError: true, errorMessage: 'user must be an object' }
+    });
+  });
+
+  it('Should not allow empty object by async', async () => {
+    const schema = new Schema({
+      user: ObjectType().isRequired('User is required')
+    });
+
+    const result = await schema.checkAsync({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result2 = await schema.checkAsync({ user: undefined });
+    expect(result2).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result3 = await schema.checkAsync({ user: false });
+    expect(result3).to.deep.equal({
+      user: { hasError: true, errorMessage: 'user must be an object' }
+    });
+  });
+
+  it('Should allow empty object', () => {
+    const schema = new Schema({
+      user: ObjectType()
+    });
+
+    const result = schema.check({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: false } });
+  });
+
+  it('Should allow empty object by async', async () => {
+    const schema = new Schema({
+      user: ObjectType()
+    });
+
+    const result = await schema.checkAsync({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: false } });
+  });
 });
