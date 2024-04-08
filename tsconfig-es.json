@@ -10,7 +10,6 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "target": "ES2019"
-
   },
   "include": ["./src/**/*.ts"]
 }

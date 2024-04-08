@@ -353,36 +353,36 @@ describe('#MixedType', () => {
 
   it('Should type be changed by condition', () => {
     const model = SchemaModel({
-      filed1: NumberType().min(10),
-      filed2: MixedType().when(schema => {
-        const checkResult = schema.filed1.check();
+      field1: NumberType().min(10),
+      field2: MixedType().when(schema => {
+        const checkResult = schema.field1.check();
         return checkResult.hasError
           ? NumberType().min(10, 'error1')
           : NumberType().min(2, 'error2');
       })
     });
 
-    const checkResult1 = model.check({ filed1: 20, filed2: 2 });
+    const checkResult1 = model.check({ field1: 20, field2: 2 });
 
-    checkResult1.filed1.hasError.should.equal(false);
-    checkResult1.filed2.hasError.should.equal(false);
+    checkResult1.field1.hasError.should.equal(false);
+    checkResult1.field2.hasError.should.equal(false);
 
-    const checkResult2 = model.check({ filed1: 1, filed2: 1 });
+    const checkResult2 = model.check({ field1: 1, field2: 1 });
 
-    checkResult2.filed1.hasError.should.equal(true);
-    checkResult2.filed2.hasError.should.equal(true);
-    checkResult2.filed2.errorMessage.should.equal('error1');
+    checkResult2.field1.hasError.should.equal(true);
+    checkResult2.field2.hasError.should.equal(true);
+    checkResult2.field2.errorMessage.should.equal('error1');
 
-    const checkResult3 = model.check({ filed1: 10, filed2: 1 });
+    const checkResult3 = model.check({ field1: 10, field2: 1 });
 
-    checkResult3.filed1.hasError.should.equal(false);
-    checkResult3.filed2.hasError.should.equal(true);
-    checkResult3.filed2.errorMessage.should.equal('error2');
+    checkResult3.field1.hasError.should.equal(false);
+    checkResult3.field2.hasError.should.equal(true);
+    checkResult3.field2.errorMessage.should.equal('error2');
 
-    const checkResult4 = model.checkForField('filed2', { filed1: 20, filed2: 1 });
+    const checkResult4 = model.checkForField('field2', { field1: 20, field2: 1 });
     checkResult4.errorMessage.should.equal('error2');
 
-    const checkResult5 = model.checkForField('filed2', { filed1: 9, filed2: 1 });
+    const checkResult5 = model.checkForField('field2', { field1: 9, field2: 1 });
     checkResult5.errorMessage.should.equal('error1');
   });
 

@@ -147,13 +147,13 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
    * @param validator
    * @example
    * MixedType().when(schema => {
-   *   return schema.filed1.check() ? NumberType().min(5) : NumberType().min(0);
+   *   return schema.field1.check() ? NumberType().min(5) : NumberType().min(0);
    * });
    */
   when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
     this.addRule(
-      (value, data, filedName) => {
-        return condition(this.schemaSpec).check(value, data, filedName);
+      (value, data, fieldName) => {
+        return condition(this.schemaSpec).check(value, data, fieldName);
       },
       undefined,
       true

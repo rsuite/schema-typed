@@ -74,11 +74,15 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
           });
 
           return Promise.all(checkAll).then(values => {
-            values.forEach((v, index) => {
+            let hasError = false;
+            values.forEach((v: any, index: number) => {
+              if (v?.hasError) {
+                hasError = true;
+              }
               checkResult[keys[index]] = v;
             });
 
-            resolve({ object: checkResult });
+            resolve({ hasError, object: checkResult });
           });
         }
 

@@ -1,5 +1,20 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
 import { MixedType } from './MixedType';
+import get from './utils/get';
+
+interface CheckOptions {
+  /**
+   * Check for nested object
+   */
+  nestedObject?: boolean;
+}
+
+/**
+ * Get the field value from the data object
+ */
+function getFieldValue(data: PlainObject, fieldName: string, nestedObject?: boolean) {
+  return nestedObject ? get(data, fieldName) : data?.[fieldName];
+}
 
 export class Schema<DataType = any, ErrorMsgType = string> {
   readonly spec: SchemaDeclaration<DataType, ErrorMsgType>;
@@ -9,7 +24,13 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     this.spec = schema;
   }
 
-  getFieldType<T extends keyof DataType>(fieldName: T) {
+  getFieldType<T extends keyof DataType>(fieldName: T, nestedObject?: boolean) {
+    if (nestedObject) {
+      const namePath = (fieldName as string).split('.').join('.objectTypeSchemaSpec.');
+
+      return get(this.spec, namePath);
+    }
+
     return this.spec?.[fieldName];
   }
 
@@ -29,34 +50,44 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     this.data = data;
   }
 
-  checkForField<T extends keyof DataType>(fieldName: T, data: DataType) {
+  checkForField<T extends keyof DataType>(
+    fieldName: T,
+    data: DataType,
+    options: CheckOptions = {}
+  ): CheckResult<ErrorMsgType | string> {
     this.setSchemaOptionsForAllType(data);
 
-    const fieldChecker = this.spec[fieldName];
+    const { nestedObject } = options;
+    const fieldChecker = this.getFieldType(fieldName, nestedObject);
+
     if (!fieldChecker) {
       // fieldValue can be anything if no schema defined
       return { hasError: false };
     }
 
-    return fieldChecker.check((data[fieldName] as unknown) as never, data, fieldName as string);
+    const fieldValue = getFieldValue(data, fieldName as string, nestedObject);
+
+    return fieldChecker.check(fieldValue, data, fieldName as string);
   }
 
   checkForFieldAsync<T extends keyof DataType>(
     fieldName: T,
-    data: DataType
+    data: DataType,
+    options: CheckOptions = {}
   ): Promise<CheckResult<ErrorMsgType | string>> {
     this.setSchemaOptionsForAllType(data);
 
-    const fieldChecker = this.spec[fieldName];
+    const { nestedObject } = options;
+    const fieldChecker = this.getFieldType(fieldName, nestedObject);
+
     if (!fieldChecker) {
       // fieldValue can be anything if no schema defined
       return Promise.resolve({ hasError: false });
     }
-    return fieldChecker.checkAsync(
-      (data[fieldName] as unknown) as never,
-      data,
-      fieldName as string
-    );
+
+    const fieldValue = getFieldValue(data, fieldName as string, nestedObject);
+
+    return fieldChecker.checkAsync(fieldValue, data, fieldName as string);
   }
 
   check<T extends keyof DataType>(data: DataType) {
