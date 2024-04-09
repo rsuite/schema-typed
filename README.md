@@ -33,6 +33,7 @@ Schema for data modeling & validation
     - [`when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`](#whencondition-schemaspec-schemadeclarationdatatype-errormsgtype--type)
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
+    - [`label(label: string)`](#labellabel-string)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
@@ -512,6 +513,23 @@ type.checkAsync('1').then(checkResult => {
 });
 type.checkAsync(1).then(checkResult => {
   //  { hasError: false }
+});
+```
+
+#### `label(label: string)`
+
+Overrides the key name in error messages.
+
+```js
+MixedType().label('Username');
+```
+
+Eg:
+
+```js
+SchemaModel({
+  first_name: StringType().label('First name'),
+  age: NumberType().label('Age')
 });
 ```
 

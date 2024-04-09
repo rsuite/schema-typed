@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-const chai = require('chai');
-const schema = require('../src');
+import chai, { expect } from 'chai';
+import * as schema from '../src';
+
 chai.should();
 const { StringType, SchemaModel, NumberType, ArrayType, MixedType } = schema;
 
@@ -459,5 +459,17 @@ describe('#MixedType', () => {
         done(e);
       }
     }, 100);
+  });
+
+  it('Should use label to override the field name in the error message', () => {
+    const schema = SchemaModel({
+      first_name: StringType().label('First Name').isRequired(),
+      age: NumberType().label('Age').isRequired()
+    });
+
+    expect(schema.check({})).to.deep.equal({
+      first_name: { hasError: true, errorMessage: 'First Name is a required field' },
+      age: { hasError: true, errorMessage: 'Age is a required field' }
+    });
   });
 });
