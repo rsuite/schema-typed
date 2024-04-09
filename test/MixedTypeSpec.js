@@ -2,6 +2,7 @@ import chai, { expect } from 'chai';
 import * as schema from '../src';
 
 chai.should();
+
 const { StringType, SchemaModel, NumberType, ArrayType, MixedType } = schema;
 
 describe('#MixedType', () => {
@@ -364,42 +365,103 @@ describe('#MixedType', () => {
 
     const checkResult1 = model.check({ field1: 20, field2: 2 });
 
-    checkResult1.field1.hasError.should.equal(false);
-    checkResult1.field2.hasError.should.equal(false);
+    expect(checkResult1).to.deep.equal({
+      field1: { hasError: false },
+      field2: { hasError: false }
+    });
 
     const checkResult2 = model.check({ field1: 1, field2: 1 });
 
-    checkResult2.field1.hasError.should.equal(true);
-    checkResult2.field2.hasError.should.equal(true);
-    checkResult2.field2.errorMessage.should.equal('error1');
+    expect(checkResult2).to.deep.equal({
+      field1: { hasError: true, errorMessage: 'field1 must be greater than or equal to 10' },
+      field2: { hasError: true, errorMessage: 'error1' }
+    });
 
     const checkResult3 = model.check({ field1: 10, field2: 1 });
 
-    checkResult3.field1.hasError.should.equal(false);
-    checkResult3.field2.hasError.should.equal(true);
-    checkResult3.field2.errorMessage.should.equal('error2');
+    expect(checkResult3).to.deep.equal({
+      field1: { hasError: false },
+      field2: { hasError: true, errorMessage: 'error2' }
+    });
 
     const checkResult4 = model.checkForField('field2', { field1: 20, field2: 1 });
     checkResult4.errorMessage.should.equal('error2');
 
+    expect(checkResult4).to.deep.equal({ hasError: true, errorMessage: 'error2' });
+
     const checkResult5 = model.checkForField('field2', { field1: 9, field2: 1 });
-    checkResult5.errorMessage.should.equal('error1');
+
+    expect(checkResult5).to.deep.equal({ hasError: true, errorMessage: 'error1' });
   });
 
-  it('Should be high priority even if it is empty', () => {
+  it('Should type be changed by condition', () => {
     const model = SchemaModel({
-      age: NumberType().min(18, 'error1'),
-      contact: StringType().when(schema => {
-        const checkResult = schema.age.check();
-        return checkResult.hasError ? StringType().isRequired('error2') : StringType();
+      option: StringType().isOneOf(['a', 'b', 'other']),
+      other: StringType().when(schema => {
+        const { value } = schema.option;
+        return value === 'other' ? StringType().isRequired('Other required') : StringType();
       })
     });
 
-    const checkResult = model.check({ age: 17, contact: '' });
+    const checkResult = model.check({ option: 'a', other: '' });
 
-    checkResult.age.hasError.should.equal(true);
-    checkResult.contact.hasError.should.equal(true);
-    checkResult.contact.errorMessage.should.equal('error2');
+    expect(checkResult).to.deep.equal({
+      option: { hasError: false },
+      other: { hasError: false }
+    });
+
+    const checkResult2 = model.check({ option: 'other', other: '' });
+
+    expect(checkResult2).to.deep.equal({
+      option: { hasError: false },
+      other: { hasError: true, errorMessage: 'Other required' }
+    });
+  });
+
+  it('Should type be changed by condition', () => {
+    const model = SchemaModel({
+      password: StringType().isRequired('Password required'),
+      confirmPassword: StringType().when(schema => {
+        const { hasError } = schema.password.check();
+        return hasError
+          ? StringType()
+          : StringType()
+              .addRule(
+                value => value === schema.password.value,
+                'The passwords are inconsistent twice'
+              )
+              .isRequired()
+              .label('Confirm password');
+      })
+    });
+
+    const checkResult = model.check({ password: '', confirmPassword: '123' });
+
+    expect(checkResult).to.deep.equal({
+      password: { hasError: true, errorMessage: 'Password required' },
+      confirmPassword: { hasError: false }
+    });
+
+    const checkResult2 = model.check({ password: '123', confirmPassword: '123' });
+
+    expect(checkResult2).to.deep.equal({
+      password: { hasError: false },
+      confirmPassword: { hasError: false }
+    });
+
+    const checkResult3 = model.check({ password: '123', confirmPassword: '1234' });
+
+    expect(checkResult3).to.deep.equal({
+      password: { hasError: false },
+      confirmPassword: { hasError: true, errorMessage: 'The passwords are inconsistent twice' }
+    });
+
+    const checkResult4 = model.check({ password: '123', confirmPassword: '' });
+
+    expect(checkResult4).to.deep.equal({
+      password: { hasError: false },
+      confirmPassword: { hasError: true, errorMessage: 'Confirm password is a required field' }
+    });
   });
 
   it('should error when an async rule is executed by the sync validator', () => {
@@ -450,10 +512,11 @@ describe('#MixedType', () => {
       .isRequired('error2');
     setTimeout(() => {
       try {
-        chai.expect(called).to.eq(false);
-        chai.expect(type.check('').hasError).to.eq(true);
-        chai.expect(type.check('1').hasError).to.eq(true);
-        chai.expect(type.check(1).hasError).to.eq(false);
+        expect(called).to.eq(false);
+        expect(type.check('').hasError).to.eq(true);
+        expect(type.check('1').hasError).to.eq(true);
+        expect(type.check(1).hasError).to.eq(false);
+
         done();
       } catch (e) {
         done(e);
