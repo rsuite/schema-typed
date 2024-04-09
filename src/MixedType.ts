@@ -24,6 +24,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   protected emptyAllowed = false;
   protected rules: RuleType<ValueType, DataType, E | string>[] = [];
   protected priorityRules: RuleType<ValueType, DataType, E | string>[] = [];
+  protected fieldLabel?: string;
 
   schemaSpec: SchemaDeclaration<DataType, E>;
   value: any;
@@ -43,7 +44,9 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return {
         hasError: true,
-        errorMessage: formatErrorMessage(this.requiredMessage, { name: fieldName })
+        errorMessage: formatErrorMessage(this.requiredMessage, {
+          name: this.fieldLabel || fieldName
+        })
       };
     }
 
@@ -70,7 +73,9 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return Promise.resolve({
         hasError: true,
-        errorMessage: formatErrorMessage(this.requiredMessage, { name: fieldName })
+        errorMessage: formatErrorMessage(this.requiredMessage, {
+          name: this.fieldLabel || fieldName
+        })
       });
     }
 
@@ -158,6 +163,14 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       undefined,
       true
     );
+    return this;
+  }
+
+  /**
+   * Overrides the key name in error messages.
+   */
+  label(label: string) {
+    this.fieldLabel = label;
     return this;
   }
 }

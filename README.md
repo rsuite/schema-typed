@@ -33,6 +33,7 @@ Schema for data modeling & validation
     - [`when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`](#whencondition-schemaspec-schemadeclarationdatatype-errormsgtype--type)
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
+    - [`label(label: string)`](#labellabel-string)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
@@ -445,37 +446,49 @@ MixedType().addAsyncRule((value, data) => {
 
 #### `when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`
 
-Define data verification rules based on conditions.
+Conditional validation, the return value is a new type.
 
-```js
+```ts
 const model = SchemaModel({
-  age: NumberType().min(18, 'error'),
-  contact: MixedType().when(schema => {
-    const checkResult = schema.age.check();
-    return checkResult.hasError
-      ? StringType().isRequired('Please provide contact information')
-      : StringType();
+  option: StringType().isOneOf(['a', 'b', 'other']),
+  other: StringType().when(schema => {
+    const { value } = schema.option;
+    return value === 'other' ? StringType().isRequired('Other required') : StringType();
   })
 });
 
 /**
-{ 
-  age: { hasError: false }, 
-  contact: { hasError: false } 
+{
+  option: { hasError: false },
+  other: { hasError: false }
 }
 */
-model.check({ age: 18, contact: '' });
+model.check({ option: 'a', other: '' });
 
 /*
 {
-  age: { hasError: true, errorMessage: 'error' },
-  contact: {
-    hasError: true,
-    errorMessage: 'Please provide contact information'
-  }
+  option: { hasError: false },
+  other: { hasError: true, errorMessage: 'Other required' }
 }
 */
-model.check({ age: 17, contact: '' });
+model.check({ option: 'other', other: '' });
+```
+
+Check whether a field passes the validation to determine the validation rules of another field.
+
+```js
+const model = SchemaModel({
+  password: StringType().isRequired('Password required'),
+  confirmPassword: StringType().when(schema => {
+    const { hasError } = schema.password.check();
+    return hasError
+      ? StringType()
+      : StringType().addRule(
+          value => value === schema.password.value,
+          'The passwords are inconsistent twice'
+        );
+  })
+});
 ```
 
 #### `check(value: ValueType, data?: DataType):CheckResult`
@@ -512,6 +525,23 @@ type.checkAsync('1').then(checkResult => {
 });
 type.checkAsync(1).then(checkResult => {
   //  { hasError: false }
+});
+```
+
+#### `label(label: string)`
+
+Overrides the key name in error messages.
+
+```js
+MixedType().label('Username');
+```
+
+Eg:
+
+```js
+SchemaModel({
+  first_name: StringType().label('First name'),
+  age: NumberType().label('Age')
 });
 ```
 
