@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('chai').should();
-const { formatErrorMessage, checkRequired } = require('../src/utils');
+const { expect } = require('chai');
+const { formatErrorMessage, checkRequired, get } = require('../src/utils');
 
 describe('#utils', () => {
   describe('## formatErrorMessage', () => {
@@ -59,6 +60,39 @@ describe('#utils', () => {
       checkRequired([1]).should.equal(true);
       checkRequired([undefined]).should.equal(true);
       checkRequired(['']).should.equal(true);
+    });
+  });
+
+  describe('## get', () => {
+    it('Should get the value of the object', () => {
+      const obj = { a: { b: { c: 1 } } };
+      get(obj, 'a.b.c').should.equal(1);
+      get(obj, 'a.b').should.deep.equal({ c: 1 });
+      get(obj, 'a').should.deep.equal({ b: { c: 1 } });
+
+      expect(get(obj, 'a.b.d')).to.be.undefined;
+      expect(get(obj, 'a.b.d.e')).to.be.undefined;
+      expect(get(obj, 'a.b.d.e.f')).to.be.undefined;
+    });
+
+    it('Should get the value of the array', () => {
+      const obj = { a: [{ b: 1 }, { b: 2 }] };
+      get(obj, 'a.0.b').should.equal(1);
+      get(obj, 'a.1.b').should.equal(2);
+      expect(get(obj, 'a.2.b')).to.be.undefined;
+    });
+
+    it('Should get the value of the array and object', () => {
+      const obj = { a: [{ b: { c: 1 } }, { b: { c: 2 } }] };
+      get(obj, 'a.0.b.c').should.equal(1);
+      get(obj, 'a.1.b.c').should.equal(2);
+      expect(get(obj, 'a.2.b.c')).to.be.undefined;
+    });
+
+    it('Should return the default value', () => {
+      const obj = { a: { b: [{ c: 1 }, { c: 2 }] } };
+      expect(get(obj, 'a.b.2.c', 10)).to.equal(10);
+      expect(get(undefined, 'a.b', 10)).to.equal(10);
     });
   });
 });

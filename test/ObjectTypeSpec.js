@@ -1,57 +1,75 @@
+import { expect } from 'chai';
 import { flaser } from 'object-flaser';
+import * as schema from '../src';
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-require('chai').should();
-
-const schema = require('../src');
 const { ObjectType, StringType, NumberType, Schema } = schema;
 
 describe('#ObjectType', () => {
   it('Should be a valid object', () => {
-    let schemaData = {
-      url: StringType().isURL('应该是一个 url'),
+    const schemaData = {
+      url: StringType().isURL('Should be a url'),
       user: ObjectType().shape({
-        email: StringType().isEmail('应该是一个 email'),
-        age: NumberType().min(18, '年龄应该大于18岁')
+        email: StringType().isEmail('Should be an email'),
+        age: NumberType().min(18, 'Age should be greater than 18')
       })
     };
 
-    let schema = new Schema(schemaData);
+    const schema = new Schema(schemaData);
 
-    schema
-      .checkForField('user', { user: { email: 'simon.guo@hypers.com', age: 19 } })
-      .object.email.hasError.should.equal(false);
-    schema
-      .checkForField('user', { user: { email: 'simon.guo', age: 19 } })
-      .object.email.hasError.should.equal(true);
+    const checkResult = schema.checkForField('user', {
+      user: { email: 'simon.guo@hypers.com', age: 19 }
+    });
 
-    let checkStatus = schema.checkForField('user', {
+    expect(checkResult).to.deep.equal({
+      hasError: false,
+      object: {
+        email: { hasError: false },
+        age: { hasError: false }
+      }
+    });
+
+    const checkResult2 = schema.checkForField('user', { user: { email: 'simon.guo', age: 19 } });
+
+    expect(checkResult2).to.deep.equal({
+      hasError: true,
+      object: {
+        email: { hasError: true, errorMessage: 'Should be an email' },
+        age: { hasError: false }
+      }
+    });
+
+    const checkResult3 = schema.checkForField('user', {
       user: {
         email: 'simon.guo@hypers.com',
         age: 17
       }
     });
 
-    checkStatus.object.age.hasError.should.equal(true);
-    checkStatus.object.age.errorMessage.should.equal('年龄应该大于18岁');
+    expect(checkResult3).to.deep.equal({
+      hasError: true,
+      object: {
+        email: { hasError: false },
+        age: { hasError: true, errorMessage: 'Age should be greater than 18' }
+      }
+    });
   });
 
   it('Should be checked for object nesting.', () => {
     const schemaData = {
-      url: StringType().isURL('应该是一个 url'),
+      url: StringType().isURL('Should be a url'),
       user: ObjectType().shape({
-        email: StringType().isEmail('应该是一个 email'),
-        age: NumberType().min(18, '年龄应该大于18岁'),
+        email: StringType().isEmail('Should be an email'),
+        age: NumberType().min(18, 'Age should be greater than 18'),
         parent: ObjectType().shape({
-          email: StringType().isEmail('应该是一个邮箱'),
-          age: NumberType().min(50, '年龄应该大于50岁')
+          email: StringType().isEmail('Should be an email'),
+          age: NumberType().min(50, 'Age should be greater than 50')
         })
       })
     };
 
     const schema = new Schema(schemaData);
 
-    const checkStatus = schema.checkForField('user', {
+    const checkResult = schema.checkForField('user', {
       user: {
         email: 'simon.guo@hypers.com',
         age: 17,
@@ -59,20 +77,22 @@ describe('#ObjectType', () => {
       }
     });
 
-    checkStatus.hasError.should.equal(true);
-    checkStatus.object.email.hasError.should.equal(false);
-    checkStatus.object.age.hasError.should.equal(true);
-    checkStatus.object.age.errorMessage.should.equal('年龄应该大于18岁');
-    checkStatus.object.parent.hasError.should.equal(true);
+    expect(checkResult).to.deep.equal({
+      hasError: true,
+      object: {
+        email: { hasError: false },
+        age: { hasError: true, errorMessage: 'Age should be greater than 18' },
+        parent: {
+          hasError: true,
+          object: {
+            email: { hasError: true, errorMessage: 'Should be an email' },
+            age: { hasError: true, errorMessage: 'Age should be greater than 50' }
+          }
+        }
+      }
+    });
 
-    const parentCheckStatus = checkStatus.object.parent.object;
-
-    parentCheckStatus.email.hasError.should.equal(true);
-    parentCheckStatus.email.errorMessage.should.equal('应该是一个邮箱');
-    parentCheckStatus.age.hasError.should.equal(true);
-    parentCheckStatus.age.errorMessage.should.equal('年龄应该大于50岁');
-
-    const checkStatus2 = schema.checkForField('user', {
+    const checkResult2 = schema.checkForField('user', {
       user: {
         email: 'simon.guo@hypers.com',
         age: 18,
@@ -80,19 +100,26 @@ describe('#ObjectType', () => {
       }
     });
 
-    checkStatus2.hasError.should.equal(false);
-    checkStatus2.object.age.hasError.should.equal(false);
-    checkStatus2.object.age.hasError.should.equal(false);
-    checkStatus2.object.parent.hasError.should.equal(false);
-    const parentCheckStatus2 = checkStatus2.object.parent.object;
-    parentCheckStatus2.email.hasError.should.equal(false);
-    parentCheckStatus2.age.hasError.should.equal(false);
+    expect(checkResult2).to.deep.equal({
+      hasError: false,
+      object: {
+        email: { hasError: false },
+        age: { hasError: false },
+        parent: {
+          hasError: false,
+          object: {
+            email: { hasError: false },
+            age: { hasError: false }
+          }
+        }
+      }
+    });
   });
 
   it('Should be a valid object by flaser', () => {
     const schemaData = {
-      'data.email': StringType().isEmail('error1'),
-      'data.age': NumberType().min(18, 'error1')
+      'data.email': StringType().isEmail('Should be an email'),
+      'data.age': NumberType().min(18, 'Should be greater than 18')
     };
 
     const data = {
@@ -100,37 +127,175 @@ describe('#ObjectType', () => {
     };
 
     const schema = new Schema(schemaData);
-    const checkStatus = schema.check(flaser(data));
+    const checkResult = schema.check(flaser(data));
 
-    checkStatus['data.email'].hasError.should.equal(false);
-    checkStatus['data.age'].hasError.should.equal(true);
+    expect(checkResult).to.deep.equal({
+      'data.email': { hasError: false },
+      'data.age': { hasError: true, errorMessage: 'Should be greater than 18' }
+    });
   });
 
-  it('Should call async check', done => {
+  it('Should aync check for object nesting', async () => {
     const schema = new Schema({
-      url: StringType().isURL('error1'),
+      url: StringType().isURL('Should be a url'),
       user: ObjectType().shape({
         email: StringType().addRule(() => {
           return new Promise(resolve => {
-            setTimeout(() => {
-              resolve(false);
-            }, 1000);
+            setTimeout(() => resolve(false), 400);
           });
-        }, 'error1'),
-        age: NumberType().min(18, 'error2')
+        }, 'Should be an email'),
+        age: NumberType().min(18, 'Should be greater than 18')
       })
     });
 
-    schema.checkAsync({ url: 'url', user: { email: 'a', age: '10' } }).then(status => {
-      const user = status.user.object;
-      if (
-        user.age.hasError &&
-        user.age.errorMessage === 'error2' &&
-        user.email.hasError &&
-        user.email.errorMessage === 'error1'
-      ) {
-        done();
+    const result = await schema.checkAsync({ url: 'url', user: { email: 'a', age: '10' } });
+
+    expect(result).to.deep.equal({
+      url: { hasError: true, errorMessage: 'Should be a url' },
+      user: {
+        hasError: true,
+        object: {
+          email: { hasError: true, errorMessage: 'Should be an email' },
+          age: { hasError: true, errorMessage: 'Should be greater than 18' }
+        }
       }
     });
+  });
+
+  it('Should be checked for object nesting with nestedObject option.', () => {
+    const schemaData = {
+      url: StringType().isURL('Should be a url'),
+      user: ObjectType().shape({
+        email: StringType().isEmail('Should be an email'),
+        age: NumberType().min(18, 'Age should be greater than 18'),
+        parent: ObjectType().shape({
+          email: StringType().isEmail('Should be an email').isRequired('Email is required'),
+          age: NumberType().min(50, 'Age should be greater than 50')
+        })
+      })
+    };
+
+    const schema = new Schema(schemaData);
+    const options = { nestedObject: true };
+
+    const checkResult = schema.checkForField(
+      'user.parent.age',
+      { user: { parent: { age: 40 } } },
+      options
+    );
+
+    expect(checkResult).to.deep.equal({
+      hasError: true,
+      errorMessage: 'Age should be greater than 50'
+    });
+
+    const checkResult2 = schema.checkForField(
+      'user.parent.age',
+      { user: { parent: { age: 60 } } },
+      options
+    );
+
+    expect(checkResult2).to.deep.equal({ hasError: false });
+
+    const checkResult3 = schema.checkForField(
+      'user.parent.email',
+      { user: { parent: { age: 60 } } },
+      options
+    );
+
+    expect(checkResult3).to.deep.equal({ hasError: true, errorMessage: 'Email is required' });
+  });
+
+  it('Should aync check for object nesting', async () => {
+    const schema = new Schema({
+      url: StringType().isURL('Should be a url'),
+      user: ObjectType().shape({
+        email: StringType().isEmail('Should be an email'),
+        age: NumberType().min(18, 'Should be greater than 18'),
+        parent: ObjectType().shape({
+          email: StringType().addRule(value => {
+            return new Promise(resolve => {
+              setTimeout(() => {
+                if (/@/.test(value)) {
+                  resolve(true);
+                }
+                resolve(false);
+              }, 400);
+            });
+          }, 'Should be an email'),
+          age: NumberType().min(50, 'Age should be greater than 50')
+        })
+      })
+    });
+
+    const options = { nestedObject: true };
+
+    const result = await schema.checkForFieldAsync(
+      'user.parent.email',
+      { user: { parent: { email: 'a' } } },
+      options
+    );
+
+    expect(result).to.deep.equal({ hasError: true, errorMessage: 'Should be an email' });
+
+    const result2 = await schema.checkForFieldAsync(
+      'user.parent.email',
+      { user: { parent: { email: 'a@a.com' } } },
+      options
+    );
+
+    expect(result2).to.deep.equal({ hasError: false });
+  });
+
+  it('Should not allow empty object', () => {
+    const schema = new Schema({
+      user: ObjectType().isRequired('User is required')
+    });
+
+    const result = schema.check({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result2 = schema.check({ user: undefined });
+    expect(result2).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result3 = schema.check({ user: false });
+    expect(result3).to.deep.equal({
+      user: { hasError: true, errorMessage: 'user must be an object' }
+    });
+  });
+
+  it('Should not allow empty object by async', async () => {
+    const schema = new Schema({
+      user: ObjectType().isRequired('User is required')
+    });
+
+    const result = await schema.checkAsync({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result2 = await schema.checkAsync({ user: undefined });
+    expect(result2).to.deep.equal({ user: { hasError: true, errorMessage: 'User is required' } });
+
+    const result3 = await schema.checkAsync({ user: false });
+    expect(result3).to.deep.equal({
+      user: { hasError: true, errorMessage: 'user must be an object' }
+    });
+  });
+
+  it('Should allow empty object', () => {
+    const schema = new Schema({
+      user: ObjectType()
+    });
+
+    const result = schema.check({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: false } });
+  });
+
+  it('Should allow empty object by async', async () => {
+    const schema = new Schema({
+      user: ObjectType()
+    });
+
+    const result = await schema.checkAsync({ user: null });
+    expect(result).to.deep.equal({ user: { hasError: false } });
   });
 });

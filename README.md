@@ -23,8 +23,8 @@ Schema for data modeling & validation
     - [`static combine(...models)`](#static-combinemodels)
     - [`check(data: object)`](#checkdata-object)
     - [`checkAsync(data: object)`](#checkasyncdata-object)
-    - [`checkForField(fieldName: string, data: object)`](#checkforfieldfieldname-string-data-object)
-    - [`checkForFieldAsync(fieldName: string, data: object)`](#checkforfieldasyncfieldname-string-data-object)
+    - [`checkForField(fieldName: string, data: object, options?: { nestedObject?: boolean })`](#checkforfieldfieldname-string-data-object-options--nestedobject-boolean-)
+    - [`checkForFieldAsync(fieldName: string, data: object, options?: { nestedObject?: boolean })`](#checkforfieldasyncfieldname-string-data-object-options--nestedobject-boolean-)
   - [MixedType()](#mixedtype)
     - [`isRequired(errorMessage?: string, trim: boolean = true)`](#isrequirederrormessage-string-trim-boolean--true)
     - [`isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)`](#isrequiredoremptyerrormessage-string-trim-boolean--true)
@@ -367,7 +367,7 @@ model
   });
 ```
 
-#### `checkForField(fieldName: string, data: object)`
+#### `checkForField(fieldName: string, data: object, options?: { nestedObject?: boolean })`
 
 Check whether a field in the data conforms to the model shape definition. Return a check result.
 
@@ -384,7 +384,7 @@ const data = {
 model.checkForField('username', data);
 ```
 
-#### `checkForFieldAsync(fieldName: string, data: object)`
+#### `checkForFieldAsync(fieldName: string, data: object, options?: { nestedObject?: boolean })`
 
 Asynchronously check whether a field in the data conforms to the model shape definition. Return a check result.
 

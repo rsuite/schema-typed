@@ -68,11 +68,11 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
 
   of(type: MixedType<any, DataType, E>) {
     super.pushRule({
-      onValid: (items, data, filedName) => {
+      onValid: (items, data, fieldName) => {
         const checkResults = items.map((value, index) => {
-          const name = Array.isArray(filedName)
-            ? [...filedName, `[${index}]`]
-            : [filedName, `[${index}]`];
+          const name = Array.isArray(fieldName)
+            ? [...fieldName, `[${index}]`]
+            : [fieldName, `[${index}]`];
 
           return type.check(value, data, name as string[]);
         });

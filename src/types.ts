@@ -19,13 +19,13 @@ export type ErrorMessageType = string;
 export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
-  filedName?: string | string[]
+  fieldName?: string | string[]
 ) => CheckResult<E> | boolean;
 
 export type AsyncValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
-  filedName?: string | string[]
+  fieldName?: string | string[]
 ) => CheckResult<E> | boolean | Promise<boolean | CheckResult<E>>;
 
 export type PlainObject<T extends Record<string, unknown> = any> = {
