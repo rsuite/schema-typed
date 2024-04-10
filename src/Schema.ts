@@ -1,8 +1,6 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
-import { MixedType, getFieldType } from './MixedType';
-import get from './utils/get';
-import set from './utils/set';
-import isEmpty from './utils/isEmpty';
+import { MixedType, getFieldType, getFieldValue } from './MixedType';
+import { set, get, isEmpty } from './utils';
 
 interface CheckOptions {
   /**
@@ -11,27 +9,40 @@ interface CheckOptions {
   nestedObject?: boolean;
 }
 
-/**
- * Get the field value from the data object
- */
-function getFieldValue(data: PlainObject, fieldName: string, nestedObject?: boolean) {
-  return nestedObject ? get(data, fieldName) : data?.[fieldName];
+function pathTransform(path: string) {
+  const arr = path.split('.');
+
+  if (arr.length === 1) {
+    return path;
+  }
+
+  return path
+    .split('.')
+    .map((item, index) => {
+      if (index === 0) {
+        return item;
+      }
+
+      // Check if the item is a number, e.g. `list.0`
+      return /^\d+$/.test(item) ? `array.${item}` : `object.${item}`;
+    })
+    .join('.');
 }
 
 export class Schema<DataType = any, ErrorMsgType = string> {
-  readonly spec: SchemaDeclaration<DataType, ErrorMsgType>;
+  readonly $spec: SchemaDeclaration<DataType, ErrorMsgType>;
   private data: PlainObject;
-  private state: SchemaCheckResult<DataType, ErrorMsgType> = {};
+  private checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
 
   constructor(schema: SchemaDeclaration<DataType, ErrorMsgType>) {
-    this.spec = schema;
+    this.$spec = schema;
   }
 
   private getFieldType<T extends keyof DataType>(
     fieldName: T,
     nestedObject?: boolean
   ): SchemaDeclaration<DataType, ErrorMsgType>[T] {
-    return getFieldType(this.spec, fieldName as string, nestedObject);
+    return getFieldType(this.$spec, fieldName as string, nestedObject);
   }
 
   private setFieldCheckResult(
@@ -41,32 +52,67 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   ) {
     if (nestedObject) {
       const namePath = fieldName.split('.').join('.object.');
-      set(this.state, namePath, checkResult);
+      set(this.checkResult, namePath, checkResult);
 
       return;
     }
 
-    this.state[fieldName as string] = checkResult;
+    this.checkResult[fieldName as string] = checkResult;
   }
 
-  getState() {
-    return this.state;
-  }
-
-  getKeys() {
-    return Object.keys(this.spec);
-  }
-
-  setSchemaOptionsForAllType(data: PlainObject) {
+  private setSchemaOptionsForAllType(data: PlainObject) {
     if (data === this.data) {
       return;
     }
 
-    Object.entries(this.spec).forEach(([key, type]) => {
-      (type as MixedType).setSchemaOptions(this.spec as any, data?.[key]);
+    Object.entries(this.$spec).forEach(([key, type]) => {
+      (type as MixedType).setSchemaOptions(this.$spec as any, data?.[key]);
     });
 
     this.data = data;
+  }
+
+  /**
+   * Get the check result of the schema
+   * @returns CheckResult<ErrorMsgType | string>
+   */
+  getCheckResult(path?: string): CheckResult<ErrorMsgType | string> {
+    if (path) {
+      return get(this.checkResult, pathTransform(path)) || { hasError: false };
+    }
+
+    return this.checkResult;
+  }
+
+  /**
+   * Get the error messages of the schema
+   *
+   */
+  getErrorMessages(path?: string): (string | ErrorMsgType)[] {
+    let messages: (string | ErrorMsgType)[] = [];
+
+    if (path) {
+      const { errorMessage, object, array } = get(this.checkResult, pathTransform(path)) || {};
+
+      if (errorMessage) {
+        messages = [errorMessage];
+      } else if (object) {
+        messages = Object.keys(object).map(key => object[key]?.errorMessage);
+      } else if (array) {
+        messages = array.map(item => item?.errorMessage);
+      }
+    } else {
+      messages = Object.keys(this.checkResult).map(key => this.checkResult[key]?.errorMessage);
+    }
+
+    return messages.filter(Boolean);
+  }
+
+  /**
+   * Get all the keys of the schema
+   */
+  getKeys() {
+    return Object.keys(this.$spec);
   }
 
   checkForField<T extends keyof DataType>(
@@ -153,7 +199,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
 
   check<T extends keyof DataType>(data: DataType) {
     const checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
-    Object.keys(this.spec).forEach(key => {
+    Object.keys(this.$spec).forEach(key => {
       if (typeof data === 'object') {
         checkResult[key] = this.checkForField(key as T, data);
       }
@@ -167,7 +213,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     const promises: Promise<CheckResult<ErrorMsgType | string>>[] = [];
     const keys: string[] = [];
 
-    Object.keys(this.spec).forEach((key: string) => {
+    Object.keys(this.$spec).forEach((key: string) => {
       keys.push(key);
       promises.push(this.checkForFieldAsync(key as T, data));
     });
@@ -193,7 +239,7 @@ SchemaModel.combine = function combine<DataType = any, ErrorMsgType = string>(
 ) {
   return new Schema<DataType, ErrorMsgType>(
     specs
-      .map(model => model.spec)
+      .map(model => model.$spec)
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {} as any)
   );
 };

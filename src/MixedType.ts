@@ -5,7 +5,8 @@ import {
   AsyncValidCallbackType,
   RuleType,
   ErrorMessageType,
-  TypeName
+  TypeName,
+  PlainObject
 } from './types';
 import {
   checkRequired,
@@ -25,6 +26,9 @@ type ProxyOptions = {
 
 export const schemaSpecKey = 'objectTypeSchemaSpec';
 
+/**
+ * Get the field type from the schema object
+ */
 export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: boolean) {
   if (nestedObject) {
     const namePath = fieldName.split('.').join(`.${schemaSpecKey}.`);
@@ -33,8 +37,15 @@ export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: 
   return schemaSpec?.[fieldName];
 }
 
+/**
+ * Get the field value from the data object
+ */
+export function getFieldValue(data: PlainObject, fieldName: string, nestedObject?: boolean) {
+  return nestedObject ? get(data, fieldName) : data?.[fieldName];
+}
+
 export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L = any> {
-  readonly typeName?: string;
+  readonly $typeName?: string;
   protected required = false;
   protected requiredMessage: E | string = '';
   protected trim = false;
@@ -43,7 +54,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   protected priorityRules: RuleType<ValueType, DataType, E | string>[] = [];
   protected fieldLabel?: string;
 
-  schemaSpec: SchemaDeclaration<DataType, E>;
+  $schemaSpec: SchemaDeclaration<DataType, E>;
   value: any;
   locale: L & MixedTypeLocale;
 
@@ -52,12 +63,12 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   proxyOptions: ProxyOptions = {};
 
   constructor(name?: TypeName) {
-    this.typeName = name;
+    this.$typeName = name;
     this.locale = Object.assign(name ? locales[name] : {}, locales.mixed) as L & MixedTypeLocale;
   }
 
   setSchemaOptions(schemaSpec: SchemaDeclaration<DataType, E>, value: any) {
-    this.schemaSpec = schemaSpec;
+    this.$schemaSpec = schemaSpec;
     this.value = value;
   }
 
@@ -194,7 +205,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
     this.addRule(
       (value, data, fieldName) => {
-        return condition(this.schemaSpec).check(value, data, fieldName);
+        return condition(this.$schemaSpec).check(value, data, fieldName);
       },
       undefined,
       true
@@ -215,7 +226,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
    */
   equalTo(fieldName: string, errorMessage: E | string = this.locale.equalTo) {
     const errorMessageFunc = () => {
-      const type = getFieldType(this.schemaSpec, fieldName, true);
+      const type = getFieldType(this.$schemaSpec, fieldName, true);
       return formatErrorMessage(errorMessage, { toFieldName: type?.fieldLabel || fieldName });
     };
 

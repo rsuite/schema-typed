@@ -31,7 +31,7 @@ describe('#MixedType', () => {
       });
     });
 
-    it('Should check if two fields are the same and the filed value is not root', () => {
+    it('Should check if two fields are the same and the field value is not root', () => {
       const schema = SchemaModel({
         a: StringType().isRequired(),
         b: StringType()
@@ -411,7 +411,7 @@ describe('#MixedType', () => {
         schema.checkForField('password', { password: '123', confirmPassword: '13' })
       ).to.deep.equal({ hasError: false });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         password: { hasError: false },
         confirmPassword: {
           hasError: true,
@@ -429,7 +429,7 @@ describe('#MixedType', () => {
         confirmPassword: { hasError: false }
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         password: { hasError: false },
         confirmPassword: { hasError: false }
       });
@@ -446,7 +446,7 @@ describe('#MixedType', () => {
         errorMessage: 'a is a required field'
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: true, errorMessage: 'a is a required field' }
       });
     });
@@ -463,7 +463,7 @@ describe('#MixedType', () => {
         hasError: false
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: { object: { c: { hasError: true, errorMessage: 'b.c is a required field' } } }
       });
@@ -481,7 +481,7 @@ describe('#MixedType', () => {
         hasError: false
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: { hasError: true, errorMessage: 'b is a required field' },
         d: { hasError: true, errorMessage: 'd is a required field' }
@@ -498,13 +498,13 @@ describe('#MixedType', () => {
         hasError: false
       });
 
-      expect(schema.getState()).to.deep.equal({ a: { hasError: false } });
+      expect(schema.getCheckResult()).to.deep.equal({ a: { hasError: false } });
 
       expect(schema.checkForField('a', { a: 'a', b: 1 })).to.deep.equal({
         hasError: false
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: {
           hasError: true,
@@ -536,7 +536,7 @@ describe('#MixedType', () => {
           return result;
         });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         password: { hasError: false },
         confirmPassword: {
           hasError: true,
@@ -558,7 +558,7 @@ describe('#MixedType', () => {
         });
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         password: { hasError: false },
         confirmPassword: { hasError: false }
       });
@@ -577,7 +577,7 @@ describe('#MixedType', () => {
         });
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: true, errorMessage: 'a is a required field' }
       });
     });
@@ -596,7 +596,7 @@ describe('#MixedType', () => {
         });
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: { object: { c: { hasError: true, errorMessage: 'b.c is a required field' } } }
       });
@@ -614,7 +614,7 @@ describe('#MixedType', () => {
         expect(result).to.deep.equal({ hasError: false });
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: { hasError: true, errorMessage: 'b is a required field' },
         d: { hasError: true, errorMessage: 'd is a required field' }
@@ -631,13 +631,13 @@ describe('#MixedType', () => {
         expect(result).to.deep.equal({ hasError: false });
       });
 
-      expect(schema.getState()).to.deep.equal({ a: { hasError: false } });
+      expect(schema.getCheckResult()).to.deep.equal({ a: { hasError: false } });
 
       await schema.checkForFieldAsync('a', { a: 'a', b: 1 }).then(result => {
         expect(result).to.deep.equal({ hasError: false });
       });
 
-      expect(schema.getState()).to.deep.equal({
+      expect(schema.getCheckResult()).to.deep.equal({
         a: { hasError: false },
         b: {
           hasError: true,

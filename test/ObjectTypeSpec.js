@@ -163,7 +163,7 @@ describe('#ObjectType', () => {
   });
 
   it('Should be checked for object nesting with nestedObject option.', () => {
-    const schemaData = {
+    const schema = new Schema({
       url: StringType().isURL('Should be a url'),
       user: ObjectType().shape({
         email: StringType().isEmail('Should be an email'),
@@ -173,9 +173,7 @@ describe('#ObjectType', () => {
           age: NumberType().min(50, 'Age should be greater than 50')
         })
       })
-    };
-
-    const schema = new Schema(schemaData);
+    });
     const options = { nestedObject: true };
 
     const checkResult = schema.checkForField(
@@ -189,6 +187,16 @@ describe('#ObjectType', () => {
       errorMessage: 'Age should be greater than 50'
     });
 
+    expect(schema.getCheckResult()).to.deep.equal({
+      user: {
+        object: {
+          parent: {
+            object: { age: { hasError: true, errorMessage: 'Age should be greater than 50' } }
+          }
+        }
+      }
+    });
+
     const checkResult2 = schema.checkForField(
       'user.parent.age',
       { user: { parent: { age: 60 } } },
@@ -197,6 +205,10 @@ describe('#ObjectType', () => {
 
     expect(checkResult2).to.deep.equal({ hasError: false });
 
+    expect(schema.getCheckResult()).to.deep.equal({
+      user: { object: { parent: { object: { age: { hasError: false } } } } }
+    });
+
     const checkResult3 = schema.checkForField(
       'user.parent.email',
       { user: { parent: { age: 60 } } },
@@ -204,6 +216,19 @@ describe('#ObjectType', () => {
     );
 
     expect(checkResult3).to.deep.equal({ hasError: true, errorMessage: 'Email is required' });
+
+    expect(schema.getCheckResult()).to.deep.equal({
+      user: {
+        object: {
+          parent: {
+            object: {
+              age: { hasError: false },
+              email: { hasError: true, errorMessage: 'Email is required' }
+            }
+          }
+        }
+      }
+    });
   });
 
   it('Should aync check for object nesting', async () => {
