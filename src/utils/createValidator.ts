@@ -10,19 +10,20 @@ function isPromiseLike(v: unknown): v is Promise<unknown> {
  * Create a data validator
  * @param data
  */
-export function createValidator<V, D, E>(data?: D, name?: string | string[]) {
+export function createValidator<V, D, E>(data?: D, name?: string | string[], label?: string) {
   return (value: V, rules: RuleType<V, D, E>[]): CheckResult<E> | null => {
     for (let i = 0; i < rules.length; i += 1) {
       const { onValid, errorMessage, params, isAsync } = rules[i];
       if (isAsync) continue;
       const checkResult = onValid(value, data, name);
+      const errorMsg = typeof errorMessage === 'function' ? errorMessage() : errorMessage;
 
       if (checkResult === false) {
         return {
           hasError: true,
-          errorMessage: formatErrorMessage<E>(errorMessage, {
+          errorMessage: formatErrorMessage<E>(errorMsg, {
             ...params,
-            name: Array.isArray(name) ? name.join('.') : name
+            name: label || (Array.isArray(name) ? name.join('.') : name)
           })
         };
       } else if (isPromiseLike(checkResult)) {

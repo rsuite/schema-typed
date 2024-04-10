@@ -7,7 +7,7 @@ import isEmpty from './isEmpty';
 export default function formatErrorMessage<E>(errorMessage?: string | E, params?: any) {
   if (typeof errorMessage === 'string') {
     return errorMessage.replace(/\$\{\s*(\w+)\s*\}/g, (_, key) => {
-      return isEmpty(params?.[key]) ? `[${key}]` : params?.[key];
+      return isEmpty(params?.[key]) ? `$\{${key}\}` : params?.[key];
     });
   }
 

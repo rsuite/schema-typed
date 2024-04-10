@@ -1,7 +1,8 @@
 export default {
   mixed: {
     isRequired: '${name} is a required field',
-    isRequiredOrEmpty: '${name} is a required field'
+    isRequiredOrEmpty: '${name} is a required field',
+    equalTo: '${name} must be the same as ${toFieldName}'
   },
   array: {
     type: '${name} must be an array',

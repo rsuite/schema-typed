@@ -545,6 +545,31 @@ SchemaModel({
 });
 ```
 
+#### `equalTo(fieldName: string, errorMessage?: string)`
+
+Check if the value is equal to the value of another field.
+
+```js
+SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
+});
+```
+
+#### `proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`
+
+After the field verification passes, proxy verification of other fields.
+
+- `fieldNames`: The field name to be proxied.
+- `options.checkIfValueExists`: When the value of other fields exists, the verification is performed (default: false)
+
+```js
+SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
+});
+```
+
 ### StringType(errorMessage?: string)
 
 Define a string type. Supports all the same methods as [MixedType](#mixedtype).

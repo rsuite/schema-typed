@@ -12,9 +12,26 @@ import {
   createValidator,
   createValidatorAsync,
   isEmpty,
-  formatErrorMessage
+  shallowEqual,
+  formatErrorMessage,
+  get
 } from './utils';
 import locales, { MixedTypeLocale } from './locales';
+
+type ProxyOptions = {
+  // Check if the value exists
+  checkIfValueExists?: boolean;
+};
+
+export const schemaSpecKey = 'objectTypeSchemaSpec';
+
+export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: boolean) {
+  if (nestedObject) {
+    const namePath = fieldName.split('.').join(`.${schemaSpecKey}.`);
+    return get(schemaSpec, namePath);
+  }
+  return schemaSpec?.[fieldName];
+}
 
 export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L = any> {
   readonly typeName?: string;
@@ -30,6 +47,10 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   value: any;
   locale: L & MixedTypeLocale;
 
+  // The field name that depends on the verification of other fields
+  otherFields: string[] = [];
+  proxyOptions: ProxyOptions = {};
+
   constructor(name?: TypeName) {
     this.typeName = name;
     this.locale = Object.assign(name ? locales[name] : {}, locales.mixed) as L & MixedTypeLocale;
@@ -40,7 +61,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     this.value = value;
   }
 
-  check(value: ValueType = this.value, data?: DataType, fieldName?: string | string[]) {
+  check(value: any = this.value, data?: DataType, fieldName?: string | string[]) {
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return {
         hasError: true,
@@ -50,7 +71,11 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       };
     }
 
-    const validator = createValidator<ValueType, DataType, E | string>(data, fieldName);
+    const validator = createValidator<ValueType, DataType, E | string>(
+      data,
+      fieldName,
+      this.fieldLabel
+    );
 
     const checkStatus = validator(value, this.priorityRules);
 
@@ -66,7 +91,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   checkAsync(
-    value: ValueType = this.value,
+    value: any = this.value,
     data?: DataType,
     fieldName?: string | string[]
   ): Promise<CheckResult<E | string>> {
@@ -79,7 +104,11 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       });
     }
 
-    const validator = createValidatorAsync<ValueType, DataType, E | string>(data, fieldName);
+    const validator = createValidatorAsync<ValueType, DataType, E | string>(
+      data,
+      fieldName,
+      this.fieldLabel
+    );
 
     return new Promise(resolve =>
       validator(value, this.priorityRules)
@@ -119,7 +148,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
   addRule(
     onValid: ValidCallbackType<ValueType, DataType, E | string>,
-    errorMessage?: E | string,
+    errorMessage?: E | string | (() => E | string),
     priority?: boolean
   ) {
     this.pushRule({ onValid, errorMessage, priority });
@@ -149,11 +178,18 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
 
   /**
    * Define data verification rules based on conditions.
-   * @param validator
+   * @param condition
    * @example
-   * MixedType().when(schema => {
-   *   return schema.field1.check() ? NumberType().min(5) : NumberType().min(0);
+   *
+   * ```js
+   * SchemaModel({
+   *   option: StringType().isOneOf(['a', 'b', 'other']),
+   *   other: StringType().when(schema => {
+   *     const { value } = schema.option;
+   *     return value === 'other' ? StringType().isRequired('Other required') : StringType();
+   *   })
    * });
+   * ```
    */
   when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
     this.addRule(
@@ -167,7 +203,56 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   /**
+   * Check if the value is equal to the value of another field.
+   * @example
+   *
+   * ```js
+   * SchemaModel({
+   *   password: StringType().isRequired(),
+   *   confirmPassword: StringType().equalTo('password').isRequired()
+   * });
+   * ```
+   */
+  equalTo(fieldName: string, errorMessage: E | string = this.locale.equalTo) {
+    const errorMessageFunc = () => {
+      const type = getFieldType(this.schemaSpec, fieldName, true);
+      return formatErrorMessage(errorMessage, { toFieldName: type?.fieldLabel || fieldName });
+    };
+
+    this.addRule((value, data) => {
+      return shallowEqual(value, get(data, fieldName));
+    }, errorMessageFunc);
+    return this;
+  }
+
+  /**
+   * After the field verification passes, proxy verification of other fields.
+   * @param options.checkIfValueExists When the value of other fields exists, the verification is performed (default: false)
+   * @example
+   *
+   * ```js
+   * SchemaModel({
+   *   password: StringType().isRequired().proxy(['confirmPassword']),
+   *   confirmPassword: StringType().equalTo('password').isRequired()
+   * });
+   * ```
+   */
+  proxy(fieldNames: string[], options?: ProxyOptions) {
+    this.otherFields = fieldNames;
+    this.proxyOptions = options || {};
+    return this;
+  }
+
+  /**
    * Overrides the key name in error messages.
+   *
+   * @example
+   * ```js
+   * SchemaModel({
+   *  first_name: StringType().label('First name'),
+   *  age: NumberType().label('Age')
+   * });
+   * ```
    */
   label(label: string) {
     this.fieldLabel = label;
