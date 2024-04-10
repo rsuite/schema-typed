@@ -173,32 +173,36 @@ model.check({ field1: '', field2: '' });
 **/
 ```
 
-#### Multi-field cross validation
+#### Field dependency validation
 
-E.g: verify that the two passwords are the same.
+1. Use the `equalTo` method to verify that the values of two fields are equal.
 
 ```js
 const model = SchemaModel({
-  password1: StringType().isRequired('This field required'),
-  password2: StringType().addRule((value, data) => {
-    if (value !== data.password1) {
-      return false;
-    }
-    return true;
-  }, 'The passwords are inconsistent twice')
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
 });
+```
 
-model.check({ password1: '123456', password2: 'root' });
+2. Use the `addRule` method to create a custom validation rule.
 
-/**
-{
-  password1: { hasError: false },
-  password2: {
-    hasError: true,
-    errorMessage: 'The passwords are inconsistent twice'
-  }
-}
-**/
+```js
+const model = SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().addRule(
+    (value, data) => value === data.password,
+    'Confirm password must be the same as password'
+  )
+});
+```
+
+3. Use the `proxy` method to verify that a field passes, and then proxy verification of other fields.
+
+```js
+const model = SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
+});
 ```
 
 #### Asynchronous check
