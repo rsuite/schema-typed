@@ -9,7 +9,7 @@ describe('#utils', () => {
       const str = formatErrorMessage('${name} is a required field', { name: 'email' });
       const str2 = formatErrorMessage('${name} is a required field', { name1: 'email' });
       str.should.equal('email is a required field');
-      str2.should.equal('[name] is a required field');
+      str2.should.equal('${name} is a required field');
     });
 
     it('Should output multiple parameters', () => {
@@ -25,7 +25,7 @@ describe('#utils', () => {
         maxLength: 10
       });
       str.should.equal('tag must contain 3 to 10 items');
-      str2.should.equal('tag must contain [minLength] to 10 items');
+      str2.should.equal('tag must contain ${minLength} to 10 items');
     });
 
     it('Should not replace parameters', () => {
