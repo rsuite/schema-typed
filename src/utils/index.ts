@@ -7,3 +7,4 @@ export { default as formatErrorMessage } from './formatErrorMessage';
 export { default as get } from './get';
 export { default as set } from './set';
 export { default as shallowEqual } from './shallowEqual';
+export { default as pathTransform } from './pathTransform';

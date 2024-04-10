@@ -1,5 +1,14 @@
-import { expect } from 'chai';
-import { formatErrorMessage, checkRequired, get, set, shallowEqual } from '../src/utils';
+import chai, { expect } from 'chai';
+import {
+  formatErrorMessage,
+  checkRequired,
+  get,
+  set,
+  shallowEqual,
+  pathTransform
+} from '../src/utils';
+
+chai.should();
 
 describe('#utils', () => {
   describe('## formatErrorMessage', () => {
@@ -154,6 +163,17 @@ describe('#utils', () => {
       shallowEqual(obj, obj1).should.equal(false);
       shallowEqual(obj, obj2).should.equal(false);
       shallowEqual(obj, obj3).should.equal(false);
+    });
+  });
+
+  describe('## pathTransform', () => {
+    it('Should transform the path', () => {
+      pathTransform('a').should.equal('a');
+      pathTransform('a.b').should.equal('a.object.b');
+      pathTransform('a.0').should.equal('a.array.0');
+      pathTransform('a.0.1').should.equal('a.array.0.array.1');
+      pathTransform('a.b.c').should.equal('a.object.b.object.c');
+      pathTransform('a.0.b').should.equal('a.array.0.object.b');
     });
   });
 });

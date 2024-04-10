@@ -85,6 +85,21 @@ describe('#Schema', () => {
       expect(model.getErrorMessages('username')).to.deep.equal([]);
     });
 
+    it('Should return error messages for array', () => {
+      const model = SchemaModel({
+        a: ArrayType().of(StringType().isRequired())
+      });
+
+      model.check({
+        a: ['', 12]
+      });
+
+      expect(model.getErrorMessages('a')).to.deep.equal([
+        'a.[0] is a required field',
+        'a.[1] must be a string'
+      ]);
+    });
+
     it('Should return error messages for nested object', () => {
       const model = SchemaModel({
         a: StringType().isRequired(),

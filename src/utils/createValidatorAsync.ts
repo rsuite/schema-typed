@@ -1,5 +1,5 @@
 import { CheckResult, RuleType } from '../types';
-import formatErrorMessage from './formatErrorMessage';
+import formatErrorMessage, { joinName } from './formatErrorMessage';
 
 /**
  * Create a data asynchronous validator
@@ -26,7 +26,7 @@ export function createValidatorAsync<V, D, E>(data?: D, name?: string | string[]
         check(
           formatErrorMessage<E>(errorMsg, {
             ...params,
-            name: label || (Array.isArray(name) ? name.join('.') : name)
+            name: label || joinName(name)
           })
         )
       );

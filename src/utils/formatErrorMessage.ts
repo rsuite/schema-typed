@@ -1,5 +1,9 @@
 import isEmpty from './isEmpty';
 
+export function joinName(name: string | string[]) {
+  return Array.isArray(name) ? name.join('.') : name;
+}
+
 /**
  * formatErrorMessage('${name} is a required field', {name: 'email'});
  * output: 'email is a required field'

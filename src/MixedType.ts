@@ -17,6 +17,7 @@ import {
   formatErrorMessage,
   get
 } from './utils';
+import { joinName } from './utils/formatErrorMessage';
 import locales, { MixedTypeLocale } from './locales';
 
 type ProxyOptions = {
@@ -77,7 +78,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       return {
         hasError: true,
         errorMessage: formatErrorMessage(this.requiredMessage, {
-          name: this.fieldLabel || fieldName
+          name: this.fieldLabel || joinName(fieldName)
         })
       };
     }
@@ -110,7 +111,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       return Promise.resolve({
         hasError: true,
         errorMessage: formatErrorMessage(this.requiredMessage, {
-          name: this.fieldLabel || fieldName
+          name: this.fieldLabel || joinName(fieldName)
         })
       });
     }

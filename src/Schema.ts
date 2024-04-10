@@ -1,32 +1,12 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
 import { MixedType, getFieldType, getFieldValue } from './MixedType';
-import { set, get, isEmpty } from './utils';
+import { set, get, isEmpty, pathTransform } from './utils';
 
 interface CheckOptions {
   /**
    * Check for nested object
    */
   nestedObject?: boolean;
-}
-
-function pathTransform(path: string) {
-  const arr = path.split('.');
-
-  if (arr.length === 1) {
-    return path;
-  }
-
-  return path
-    .split('.')
-    .map((item, index) => {
-      if (index === 0) {
-        return item;
-      }
-
-      // Check if the item is a number, e.g. `list.0`
-      return /^\d+$/.test(item) ? `array.${item}` : `object.${item}`;
-    })
-    .join('.');
 }
 
 export class Schema<DataType = any, ErrorMsgType = string> {
