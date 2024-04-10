@@ -34,6 +34,8 @@ Schema for data modeling & validation
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
     - [`label(label: string)`](#labellabel-string)
+    - [`equalTo(fieldName: string, errorMessage?: string)`](#equaltofieldname-string-errormessage-string)
+    - [`proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`](#proxyfieldnames-string-options--checkifvalueexists-boolean-)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
