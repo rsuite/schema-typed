@@ -76,23 +76,23 @@ export class Schema<DataType = any, ErrorMsgType = string> {
    * Get the check result of the schema
    * @returns CheckResult<ErrorMsgType | string>
    */
-  getCheckResult(path?: string): CheckResult<ErrorMsgType | string> {
+  getCheckResult(path?: string, result = this.checkResult): CheckResult<ErrorMsgType | string> {
     if (path) {
-      return get(this.checkResult, pathTransform(path)) || { hasError: false };
+      return result?.[path] || get(result, pathTransform(path)) || { hasError: false };
     }
 
-    return this.checkResult;
+    return result;
   }
 
   /**
    * Get the error messages of the schema
-   *
    */
-  getErrorMessages(path?: string): (string | ErrorMsgType)[] {
+  getErrorMessages(path?: string, result = this.checkResult): (string | ErrorMsgType)[] {
     let messages: (string | ErrorMsgType)[] = [];
 
     if (path) {
-      const { errorMessage, object, array } = get(this.checkResult, pathTransform(path)) || {};
+      const { errorMessage, object, array } =
+        result?.[path] || get(result, pathTransform(path)) || {};
 
       if (errorMessage) {
         messages = [errorMessage];
@@ -102,7 +102,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
         messages = array.map(item => item?.errorMessage);
       }
     } else {
-      messages = Object.keys(this.checkResult).map(key => this.checkResult[key]?.errorMessage);
+      messages = Object.keys(result).map(key => result[key]?.errorMessage);
     }
 
     return messages.filter(Boolean);

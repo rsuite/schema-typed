@@ -139,6 +139,19 @@ describe('#Schema', () => {
       expect(model.getErrorMessages()).to.deep.equal(['b must be a valid email']);
       expect(model.getErrorMessages('c.0.d')).to.deep.equal(['d is a required field']);
     });
+
+    it('Should return error messages', () => {
+      const model = SchemaModel({
+        'a.b': StringType().isRequired()
+      });
+
+      model.check({
+        'a.b': ''
+      });
+
+      expect(model.getErrorMessages()).to.deep.equal(['a.b is a required field']);
+      expect(model.getErrorMessages('a.b')).to.deep.equal(['a.b is a required field']);
+    });
   });
 
   describe('## getCheckResult', () => {
