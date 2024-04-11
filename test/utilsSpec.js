@@ -1,12 +1,5 @@
-import chai, { expect } from 'chai';
-import {
-  formatErrorMessage,
-  checkRequired,
-  get,
-  set,
-  shallowEqual,
-  pathTransform
-} from '../src/utils';
+import chai from 'chai';
+import { formatErrorMessage, checkRequired, shallowEqual, pathTransform } from '../src/utils';
 
 chai.should();
 
@@ -67,67 +60,6 @@ describe('#utils', () => {
       checkRequired([1]).should.equal(true);
       checkRequired([undefined]).should.equal(true);
       checkRequired(['']).should.equal(true);
-    });
-  });
-
-  describe('## get', () => {
-    it('Should get the value of the object', () => {
-      const obj = { a: { b: { c: 1 } } };
-      get(obj, 'a.b.c').should.equal(1);
-      get(obj, 'a.b').should.deep.equal({ c: 1 });
-      get(obj, 'a').should.deep.equal({ b: { c: 1 } });
-
-      expect(get(obj, 'a.b.d')).to.be.undefined;
-      expect(get(obj, 'a.b.d.e')).to.be.undefined;
-      expect(get(obj, 'a.b.d.e.f')).to.be.undefined;
-    });
-
-    it('Should get the value of the array', () => {
-      const obj = { a: [{ b: 1 }, { b: 2 }] };
-      get(obj, 'a.0.b').should.equal(1);
-      get(obj, 'a.1.b').should.equal(2);
-      expect(get(obj, 'a.2.b')).to.be.undefined;
-    });
-
-    it('Should get the value of the array and object', () => {
-      const obj = { a: [{ b: { c: 1 } }, { b: { c: 2 } }] };
-      get(obj, 'a.0.b.c').should.equal(1);
-      get(obj, 'a.1.b.c').should.equal(2);
-      expect(get(obj, 'a.2.b.c')).to.be.undefined;
-    });
-
-    it('Should return the default value', () => {
-      const obj = { a: { b: [{ c: 1 }, { c: 2 }] } };
-      expect(get(obj, 'a.b.2.c', 10)).to.equal(10);
-      expect(get(undefined, 'a.b', 10)).to.equal(10);
-    });
-  });
-
-  describe('## set', () => {
-    it('Should set the value of the object', () => {
-      const obj = { a: { b: { c: 1 } } };
-      set(obj, 'a.b.c', 2);
-      obj.a.b.c.should.equal(2);
-      set(obj, 'a.b', { c: 3 });
-      obj.a.b.should.deep.equal({ c: 3 });
-      set(obj, 'a', { b: { c: 4 } });
-      obj.a.should.deep.equal({ b: { c: 4 } });
-    });
-
-    it('Should set the value of the array', () => {
-      const obj = { a: [{ b: 1 }, { b: 2 }] };
-      set(obj, 'a.0.b', 3);
-      obj.a[0].b.should.equal(3);
-      set(obj, 'a.1.b', 4);
-      obj.a[1].b.should.equal(4);
-    });
-
-    it('Should set the value of the array and object', () => {
-      const obj = { a: [{ b: { c: 1 } }, { b: { c: 2 } }] };
-      set(obj, 'a.0.b.c', 3);
-      obj.a[0].b.c.should.equal(3);
-      set(obj, 'a.1.b.c', 4);
-      obj.a[1].b.c.should.equal(4);
     });
   });
 
