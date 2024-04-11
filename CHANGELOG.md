@@ -1,3 +1,15 @@
+# [2.2.0](https://github.com/rsuite/schema-typed/compare/2.1.3...2.2.0) (2024-04-11)
+
+
+### Features
+
+* add support for `equalTo` and `proxy` ([#78](https://github.com/rsuite/schema-typed/issues/78)) ([d9f0e55](https://github.com/rsuite/schema-typed/commit/d9f0e555cf532731839584b0c036648001fe0503))
+* add support for `label` method ([#77](https://github.com/rsuite/schema-typed/issues/77)) ([9ff16c3](https://github.com/rsuite/schema-typed/commit/9ff16c346d6f13caabd4910a7d920c1c11eced18))
+* **Schema:** support nested object check with `checkForField` and `checkForFieldAsync` ([#76](https://github.com/rsuite/schema-typed/issues/76)) ([e315aec](https://github.com/rsuite/schema-typed/commit/e315aec657ee230f2cf235861e05b37a7eedd274))
+* **StringType:** add alllowMailto option to isURL rule ([#72](https://github.com/rsuite/schema-typed/issues/72)) ([349dc42](https://github.com/rsuite/schema-typed/commit/349dc429b51db89e7b261ed24aa006435c501685))
+
+
+
 ## [2.1.3](https://github.com/rsuite/schema-typed/compare/2.1.2...2.1.3) (2023-05-06)
 
 

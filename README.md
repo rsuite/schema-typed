@@ -14,7 +14,7 @@ Schema for data modeling & validation
   - [Getting Started](#getting-started)
   - [Multiple verification](#multiple-verification)
   - [Custom verification](#custom-verification)
-    - [Multi-field cross validation](#multi-field-cross-validation)
+    - [Field dependency validation](#field-dependency-validation)
     - [Asynchronous check](#asynchronous-check)
   - [Validate nested objects](#validate-nested-objects)
   - [Combine](#combine)
