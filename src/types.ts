@@ -34,7 +34,7 @@ export type PlainObject<T extends Record<string, unknown> = any> = {
 
 export interface RuleType<V, D, E> {
   onValid: AsyncValidCallbackType<V, D, E>;
-  errorMessage?: E;
+  errorMessage?: any;
   priority?: boolean;
   params?: any;
   isAsync?: boolean;
@@ -65,5 +65,5 @@ export type SchemaDeclaration<T, E = string> = {
 };
 
 export type SchemaCheckResult<T, E> = {
-  [P in keyof T]: CheckResult<E>;
+  [P in keyof T]?: CheckResult<E>;
 };

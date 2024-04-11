@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+import { expect } from 'chai';
+import * as schema from '../src';
 
-require('chai').should();
-
-const schema = require('../src');
 const { ArrayType, StringType, NumberType, ObjectType, Schema } = schema;
 
 describe('#ArrayType', () => {
@@ -14,34 +12,55 @@ describe('#ArrayType', () => {
 
     const schema = new Schema(schemaData);
 
-    const check1 = schema.checkForField('data', {
+    const checkResult = schema.checkForField('data', {
       data: ['simon.guo@hypers.com', 'ddddd@d.com', 'ddd@bbb.com']
     });
 
-    check1.hasError.should.equal(false);
-    check1.array[0].hasError.should.equal(false);
-    check1.array[1].hasError.should.equal(false);
-    check1.array[2].hasError.should.equal(false);
+    expect(checkResult).to.deep.equal({
+      hasError: false,
+      array: [{ hasError: false }, { hasError: false }, { hasError: false }]
+    });
 
-    const check2 = schema.check({
+    const checkResult2 = schema.check({
       data: ['simon.guo@hypers.com', 'error_email', 'ddd@bbb.com']
     });
 
-    check2.data.hasError.should.equal(true);
-    check2.data.array[1].hasError.should.equal(true);
-    check2.data.array[1].errorMessage.should.equal('error2');
+    expect(checkResult2).to.deep.equal({
+      data: {
+        hasError: true,
+        array: [
+          { hasError: false },
+          { hasError: true, errorMessage: 'error2' },
+          { hasError: false }
+        ]
+      },
+      data2: { hasError: false }
+    });
 
-    const check3 = schema.check({
+    const checkResult3 = schema.check({
       data2: []
     });
 
-    check3.data2.errorMessage.should.equal('data2 field must have at least 2 items');
+    expect(checkResult3).to.deep.equal({
+      data: { hasError: false },
+      data2: { hasError: true, errorMessage: 'data2 field must have at least 2 items' }
+    });
 
-    const check4 = schema.check({
+    const checkResult4 = schema.check({
       data2: ['simon.guo@hypers.com', 'error_email', 'ddd@bbb.com']
     });
 
-    check4.data2.array[1].errorMessage.should.equal('data2.[1] must be a valid email');
+    expect(checkResult4).to.deep.equal({
+      data: { hasError: false },
+      data2: {
+        hasError: true,
+        array: [
+          { hasError: false },
+          { hasError: true, errorMessage: 'data2.[1] must be a valid email' },
+          { hasError: false }
+        ]
+      }
+    });
   });
 
   it('Should output default error message ', () => {
@@ -71,7 +90,7 @@ describe('#ArrayType', () => {
       )
     };
     const schema = new Schema(schemaData);
-    const checkStatus = schema.check({
+    const checkResult = schema.check({
       users: [
         'simon.guo@hypers.com',
         { email: 'error_email', age: 19 },
@@ -79,20 +98,29 @@ describe('#ArrayType', () => {
       ]
     });
 
-    checkStatus.users.hasError.should.equal(true);
-    checkStatus.users.array[0].hasError.should.equal(true);
-    checkStatus.users.array[0].errorMessage.should.equal('error1');
-    checkStatus.users.array[1].object.email.hasError.should.equal(true);
-    checkStatus.users.array[1].object.email.errorMessage.should.equal('error2');
-    checkStatus.users.array[1].object.age.hasError.should.equal(false);
-
-    checkStatus.users.array[2].object.email.hasError.should.equal(true);
-    checkStatus.users.array[2].object.email.errorMessage.should.equal('error2');
-    checkStatus.users.array[2].object.age.hasError.should.equal(true);
-    checkStatus.users.array[2].object.age.errorMessage.should.equal('error3');
+    expect(checkResult).to.deep.equal({
+      users: {
+        hasError: true,
+        array: [
+          { hasError: true, errorMessage: 'error1' },
+          {
+            hasError: true,
+            object: { email: { hasError: true, errorMessage: 'error2' }, age: { hasError: false } }
+          },
+          {
+            hasError: true,
+            object: {
+              email: { hasError: true, errorMessage: 'error2' },
+              age: { hasError: true, errorMessage: 'error3' }
+            }
+          }
+        ]
+      },
+      users2: { hasError: false }
+    });
 
     const schema2 = new Schema(schemaData);
-    const checkStatus2 = schema2.check({
+    const checkResult2 = schema2.check({
       users2: [
         'simon.guo@hypers.com',
         { email: 'error_email', age: 19 },
@@ -100,13 +128,29 @@ describe('#ArrayType', () => {
       ]
     });
 
-    checkStatus2.users2.array[0].errorMessage.should.equal('users2.[0] must be an object');
-    checkStatus2.users2.array[1].object.email.errorMessage.should.equal(
-      'users2.[1] must be a valid email'
-    );
-    checkStatus2.users2.array[2].object.age.errorMessage.should.equal(
-      'users2.[2] must be greater than or equal to 18'
-    );
+    expect(checkResult2).to.deep.equal({
+      users: { hasError: false },
+      users2: {
+        hasError: true,
+        array: [
+          { hasError: true, errorMessage: 'users2.[0] must be an object' },
+          {
+            hasError: true,
+            object: {
+              email: { hasError: true, errorMessage: 'email must be a valid email' },
+              age: { hasError: false }
+            }
+          },
+          {
+            hasError: true,
+            object: {
+              email: { hasError: true, errorMessage: 'email must be a valid email' },
+              age: { hasError: true, errorMessage: 'age must be greater than or equal to 18' }
+            }
+          }
+        ]
+      }
+    });
   });
 
   it('Should be unrepeatable ', () => {

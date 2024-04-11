@@ -1,6 +1,6 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
-import { MixedType } from './MixedType';
-import get from './utils/get';
+import { MixedType, getFieldType, getFieldValue } from './MixedType';
+import { set, get, isEmpty, pathTransform } from './utils';
 
 interface CheckOptions {
   /**
@@ -9,45 +9,90 @@ interface CheckOptions {
   nestedObject?: boolean;
 }
 
-/**
- * Get the field value from the data object
- */
-function getFieldValue(data: PlainObject, fieldName: string, nestedObject?: boolean) {
-  return nestedObject ? get(data, fieldName) : data?.[fieldName];
-}
-
 export class Schema<DataType = any, ErrorMsgType = string> {
-  readonly spec: SchemaDeclaration<DataType, ErrorMsgType>;
+  readonly $spec: SchemaDeclaration<DataType, ErrorMsgType>;
   private data: PlainObject;
+  private checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
 
   constructor(schema: SchemaDeclaration<DataType, ErrorMsgType>) {
-    this.spec = schema;
+    this.$spec = schema;
   }
 
-  getFieldType<T extends keyof DataType>(fieldName: T, nestedObject?: boolean) {
-    if (nestedObject) {
-      const namePath = (fieldName as string).split('.').join('.objectTypeSchemaSpec.');
+  private getFieldType<T extends keyof DataType>(
+    fieldName: T,
+    nestedObject?: boolean
+  ): SchemaDeclaration<DataType, ErrorMsgType>[T] {
+    return getFieldType(this.$spec, fieldName as string, nestedObject);
+  }
 
-      return get(this.spec, namePath);
+  private setFieldCheckResult(
+    fieldName: string,
+    checkResult: CheckResult<ErrorMsgType | string>,
+    nestedObject?: boolean
+  ) {
+    if (nestedObject) {
+      const namePath = fieldName.split('.').join('.object.');
+      set(this.checkResult, namePath, checkResult);
+
+      return;
     }
 
-    return this.spec?.[fieldName];
+    this.checkResult[fieldName as string] = checkResult;
   }
 
-  getKeys() {
-    return Object.keys(this.spec);
-  }
-
-  setSchemaOptionsForAllType(data: PlainObject) {
+  private setSchemaOptionsForAllType(data: PlainObject) {
     if (data === this.data) {
       return;
     }
 
-    Object.entries(this.spec).forEach(([key, type]) => {
-      (type as MixedType).setSchemaOptions(this.spec as any, data?.[key]);
+    Object.entries(this.$spec).forEach(([key, type]) => {
+      (type as MixedType).setSchemaOptions(this.$spec as any, data?.[key]);
     });
 
     this.data = data;
+  }
+
+  /**
+   * Get the check result of the schema
+   * @returns CheckResult<ErrorMsgType | string>
+   */
+  getCheckResult(path?: string, result = this.checkResult): CheckResult<ErrorMsgType | string> {
+    if (path) {
+      return result?.[path] || get(result, pathTransform(path)) || { hasError: false };
+    }
+
+    return result;
+  }
+
+  /**
+   * Get the error messages of the schema
+   */
+  getErrorMessages(path?: string, result = this.checkResult): (string | ErrorMsgType)[] {
+    let messages: (string | ErrorMsgType)[] = [];
+
+    if (path) {
+      const { errorMessage, object, array } =
+        result?.[path] || get(result, pathTransform(path)) || {};
+
+      if (errorMessage) {
+        messages = [errorMessage];
+      } else if (object) {
+        messages = Object.keys(object).map(key => object[key]?.errorMessage);
+      } else if (array) {
+        messages = array.map(item => item?.errorMessage);
+      }
+    } else {
+      messages = Object.keys(result).map(key => result[key]?.errorMessage);
+    }
+
+    return messages.filter(Boolean);
+  }
+
+  /**
+   * Get all the keys of the schema
+   */
+  getKeys() {
+    return Object.keys(this.$spec);
   }
 
   checkForField<T extends keyof DataType>(
@@ -66,8 +111,26 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     }
 
     const fieldValue = getFieldValue(data, fieldName as string, nestedObject);
+    const checkResult = fieldChecker.check(fieldValue, data, fieldName as string);
 
-    return fieldChecker.check(fieldValue, data, fieldName as string);
+    this.setFieldCheckResult(fieldName as string, checkResult, nestedObject);
+
+    if (!checkResult.hasError) {
+      const { checkIfValueExists } = fieldChecker.proxyOptions;
+
+      // Check other fields if the field depends on them for validation
+      fieldChecker.otherFields?.forEach((field: string) => {
+        if (checkIfValueExists) {
+          if (!isEmpty(getFieldValue(data, field, nestedObject))) {
+            this.checkForField(field as T, data, options);
+          }
+          return;
+        }
+        this.checkForField(field as T, data, options);
+      });
+    }
+
+    return checkResult;
   }
 
   checkForFieldAsync<T extends keyof DataType>(
@@ -86,27 +149,51 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     }
 
     const fieldValue = getFieldValue(data, fieldName as string, nestedObject);
+    const checkResult = fieldChecker.checkAsync(fieldValue, data, fieldName as string);
 
-    return fieldChecker.checkAsync(fieldValue, data, fieldName as string);
+    return checkResult.then(async result => {
+      this.setFieldCheckResult(fieldName as string, result, nestedObject);
+
+      if (!result.hasError) {
+        const { checkIfValueExists } = fieldChecker.proxyOptions;
+        const checkAll: Promise<CheckResult<ErrorMsgType | string>>[] = [];
+
+        // Check other fields if the field depends on them for validation
+        fieldChecker.otherFields?.forEach((field: string) => {
+          if (checkIfValueExists) {
+            if (!isEmpty(getFieldValue(data, field, nestedObject))) {
+              checkAll.push(this.checkForFieldAsync(field as T, data, options));
+            }
+            return;
+          }
+
+          checkAll.push(this.checkForFieldAsync(field as T, data, options));
+        });
+
+        await Promise.all(checkAll);
+      }
+
+      return result;
+    });
   }
 
   check<T extends keyof DataType>(data: DataType) {
-    const checkResult: PlainObject = {};
-    Object.keys(this.spec).forEach(key => {
+    const checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
+    Object.keys(this.$spec).forEach(key => {
       if (typeof data === 'object') {
         checkResult[key] = this.checkForField(key as T, data);
       }
     });
 
-    return checkResult as SchemaCheckResult<DataType, ErrorMsgType>;
+    return checkResult;
   }
 
   checkAsync<T extends keyof DataType>(data: DataType) {
-    const checkResult: PlainObject = {};
+    const checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
     const promises: Promise<CheckResult<ErrorMsgType | string>>[] = [];
     const keys: string[] = [];
 
-    Object.keys(this.spec).forEach((key: string) => {
+    Object.keys(this.$spec).forEach((key: string) => {
       keys.push(key);
       promises.push(this.checkForFieldAsync(key as T, data));
     });
@@ -115,7 +202,8 @@ export class Schema<DataType = any, ErrorMsgType = string> {
       for (let i = 0; i < values.length; i += 1) {
         checkResult[keys[i]] = values[i];
       }
-      return checkResult as SchemaCheckResult<DataType, ErrorMsgType>;
+
+      return checkResult;
     });
   }
 }
@@ -131,7 +219,7 @@ SchemaModel.combine = function combine<DataType = any, ErrorMsgType = string>(
 ) {
   return new Schema<DataType, ErrorMsgType>(
     specs
-      .map(model => model.spec)
+      .map(model => model.$spec)
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {} as any)
   );
 };

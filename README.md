@@ -34,6 +34,8 @@ Schema for data modeling & validation
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
     - [`label(label: string)`](#labellabel-string)
+    - [`equalTo(fieldName: string, errorMessage?: string)`](#equaltofieldname-string-errormessage-string)
+    - [`proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`](#proxyfieldnames-string-options--checkifvalueexists-boolean-)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
@@ -171,32 +173,36 @@ model.check({ field1: '', field2: '' });
 **/
 ```
 
-#### Multi-field cross validation
+#### Field dependency validation
 
-E.g: verify that the two passwords are the same.
+1. Use the `equalTo` method to verify that the values of two fields are equal.
 
 ```js
 const model = SchemaModel({
-  password1: StringType().isRequired('This field required'),
-  password2: StringType().addRule((value, data) => {
-    if (value !== data.password1) {
-      return false;
-    }
-    return true;
-  }, 'The passwords are inconsistent twice')
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
 });
+```
 
-model.check({ password1: '123456', password2: 'root' });
+2. Use the `addRule` method to create a custom validation rule.
 
-/**
-{
-  password1: { hasError: false },
-  password2: {
-    hasError: true,
-    errorMessage: 'The passwords are inconsistent twice'
-  }
-}
-**/
+```js
+const model = SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().addRule(
+    (value, data) => value === data.password,
+    'Confirm password must be the same as password'
+  )
+});
+```
+
+3. Use the `proxy` method to verify that a field passes, and then proxy verification of other fields.
+
+```js
+const model = SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
+});
 ```
 
 #### Asynchronous check
@@ -542,6 +548,31 @@ Eg:
 SchemaModel({
   first_name: StringType().label('First name'),
   age: NumberType().label('Age')
+});
+```
+
+#### `equalTo(fieldName: string, errorMessage?: string)`
+
+Check if the value is equal to the value of another field.
+
+```js
+SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
+});
+```
+
+#### `proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`
+
+After the field verification passes, proxy verification of other fields.
+
+- `fieldNames`: The field name to be proxied.
+- `options.checkIfValueExists`: When the value of other fields exists, the verification is performed (default: false)
+
+```js
+SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
 });
 ```
 

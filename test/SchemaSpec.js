@@ -1,47 +1,50 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-require('chai').should();
-const schema = require('../src');
+import chai, { expect } from 'chai';
+import * as schema from '../src';
 
-const { StringType, NumberType, Schema, SchemaModel } = schema;
+const { StringType, NumberType, ObjectType, ArrayType, Schema, SchemaModel } = schema;
+
+chai.should();
 
 describe('#Schema', () => {
   it('The schema should be saved as proporty', () => {
-    let schemaData = { data: StringType() };
-    let schema = new Schema(schemaData);
+    const schemaData = { data: StringType() };
+    const schema = new Schema(schemaData);
 
-    schema.spec.should.equal(schemaData);
+    schema.$spec.should.equal(schemaData);
   });
 
   it('Should be able to get the field value type for the given field name', () => {
-    let schemaData = { data: NumberType() };
-    let schema = new Schema(schemaData);
+    const schemaData = { data: NumberType() };
+    const schema = new Schema(schemaData);
     schema.getFieldType('data').should.equal(schemaData.data);
   });
 
   it('Should return error information', () => {
-    let schemaData = { data: NumberType() };
-    let schema = new Schema(schemaData);
-    let checkResult = schema.checkForField('data', '2.22');
+    const schemaData = { data: NumberType() };
+    const schema = new Schema(schemaData);
+    const checkResult = schema.checkForField('data', '2.22');
 
     checkResult.should.have.property('hasError').be.a('boolean');
   });
 
   it('Should return error information', () => {
     const model = SchemaModel({
-      username: StringType().isRequired('用户名不能为空'),
-      email: StringType().isEmail('请输入正确的邮箱'),
-      age: NumberType('年龄应该是一个数字').range(18, 30, '年应该在 18 到 30 岁')
+      username: StringType().isRequired(),
+      email: StringType().isEmail(),
+      age: NumberType().range(18, 30)
     });
 
-    const checkStatus = model.check({
+    const checkResult = model.check({
       username: 'foobar',
       email: 'foo@bar.com',
       age: 40
     });
 
-    checkStatus.username.hasError.should.equal(false);
-    checkStatus.email.hasError.should.equal(false);
-    checkStatus.age.hasError.should.equal(true);
+    expect(checkResult).to.deep.equal({
+      username: { hasError: false },
+      email: { hasError: false },
+      age: { hasError: true, errorMessage: 'age field must be between 18 and 30' }
+    });
   });
 
   describe('## getKeys', () => {
@@ -59,38 +62,271 @@ describe('#Schema', () => {
     });
   });
 
+  describe('## getErrorMessages', () => {
+    it('Should return error messages', () => {
+      const model = SchemaModel({
+        username: StringType().isRequired(),
+        email: StringType().isEmail(),
+        age: NumberType().range(18, 30)
+      });
+
+      model.check({
+        username: 'foobar',
+        email: ' ',
+        age: 40
+      });
+
+      expect(model.getErrorMessages()).to.deep.equal([
+        'email must be a valid email',
+        'age field must be between 18 and 30'
+      ]);
+
+      expect(model.getErrorMessages('age')).to.deep.equal(['age field must be between 18 and 30']);
+      expect(model.getErrorMessages('username')).to.deep.equal([]);
+    });
+
+    it('Should return error messages for array', () => {
+      const model = SchemaModel({
+        a: ArrayType().of(StringType().isRequired())
+      });
+
+      model.check({
+        a: ['', 12]
+      });
+
+      expect(model.getErrorMessages('a')).to.deep.equal([
+        'a.[0] is a required field',
+        'a.[1] must be a string'
+      ]);
+    });
+
+    it('Should return error messages for nested object', () => {
+      const model = SchemaModel({
+        a: StringType().isRequired(),
+        b: StringType().isEmail(),
+        c: NumberType().range(18, 30),
+        d: ObjectType().shape({
+          e: StringType().isEmail().isRequired(),
+          f: NumberType().range(50, 60)
+        })
+      });
+
+      model.check({
+        a: 'foobar',
+        b: 'a',
+        c: 40,
+        d: { e: ' ', f: 40 }
+      });
+
+      expect(model.getErrorMessages()).to.deep.equal([
+        'b must be a valid email',
+        'c field must be between 18 and 30'
+      ]);
+
+      expect(model.getErrorMessages('d')).to.deep.equal([
+        'e is a required field',
+        'f field must be between 50 and 60'
+      ]);
+
+      expect(model.getErrorMessages('d.e')).to.deep.equal(['e is a required field']);
+    });
+
+    it('Should return error messages for nested array', () => {
+      const model = SchemaModel({
+        a: StringType().isRequired(),
+        b: StringType().isEmail(),
+        c: ArrayType()
+          .of(
+            ObjectType().shape({
+              d: StringType().isEmail().isRequired(),
+              e: NumberType().range(50, 60)
+            })
+          )
+          .isRequired()
+      });
+
+      model.check({
+        a: 'foobar',
+        b: 'a',
+        c: [{}, { d: ' ', e: 40 }]
+      });
+
+      expect(model.getErrorMessages()).to.deep.equal(['b must be a valid email']);
+      expect(model.getErrorMessages('c.0.d')).to.deep.equal(['d is a required field']);
+    });
+
+    it('Should return error messages', () => {
+      const model = SchemaModel({
+        'a.b': StringType().isRequired()
+      });
+
+      model.check({
+        'a.b': ''
+      });
+
+      expect(model.getErrorMessages()).to.deep.equal(['a.b is a required field']);
+      expect(model.getErrorMessages('a.b')).to.deep.equal(['a.b is a required field']);
+    });
+  });
+
+  describe('## getCheckResult', () => {
+    it('Should return check results', () => {
+      const model = SchemaModel({
+        username: StringType().isRequired(),
+        email: StringType().isEmail(),
+        age: NumberType().range(18, 30)
+      });
+
+      model.check({
+        username: 'foobar',
+        email: ' ',
+        age: 40
+      });
+
+      expect(model.getCheckResult()).to.deep.equal({
+        username: { hasError: false },
+        email: { hasError: true, errorMessage: 'email must be a valid email' },
+        age: { hasError: true, errorMessage: 'age field must be between 18 and 30' }
+      });
+
+      expect(model.getCheckResult('age')).to.deep.equal({
+        hasError: true,
+        errorMessage: 'age field must be between 18 and 30'
+      });
+
+      expect(model.getCheckResult('username')).to.deep.equal({ hasError: false });
+    });
+
+    it('Should return check results for nested object', () => {
+      const model = SchemaModel({
+        a: StringType().isRequired(),
+        b: StringType().isEmail(),
+        c: NumberType().range(18, 30),
+        d: ObjectType().shape({
+          e: StringType().isEmail().isRequired(),
+          f: NumberType().range(50, 60)
+        })
+      });
+
+      model.check({
+        a: 'foobar',
+        b: 'a',
+        c: 40,
+        d: { e: ' ', f: 40 }
+      });
+
+      expect(model.getCheckResult()).to.deep.equal({
+        a: { hasError: false },
+        b: { hasError: true, errorMessage: 'b must be a valid email' },
+        c: { hasError: true, errorMessage: 'c field must be between 18 and 30' },
+        d: {
+          hasError: true,
+          object: {
+            e: { hasError: true, errorMessage: 'e is a required field' },
+            f: { hasError: true, errorMessage: 'f field must be between 50 and 60' }
+          }
+        }
+      });
+
+      expect(model.getCheckResult('d')).to.deep.equal({
+        hasError: true,
+        object: {
+          e: { hasError: true, errorMessage: 'e is a required field' },
+          f: { hasError: true, errorMessage: 'f field must be between 50 and 60' }
+        }
+      });
+
+      expect(model.getCheckResult('d.e')).to.deep.equal({
+        hasError: true,
+        errorMessage: 'e is a required field'
+      });
+    });
+
+    it('Should return check results for nested array', () => {
+      const model = SchemaModel({
+        a: StringType().isRequired(),
+        b: StringType().isEmail(),
+        c: ArrayType()
+          .of(
+            ObjectType().shape({
+              d: StringType().isEmail().isRequired(),
+              e: NumberType().range(50, 60)
+            })
+          )
+          .isRequired()
+      });
+
+      model.check({
+        a: 'foobar',
+        b: 'a',
+        c: [{}, { d: ' ', e: 40 }]
+      });
+
+      expect(model.getCheckResult()).to.deep.equal({
+        a: { hasError: false },
+        b: { hasError: true, errorMessage: 'b must be a valid email' },
+        c: {
+          hasError: true,
+          array: [
+            {
+              hasError: true,
+              object: {
+                d: { hasError: true, errorMessage: 'd is a required field' },
+                e: { hasError: false }
+              }
+            },
+            {
+              hasError: true,
+              object: {
+                d: { hasError: true, errorMessage: 'd is a required field' },
+                e: { hasError: true, errorMessage: 'e field must be between 50 and 60' }
+              }
+            }
+          ]
+        }
+      });
+
+      expect(model.getCheckResult('c.0.d')).to.deep.equal({
+        hasError: true,
+        errorMessage: 'd is a required field'
+      });
+    });
+  });
+
   describe('## static combine', () => {
     it('Should return a combined model.    ', () => {
       const model1 = SchemaModel({
-        username: StringType().isRequired('用户名不能为空'),
-        email: StringType().isEmail('请输入正确的邮箱')
+        username: StringType().isRequired(),
+        email: StringType().isEmail()
       });
 
-      const model1CheckStatus = model1.check({
+      const checkResult = model1.check({
         username: 'foobar',
         email: 'foo@bar.com',
         age: 40
       });
 
-      model1CheckStatus.username.hasError.should.equal(false);
-      model1CheckStatus.email.hasError.should.equal(false);
-
-      const model2 = SchemaModel({
-        username: StringType().isRequired('用户名不能为空').minLength(7, '最少7个字符'),
-        age: NumberType().range(18, 30, '年应该在 18 到 30 岁')
+      expect(checkResult).to.deep.equal({
+        username: { hasError: false },
+        email: { hasError: false }
       });
 
-      const model3 = SchemaModel.combine(model1, model2);
+      const model2 = SchemaModel({
+        username: StringType().isRequired().minLength(7),
+        age: NumberType().range(18, 30)
+      });
 
-      const checkStatus = model3.check({
+      const checkResult2 = SchemaModel.combine(model1, model2).check({
         username: 'fooba',
         email: 'foo@bar.com',
         age: 40
       });
 
-      checkStatus.username.hasError.should.equal(true);
-      checkStatus.email.hasError.should.equal(false);
-      checkStatus.age.hasError.should.equal(true);
+      expect(checkResult2).to.deep.equal({
+        username: { hasError: true, errorMessage: 'username must be at least 7 characters' },
+        email: { hasError: false },
+        age: { hasError: true, errorMessage: 'age field must be between 18 and 30' }
+      });
     });
   });
 });

@@ -1,11 +1,11 @@
 import { CheckResult, RuleType } from '../types';
-import formatErrorMessage from './formatErrorMessage';
+import formatErrorMessage, { joinName } from './formatErrorMessage';
 
 /**
  * Create a data asynchronous validator
  * @param data
  */
-export function createValidatorAsync<V, D, E>(data?: D, name?: string | string[]) {
+export function createValidatorAsync<V, D, E>(data?: D, name?: string | string[], label?: string) {
   function check(errorMessage?: E | string) {
     return (checkResult: CheckResult<E> | boolean): CheckResult<E> | null => {
       if (checkResult === false) {
@@ -20,11 +20,13 @@ export function createValidatorAsync<V, D, E>(data?: D, name?: string | string[]
   return (value: V, rules: RuleType<V, D, E>[]) => {
     const promises = rules.map(rule => {
       const { onValid, errorMessage, params } = rule;
+      const errorMsg = typeof errorMessage === 'function' ? errorMessage() : errorMessage;
+
       return Promise.resolve(onValid(value, data, name)).then(
         check(
-          formatErrorMessage<E>(errorMessage, {
+          formatErrorMessage<E>(errorMsg, {
             ...params,
-            name: Array.isArray(name) ? name.join('.') : name
+            name: label || joinName(name)
           })
         )
       );

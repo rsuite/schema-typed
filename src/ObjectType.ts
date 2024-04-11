@@ -1,5 +1,11 @@
-import { MixedType } from './MixedType';
-import { createValidator, createValidatorAsync, checkRequired, isEmpty } from './utils';
+import { MixedType, schemaSpecKey } from './MixedType';
+import {
+  createValidator,
+  createValidatorAsync,
+  checkRequired,
+  isEmpty,
+  formatErrorMessage
+} from './utils';
 import { PlainObject, SchemaDeclaration, CheckResult, ErrorMessageType } from './types';
 import { ObjectTypeLocale } from './locales';
 
@@ -9,7 +15,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ObjectTypeLocale
 > {
-  objectTypeSchemaSpec: SchemaDeclaration<DataType, E>;
+  [schemaSpecKey]: SchemaDeclaration<DataType, E>;
   constructor(errorMessage?: E | string) {
     super('object');
     super.pushRule({
@@ -19,16 +25,21 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
-    const check = (value: any, data: any, type: any) => {
+    const check = (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
-        return { hasError: true, errorMessage: type.requiredMessage };
+        return {
+          hasError: true,
+          errorMessage: formatErrorMessage<E>(this.requiredMessage || this.locale.isRequired, {
+            name: type.fieldLabel || childFieldKey || fieldName
+          })
+        };
       }
 
-      if (type.objectTypeSchemaSpec && typeof value === 'object') {
+      if (type[schemaSpecKey] && typeof value === 'object') {
         const checkResultObject: any = {};
         let hasError = false;
-        Object.entries(type.objectTypeSchemaSpec).forEach(([k, v]) => {
-          const checkResult = check(value[k], value, v);
+        Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
+          const checkResult = check(value[k], value, v, k);
           if (checkResult?.hasError) {
             hasError = true;
           }
@@ -38,7 +49,11 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
         return { hasError, object: checkResultObject };
       }
 
-      const validator = createValidator<PlainObject, DataType, E | string>(data, fieldName);
+      const validator = createValidator<PlainObject, DataType, E | string>(
+        data,
+        childFieldKey || fieldName,
+        type.fieldLabel
+      );
       const checkStatus = validator(value, type.priorityRules);
 
       if (checkStatus) {
@@ -56,20 +71,29 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
-    const check = (value: any, data: any, type: any) => {
+    const check = (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
-        return Promise.resolve({ hasError: true, errorMessage: this.requiredMessage });
+        return Promise.resolve({
+          hasError: true,
+          errorMessage: formatErrorMessage<E>(this.requiredMessage || this.locale.isRequired, {
+            name: type.fieldLabel || childFieldKey || fieldName
+          })
+        });
       }
 
-      const validator = createValidatorAsync<PlainObject, DataType, E | string>(data, fieldName);
+      const validator = createValidatorAsync<PlainObject, DataType, E | string>(
+        data,
+        childFieldKey || fieldName,
+        type.fieldLabel
+      );
 
       return new Promise(resolve => {
-        if (type.objectTypeSchemaSpec && typeof value === 'object') {
+        if (type[schemaSpecKey] && typeof value === 'object') {
           const checkResult: any = {};
           const checkAll: Promise<unknown>[] = [];
           const keys: string[] = [];
-          Object.entries(type.objectTypeSchemaSpec).forEach(([k, v]) => {
-            checkAll.push(check(value[k], value, v));
+          Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
+            checkAll.push(check(value[k], value, v, k));
             keys.push(k);
           });
 
@@ -118,7 +142,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
    * })
    */
   shape(fields: SchemaDeclaration<DataType, E>) {
-    this.objectTypeSchemaSpec = fields;
+    this[schemaSpecKey] = fields;
     return this;
   }
 }
