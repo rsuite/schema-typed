@@ -47,6 +47,15 @@ describe('#Schema', () => {
     });
   });
 
+  it('Should get the schema spec by calling getSchemaSpec', () => {
+    const model = SchemaModel({
+      username: StringType().isRequired(),
+      email: StringType().isEmail()
+    });
+
+    model.getSchemaSpec().should.deep.equal(model.$spec);
+  });
+
   describe('## getKeys', () => {
     it('Should return keys', () => {
       const model = SchemaModel({

@@ -327,24 +327,28 @@ describe('#ObjectType', () => {
   it('Should replace default required message', () => {
     const schema = new Schema({
       user: ObjectType().shape({
-        email: StringType().isEmail().isRequired('Email is required')
+        email1: StringType().isEmail().isRequired(),
+        email2: StringType().isEmail().isRequired('Email is required')
       })
     });
 
-    const result = schema.check({ user: { email: '' } });
+    const result = schema.check({ user: { email1: '', email2: '' } });
 
-    expect(result.user.object.email.errorMessage).to.equal('Email is required');
+    expect(result.user.object.email1.errorMessage).to.equal('email1 is a required field');
+    expect(result.user.object.email2.errorMessage).to.equal('Email is required');
   });
 
   it('Should replace default required message with async', async () => {
     const schema = new Schema({
       user: ObjectType().shape({
-        email: StringType().isEmail().isRequired('Email is required')
+        email1: StringType().isEmail().isRequired(),
+        email2: StringType().isEmail().isRequired('Email is required')
       })
     });
 
-    const result = await schema.checkAsync({ user: { email: '' } });
+    const result = await schema.checkAsync({ user: { email1: '', email2: '' } });
 
-    expect(result.user.object.email.errorMessage).to.equal('Email is required');
+    expect(result.user.object.email1.errorMessage).to.equal('email1 is a required field');
+    expect(result.user.object.email2.errorMessage).to.equal('Email is required');
   });
 });
