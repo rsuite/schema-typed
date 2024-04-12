@@ -323,4 +323,28 @@ describe('#ObjectType', () => {
     const result = await schema.checkAsync({ user: null });
     expect(result).to.deep.equal({ user: { hasError: false } });
   });
+
+  it('Should replace default required message', () => {
+    const schema = new Schema({
+      user: ObjectType().shape({
+        email: StringType().isEmail().isRequired('Email is required')
+      })
+    });
+
+    const result = schema.check({ user: { email: '' } });
+
+    expect(result.user.object.email.errorMessage).to.equal('Email is required');
+  });
+
+  it('Should replace default required message with async', async () => {
+    const schema = new Schema({
+      user: ObjectType().shape({
+        email: StringType().isEmail().isRequired('Email is required')
+      })
+    });
+
+    const result = await schema.checkAsync({ user: { email: '' } });
+
+    expect(result.user.object.email.errorMessage).to.equal('Email is required');
+  });
 });

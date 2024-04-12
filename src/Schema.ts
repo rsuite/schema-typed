@@ -95,6 +95,13 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     return Object.keys(this.$spec);
   }
 
+  /**
+   * Get the schema specification
+   */
+  getSchemaSpec() {
+    return this.$spec;
+  }
+
   checkForField<T extends keyof DataType>(
     fieldName: T,
     data: DataType,

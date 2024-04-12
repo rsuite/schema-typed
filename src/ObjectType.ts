@@ -29,7 +29,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return {
           hasError: true,
-          errorMessage: formatErrorMessage<E>(this.requiredMessage || this.locale.isRequired, {
+          errorMessage: formatErrorMessage<E>(type.requiredMessage || type.locale?.isRequired, {
             name: type.fieldLabel || childFieldKey || fieldName
           })
         };
@@ -75,7 +75,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return Promise.resolve({
           hasError: true,
-          errorMessage: formatErrorMessage<E>(this.requiredMessage || this.locale.isRequired, {
+          errorMessage: formatErrorMessage<E>(type.requiredMessage || type.locale?.isRequired, {
             name: type.fieldLabel || childFieldKey || fieldName
           })
         });
