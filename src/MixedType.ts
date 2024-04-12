@@ -89,10 +89,11 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       this.fieldLabel
     );
 
-    const checkStatus = validator(value, this.priorityRules);
+    const checkResult = validator(value, this.priorityRules);
 
-    if (checkStatus) {
-      return checkStatus;
+    // If the priority rule fails, return the result directly
+    if (checkResult) {
+      return checkResult;
     }
 
     if (!this.required && isEmpty(value)) {
@@ -124,9 +125,10 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
 
     return new Promise(resolve =>
       validator(value, this.priorityRules)
-        .then((checkStatus: CheckResult<E | string> | void | null) => {
-          if (checkStatus) {
-            resolve(checkStatus);
+        .then((checkResult: CheckResult<E | string> | void | null) => {
+          // If the priority rule fails, return the result directly
+          if (checkResult) {
+            resolve(checkResult);
           }
         })
         .then(() => {
@@ -135,9 +137,9 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
           }
         })
         .then(() => validator(value, this.rules))
-        .then((checkStatus: CheckResult<E | string> | void | null) => {
-          if (checkStatus) {
-            resolve(checkStatus);
+        .then((checkResult: CheckResult<E | string> | void | null) => {
+          if (checkResult) {
+            resolve(checkResult);
           }
           resolve({ hasError: false });
         })
