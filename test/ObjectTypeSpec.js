@@ -323,4 +323,94 @@ describe('#ObjectType', () => {
     const result = await schema.checkAsync({ user: null });
     expect(result).to.deep.equal({ user: { hasError: false } });
   });
+
+  it('Should replace default required message', () => {
+    const schema = new Schema({
+      user: ObjectType().shape({
+        email1: StringType().isEmail().isRequired(),
+        email2: StringType().isEmail().isRequired('Email is required')
+      })
+    });
+
+    const result = schema.check({ user: { email1: '', email2: '' } });
+
+    expect(result.user.object.email1.errorMessage).to.equal('email1 is a required field');
+    expect(result.user.object.email2.errorMessage).to.equal('Email is required');
+  });
+
+  it('Should replace default required message with async', async () => {
+    const schema = new Schema({
+      user: ObjectType().shape({
+        email1: StringType().isEmail().isRequired(),
+        email2: StringType().isEmail().isRequired('Email is required')
+      })
+    });
+
+    const result = await schema.checkAsync({ user: { email1: '', email2: '' } });
+
+    expect(result.user.object.email1.errorMessage).to.equal('email1 is a required field');
+    expect(result.user.object.email2.errorMessage).to.equal('Email is required');
+  });
+
+  describe('priority', () => {
+    it('Should have the correct priority', () => {
+      const schema = new Schema({
+        user: ObjectType().shape({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2')
+        })
+      });
+
+      const result = schema.check({ user: { name: 'a' } });
+
+      expect(result.user.object).to.deep.equal({
+        name: { hasError: true, errorMessage: 'error1' }
+      });
+
+      const schema2 = new Schema({
+        user: ObjectType().shape({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2', true)
+        })
+      });
+
+      const result2 = schema2.check({ user: { name: 'a' } });
+
+      expect(result2.user.object).to.deep.equal({
+        name: { hasError: true, errorMessage: 'error2' }
+      });
+    });
+
+    it('Should have the correct priority with async', async () => {
+      const schema = new Schema({
+        user: ObjectType().shape({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2')
+        })
+      });
+
+      const result = await schema.checkAsync({ user: { name: 'a' } });
+
+      expect(result.user.object).to.deep.equal({
+        name: { hasError: true, errorMessage: 'error1' }
+      });
+
+      const schema2 = new Schema({
+        user: ObjectType().shape({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2', true)
+        })
+      });
+
+      const result2 = await schema2.checkAsync({ user: { name: 'a' } });
+
+      expect(result2.user.object).to.deep.equal({
+        name: { hasError: true, errorMessage: 'error2' }
+      });
+    });
+  });
 });

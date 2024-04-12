@@ -99,6 +99,74 @@ describe('#MixedType', () => {
       schema2.checkForField('str', { str: '12' }).hasError.should.equal(true);
       schema2.checkForField('str', { str: '12' }).errorMessage.should.equal('error');
     });
+
+    describe('priority - async', () => {
+      it('Should have the correct priority', async () => {
+        const schema = SchemaModel({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2')
+        });
+
+        const result = await schema.checkAsync({ name: 'a' });
+
+        expect(result).to.deep.equal({
+          name: { hasError: true, errorMessage: 'error1' }
+        });
+
+        const schema2 = SchemaModel({
+          name: StringType()
+            .isEmail('error1')
+            .addRule(() => false, 'error2', true)
+        });
+
+        const result2 = await schema2.checkAsync({ name: 'a' });
+
+        expect(result2).to.deep.equal({
+          name: { hasError: true, errorMessage: 'error2' }
+        });
+
+        const schema3 = SchemaModel({
+          name: StringType().addRule(() => true, 'error2', true)
+        });
+
+        const result3 = await schema3.checkAsync({ name: 'a' });
+
+        expect(result3).to.deep.equal({
+          name: { hasError: false }
+        });
+      });
+
+      it('Should be isRequired with a higher priority than addRule', async () => {
+        const schema = SchemaModel({
+          str: StringType()
+            .isRequired('required')
+            .addRule(value => value === '', 'error')
+        });
+
+        const result = await schema.checkAsync({ str: '' });
+
+        expect(result).to.deep.equal({
+          str: { hasError: true, errorMessage: 'required' }
+        });
+
+        const result2 = await schema.checkAsync({ str: '12' });
+
+        expect(result2).to.deep.equal({
+          str: { hasError: true, errorMessage: 'error' }
+        });
+
+        const schema2 = SchemaModel({
+          str: StringType().addRule(value => value === '', 'error')
+        });
+
+        const result3 = await schema2.checkAsync({ str: '12' });
+
+        expect(result3).to.deep.equal({
+          str: { hasError: true, errorMessage: 'error' }
+        });
+      });
+    });
   });
 
   describe('required', () => {
