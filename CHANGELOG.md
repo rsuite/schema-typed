@@ -1,3 +1,12 @@
+## [2.2.1](https://github.com/rsuite/schema-typed/compare/2.2.0...2.2.1) (2024-04-12)
+
+
+### Bug Fixes
+
+* **ObjectType:** fix required message for properties not being replaced ([#79](https://github.com/rsuite/schema-typed/issues/79)) ([2aab276](https://github.com/rsuite/schema-typed/commit/2aab2768994b42d3572c2d90a926329912811c80))
+
+
+
 # [2.2.0](https://github.com/rsuite/schema-typed/compare/2.1.3...2.2.0) (2024-04-11)
 
 
