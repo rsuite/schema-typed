@@ -1,3 +1,7 @@
+## [2.2.2](https://github.com/rsuite/schema-typed/compare/2.2.1...2.2.2) (2024-04-12)
+
+
+
 ## [2.2.1](https://github.com/rsuite/schema-typed/compare/2.2.0...2.2.1) (2024-04-12)
 
 
