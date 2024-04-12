@@ -39,8 +39,8 @@
   ],
   "homepage": "https://github.com/rsuite/schema-typed#readme",
   "dependencies": {
-    "lodash.get": "^4.4.2",
-    "lodash.set": "^4.3.2"
+    "get-value": "^3.0.1",
+    "set-value": "^4.1.0"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
