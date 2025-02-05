@@ -1,4 +1,4 @@
-import { MixedType } from './MixedType';
+import { MixedType, arrayTypeSchemaSpec } from './MixedType';
 import { PlainObject, CheckResult, ErrorMessageType } from './types';
 import { ArrayTypeLocale } from './locales';
 
@@ -8,6 +8,8 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ArrayTypeLocale
 > {
+  [arrayTypeSchemaSpec]: MixedType<any, DataType, E>;
+
   constructor(errorMessage?: E | string) {
     super('array');
     super.pushRule({
@@ -67,6 +69,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   of(type: MixedType<any, DataType, E>) {
+    this[arrayTypeSchemaSpec] = type;
     super.pushRule({
       onValid: (items, data, fieldName) => {
         const checkResults = items.map((value, index) => {

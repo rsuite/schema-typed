@@ -26,14 +26,38 @@ type ProxyOptions = {
 };
 
 export const schemaSpecKey = 'objectTypeSchemaSpec';
+export const arrayTypeSchemaSpec = 'arrayTypeSchemaSpec';
 
 /**
  * Get the field type from the schema object
  */
 export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: boolean) {
   if (nestedObject) {
-    const namePath = fieldName.split('.').join(`.${schemaSpecKey}.`);
-    return get(schemaSpec, namePath);
+    const namePath = fieldName.split('.');
+    const currentField = namePath[0];
+    const arrayMatch = currentField.match(/(\w+)\[(\d+)\]/);
+
+    if (arrayMatch) {
+      const [, arrayField] = arrayMatch;
+      const type = schemaSpec[arrayField];
+
+      if (type?.[arrayTypeSchemaSpec]) {
+        // If there are remaining paths and the type is ObjectType (has schemaSpecKey)
+        if (namePath.length > 1 && type[arrayTypeSchemaSpec][schemaSpecKey]) {
+          return getFieldType(
+            type[arrayTypeSchemaSpec][schemaSpecKey],
+            namePath.slice(1).join('.'),
+            true
+          );
+        }
+        // Otherwise return the array element type directly
+        return type[arrayTypeSchemaSpec];
+      }
+      return type;
+    }
+
+    const joinedPath = namePath.join(`.${schemaSpecKey}.`);
+    return get(schemaSpec, joinedPath);
   }
   return schemaSpec?.[fieldName];
 }

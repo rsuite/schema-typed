@@ -11,10 +11,17 @@ interface CheckOptions {
 
 export class Schema<DataType = any, ErrorMsgType = string> {
   readonly $spec: SchemaDeclaration<DataType, ErrorMsgType>;
+
+  /**
+   * @deprecated
+   * Use `$spec` instead
+   */
+  readonly spec: SchemaDeclaration<DataType, ErrorMsgType>;
   private data: PlainObject;
   private checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
 
   constructor(schema: SchemaDeclaration<DataType, ErrorMsgType>) {
+    this.spec = schema;
     this.$spec = schema;
   }
 
@@ -37,7 +44,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
       return;
     }
 
-    this.checkResult[fieldName as string] = checkResult;
+    this.checkResult[fieldName] = checkResult;
   }
 
   private setSchemaOptionsForAllType(data: PlainObject) {
