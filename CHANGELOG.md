@@ -1,3 +1,12 @@
+# [2.3.0](https://github.com/rsuite/schema-typed/compare/v2.2.2...v2.3.0) (2025-02-06)
+
+
+### Features
+
+* **ArrayType:** enhance nested array validation ([#82](https://github.com/rsuite/schema-typed/issues/82)) ([db389b9](https://github.com/rsuite/schema-typed/commit/db389b90a016627982202214dee23f7ee34d6de4))
+
+
+
 ## [2.2.2](https://github.com/rsuite/schema-typed/compare/2.2.1...2.2.2) (2024-04-12)
 
 
