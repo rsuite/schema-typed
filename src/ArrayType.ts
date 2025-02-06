@@ -1,4 +1,4 @@
-import { MixedType } from './MixedType';
+import { MixedType, arrayTypeSchemaSpec } from './MixedType';
 import { PlainObject, CheckResult, ErrorMessageType } from './types';
 import { ArrayTypeLocale } from './locales';
 
@@ -8,10 +8,19 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ArrayTypeLocale
 > {
+  [arrayTypeSchemaSpec]: MixedType<any, DataType, E>;
+  private isArrayTypeNested = false;
+
   constructor(errorMessage?: E | string) {
     super('array');
     super.pushRule({
-      onValid: v => Array.isArray(v),
+      onValid: v => {
+        // Skip array type check for nested array elements
+        if (this.isArrayTypeNested) {
+          return true;
+        }
+        return Array.isArray(v);
+      },
       errorMessage: errorMessage || this.locale.type
     });
   }
@@ -67,8 +76,28 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   of(type: MixedType<any, DataType, E>) {
+    this[arrayTypeSchemaSpec] = type;
+    
+    // Mark inner ArrayType as nested when dealing with nested arrays
+    if (type instanceof ArrayType) {
+      type.isArrayTypeNested = true;
+    }
+
     super.pushRule({
       onValid: (items, data, fieldName) => {
+        // For non-array values in nested arrays, pass directly to inner type validation
+        if (!Array.isArray(items) && this.isArrayTypeNested) {
+          return type.check(items, data, fieldName);
+        }
+
+        // For non-array values in non-nested arrays, return array type error
+        if (!Array.isArray(items)) {
+          return {
+            hasError: true,
+            errorMessage: this.locale.type
+          };
+        }
+
         const checkResults = items.map((value, index) => {
           const name = Array.isArray(fieldName)
             ? [...fieldName, `[${index}]`]

@@ -74,85 +74,6 @@ describe('#ArrayType', () => {
     checkStatus.array[1].errorMessage.should.equal('data.[1] must be a valid email');
   });
 
-  it('Should support array nested objects', () => {
-    const schemaData = {
-      users: ArrayType().of(
-        ObjectType('error1').shape({
-          email: StringType().isEmail('error2'),
-          age: NumberType().min(18, 'error3')
-        })
-      ),
-      users2: ArrayType().of(
-        ObjectType().shape({
-          email: StringType().isEmail(),
-          age: NumberType().min(18)
-        })
-      )
-    };
-    const schema = new Schema(schemaData);
-    const checkResult = schema.check({
-      users: [
-        'simon.guo@hypers.com',
-        { email: 'error_email', age: 19 },
-        { email: 'error_email', age: 17 }
-      ]
-    });
-
-    expect(checkResult).to.deep.equal({
-      users: {
-        hasError: true,
-        array: [
-          { hasError: true, errorMessage: 'error1' },
-          {
-            hasError: true,
-            object: { email: { hasError: true, errorMessage: 'error2' }, age: { hasError: false } }
-          },
-          {
-            hasError: true,
-            object: {
-              email: { hasError: true, errorMessage: 'error2' },
-              age: { hasError: true, errorMessage: 'error3' }
-            }
-          }
-        ]
-      },
-      users2: { hasError: false }
-    });
-
-    const schema2 = new Schema(schemaData);
-    const checkResult2 = schema2.check({
-      users2: [
-        'simon.guo@hypers.com',
-        { email: 'error_email', age: 19 },
-        { email: 'error_email', age: 17 }
-      ]
-    });
-
-    expect(checkResult2).to.deep.equal({
-      users: { hasError: false },
-      users2: {
-        hasError: true,
-        array: [
-          { hasError: true, errorMessage: 'users2.[0] must be an object' },
-          {
-            hasError: true,
-            object: {
-              email: { hasError: true, errorMessage: 'email must be a valid email' },
-              age: { hasError: false }
-            }
-          },
-          {
-            hasError: true,
-            object: {
-              email: { hasError: true, errorMessage: 'email must be a valid email' },
-              age: { hasError: true, errorMessage: 'age must be greater than or equal to 18' }
-            }
-          }
-        ]
-      }
-    });
-  });
-
   it('Should be unrepeatable ', () => {
     const schemaData = { data: ArrayType().unrepeatable('error1') };
     const schema = new Schema(schemaData);
@@ -219,5 +140,680 @@ describe('#ArrayType', () => {
     schema
       .checkForField('data', { data: [1] })
       .errorMessage.should.equal('data field must have at least 2 items');
+  });
+
+  describe('Nested Object', () => {
+    const options = {
+      nestedObject: true
+    };
+
+    it('Should support array nested objects', () => {
+      const schemaData = {
+        users: ArrayType().of(
+          ObjectType('error1').shape({
+            email: StringType().isEmail('error2'),
+            age: NumberType().min(18, 'error3')
+          })
+        ),
+        users2: ArrayType().of(
+          ObjectType().shape({
+            email: StringType().isEmail(),
+            age: NumberType().min(18)
+          })
+        )
+      };
+      const schema = new Schema(schemaData);
+      const checkResult = schema.check({
+        users: [
+          'simon.guo@hypers.com',
+          { email: 'error_email', age: 19 },
+          { email: 'error_email', age: 17 }
+        ]
+      });
+
+      expect(checkResult).to.deep.equal({
+        users: {
+          hasError: true,
+          array: [
+            { hasError: true, errorMessage: 'error1' },
+            {
+              hasError: true,
+              object: {
+                email: { hasError: true, errorMessage: 'error2' },
+                age: { hasError: false }
+              }
+            },
+            {
+              hasError: true,
+              object: {
+                email: { hasError: true, errorMessage: 'error2' },
+                age: { hasError: true, errorMessage: 'error3' }
+              }
+            }
+          ]
+        },
+        users2: { hasError: false }
+      });
+
+      const schema2 = new Schema(schemaData);
+      const checkResult2 = schema2.check({
+        users2: [
+          'simon.guo@hypers.com',
+          { email: 'error_email', age: 19 },
+          { email: 'error_email', age: 17 }
+        ]
+      });
+
+      expect(checkResult2).to.deep.equal({
+        users: { hasError: false },
+        users2: {
+          hasError: true,
+          array: [
+            { hasError: true, errorMessage: 'users2.[0] must be an object' },
+            {
+              hasError: true,
+              object: {
+                email: { hasError: true, errorMessage: 'email must be a valid email' },
+                age: { hasError: false }
+              }
+            },
+            {
+              hasError: true,
+              object: {
+                email: { hasError: true, errorMessage: 'email must be a valid email' },
+                age: { hasError: true, errorMessage: 'age must be greater than or equal to 18' }
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    it('Should validate nested array with required fields', () => {
+      const schema = new Schema({
+        address: ArrayType().of(
+          ObjectType().shape({
+            city: StringType().isRequired('City is required'),
+            postCode: StringType().isRequired('Post code is required')
+          })
+        )
+      });
+
+      const checkResult = schema.check({
+        address: [
+          { city: 'Shanghai', postCode: '200000' },
+          { city: 'Beijing', postCode: '100000' }
+        ]
+      });
+
+      expect(checkResult).to.deep.equal({
+        address: {
+          hasError: false,
+          array: [
+            {
+              hasError: false,
+              object: { city: { hasError: false }, postCode: { hasError: false } }
+            },
+            {
+              hasError: false,
+              object: { city: { hasError: false }, postCode: { hasError: false } }
+            }
+          ]
+        }
+      });
+
+      const checkResult2 = schema.check({
+        address: [{ postCode: '200000' }, { city: 'Beijing' }]
+      });
+
+      expect(checkResult2).to.deep.equal({
+        address: {
+          hasError: true,
+          array: [
+            {
+              hasError: true,
+              object: {
+                city: {
+                  hasError: true,
+                  errorMessage: 'City is required'
+                },
+                postCode: {
+                  hasError: false
+                }
+              }
+            },
+            {
+              hasError: true,
+              object: {
+                city: {
+                  hasError: false
+                },
+                postCode: {
+                  hasError: true,
+                  errorMessage: 'Post code is required'
+                }
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    it('Should check a field in an array', () => {
+      const schema = new Schema({
+        address: ArrayType().of(
+          ObjectType().shape({
+            city: StringType().isRequired('City is required'),
+            postCode: StringType().isRequired('Post code is required')
+          })
+        )
+      });
+
+      const checkResult = schema.checkForField(
+        'address[0].city',
+        { address: [{ city: 'Shanghai' }] },
+        options
+      );
+
+      expect(checkResult).to.deep.equal({
+        hasError: false
+      });
+
+      const checkResult2 = schema.checkForField(
+        'address[1].postCode',
+        { address: [{ postCode: '' }] },
+        options
+      );
+
+      expect(checkResult2).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Post code is required'
+      });
+    });
+
+    it('Should check primitive type array items', () => {
+      const schema = new Schema({
+        emails: ArrayType().of(StringType().isEmail('Invalid email')),
+        numbers: ArrayType().of(NumberType().min(0, 'Must be positive'))
+      });
+
+      // Test valid email
+      expect(
+        schema.checkForField('emails[0]', { emails: ['test@example.com'] }, options)
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test invalid email
+      expect(
+        schema.checkForField('emails[0]', { emails: ['invalid-email'] }, options)
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Invalid email'
+      });
+
+      // Test negative number
+      expect(schema.checkForField('numbers[0]', { numbers: [-1] }, options)).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Must be positive'
+      });
+    });
+
+    it('Should support nested arrays', () => {
+      const schema = new Schema({
+        matrix: ArrayType().of(ArrayType().of(NumberType().min(0, 'Must be positive')))
+      });
+
+      // Test negative number in nested array
+      expect(
+        schema.checkForField(
+          'matrix[0][1]',
+          {
+            matrix: [[0, -1]]
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Must be positive'
+      });
+    });
+
+    it('Should support nested arrays in check', () => {
+      const schema = new Schema({
+        matrix: ArrayType().of(ArrayType().of(NumberType().min(0, 'Must be positive')))
+      });
+
+      // Test negative number in nested array
+      expect(
+        schema.check({
+          matrix: [[0, -1]]
+        })
+      ).to.deep.equal({
+        matrix: {
+          array: [
+            {
+              array: [
+                {
+                  hasError: false
+                },
+                {
+                  errorMessage: 'Must be positive',
+                  hasError: true
+                }
+              ],
+              hasError: true
+            }
+          ],
+          hasError: true
+        }
+      });
+    });
+
+    it('Should validate array elements with complex validation rules', () => {
+      const schema = new Schema({
+        users: ArrayType().of(
+          ObjectType().shape({
+            name: StringType().isRequired('Name is required'),
+            age: NumberType().min(18, 'Must be an adult'),
+            email: StringType().isEmail('Invalid email format')
+          })
+        )
+      });
+
+      // Test valid name
+      expect(
+        schema.checkForField(
+          'users[0].name',
+          {
+            users: [{ name: 'John Doe' }]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test required field in array object
+      expect(
+        schema.checkForField(
+          'users[0].name',
+          {
+            users: [{ name: '' }]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Name is required'
+      });
+
+      // Test minimum value in array object
+      expect(
+        schema.checkForField(
+          'users[0].age',
+          {
+            users: [{ age: 16 }]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Must be an adult'
+      });
+
+      // Test email format in array object
+      expect(
+        schema.checkForField(
+          'users[0].email',
+          {
+            users: [{ email: 'invalid-email' }]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Invalid email format'
+      });
+    });
+
+    it('Should validate nested array objects (max 3 levels)', () => {
+      const schema = new Schema({
+        users: ArrayType().of(
+          ObjectType().shape({
+            name: StringType().isRequired('Name required'),
+            tasks: ArrayType().of(
+              ObjectType().shape({
+                title: StringType().isRequired('Task title required'),
+                assignees: ArrayType().of(
+                  ObjectType().shape({
+                    email: StringType().isEmail('Invalid email format'),
+                    role: StringType()
+                      .isOneOf(['owner', 'admin', 'member'], 'Invalid role')
+                      .isRequired('Role required'),
+                    priority: NumberType()
+                      .min(1, 'Priority too low')
+                      .max(5, 'Priority too high')
+                      .isRequired('Priority required')
+                  })
+                )
+              })
+            )
+          })
+        )
+      });
+
+      const data = {
+        users: [
+          {
+            name: 'John Doe',
+            tasks: [
+              {
+                title: 'Frontend Development',
+                assignees: [
+                  {
+                    email: 'test@example.com',
+                    role: 'owner',
+                    priority: 3
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+
+      // Test valid email
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].email',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test invalid email
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].email',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'invalid-email',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Invalid email format'
+      });
+
+      // Test valid role
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].role',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test invalid role
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].role',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'guest',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Invalid role'
+      });
+
+      // Test valid priority
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].priority',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test invalid priority (too high)
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].priority',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 6
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Priority too high'
+      });
+
+      // Test invalid priority (too low)
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].assignees[0].priority',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Priority too low'
+      });
+
+      // Test required field present
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].title',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: 'Frontend Development',
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      // Test required field missing
+      expect(
+        schema.checkForField(
+          'users[0].tasks[0].title',
+          {
+            users: [
+              {
+                name: 'John Doe',
+                tasks: [
+                  {
+                    title: null,
+                    assignees: [
+                      {
+                        email: 'test@example.com',
+                        role: 'owner',
+                        priority: 3
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            nestedObject: true
+          }
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'Task title required'
+      });
+    });
   });
 });
