@@ -32,34 +32,50 @@ export const arrayTypeSchemaSpec = 'arrayTypeSchemaSpec';
  * Get the field type from the schema object
  */
 export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: boolean) {
-  if (nestedObject) {
-    const namePath = fieldName.split('.');
-    const currentField = namePath[0];
-    const arrayMatch = currentField.match(/(\w+)\[(\d+)\]/);
+  if (schemaSpec) {
+    if (nestedObject) {
+      const namePath = fieldName.split('.');
+      const currentField = namePath[0];
+      const arrayMatch = currentField.match(/(\w+)\[(\d+)\]/);
+      if (arrayMatch) {
+        const [, arrayField, arrayIndex] = arrayMatch;
+        const type = schemaSpec[arrayField];
+        if (type?.[arrayTypeSchemaSpec]) {
+          const arrayType = type[arrayTypeSchemaSpec];
 
-    if (arrayMatch) {
-      const [, arrayField] = arrayMatch;
-      const type = schemaSpec[arrayField];
-
-      if (type?.[arrayTypeSchemaSpec]) {
-        // If there are remaining paths and the type is ObjectType (has schemaSpecKey)
-        if (namePath.length > 1 && type[arrayTypeSchemaSpec][schemaSpecKey]) {
-          return getFieldType(
-            type[arrayTypeSchemaSpec][schemaSpecKey],
-            namePath.slice(1).join('.'),
-            true
-          );
+          if (namePath.length > 1) {
+            if (arrayType[schemaSpecKey]) {
+              return getFieldType(arrayType[schemaSpecKey], namePath.slice(1).join('.'), true);
+            }
+            if (Array.isArray(arrayType) && arrayType[parseInt(arrayIndex)][schemaSpecKey]) {
+              return getFieldType(
+                arrayType[parseInt(arrayIndex)][schemaSpecKey],
+                namePath.slice(1).join('.'),
+                true
+              );
+            }
+          }
+          if (Array.isArray(arrayType)) {
+            return arrayType[parseInt(arrayIndex)];
+          }
+          // Otherwise return the array element type directly
+          return arrayType;
         }
-        // Otherwise return the array element type directly
-        return type[arrayTypeSchemaSpec];
-      }
-      return type;
-    }
+        return type;
+      } else {
+        const type = schemaSpec[currentField];
 
-    const joinedPath = namePath.join(`.${schemaSpecKey}.`);
-    return get(schemaSpec, joinedPath);
+        if (namePath.length === 1) {
+          return type;
+        }
+
+        if (namePath.length > 1 && type[schemaSpecKey]) {
+          return getFieldType(type[schemaSpecKey], namePath.slice(1).join('.'), true);
+        }
+      }
+    }
+    return schemaSpec?.[fieldName];
   }
-  return schemaSpec?.[fieldName];
 }
 
 /**
