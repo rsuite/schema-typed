@@ -62,7 +62,7 @@ Schema for data modeling & validation
     - [`minLength(minLength: number, errorMessage?: string)`](#minlengthminlength-number-errormessage-string-1)
     - [`maxLength(maxLength: number, errorMessage?: string)`](#maxlengthmaxlength-number-errormessage-string-1)
     - [`unrepeatable(errorMessage?: string)`](#unrepeatableerrormessage-string)
-    - [`of(type: object)`](#oftype-object)
+    - [`of()`](#of)
   - [DateType(errorMessage?: string)](#datetypeerrormessage-string)
     - [`range(min: Date, max: Date, errorMessage?: string)`](#rangemin-date-max-date-errormessage-string)
     - [`min(min: Date, errorMessage?: string)`](#minmin-date-errormessage-string)
@@ -726,10 +726,24 @@ ArrayType().maxLength(3, "Can't exceed three");
 ArrayType().unrepeatable('Duplicate options cannot appear');
 ```
 
-#### `of(type: object)`
+#### `of()`
 
 ```js
+// for every element of array
 ArrayType().of(StringType('The tag should be a string').isRequired());
+// for every element of array
+ArrayType().of(
+  ObjectType().shape({
+    name: StringType().isEmail()
+  })
+);
+// just specify the first and the second element
+ArrayType().of(
+  StringType().isEmail(),
+  ObjectType().shape({
+    name: StringType().isEmail()
+  })
+);
 ```
 
 ### DateType(errorMessage?: string)

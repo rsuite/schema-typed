@@ -8,7 +8,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ArrayTypeLocale
 > {
-  [arrayTypeSchemaSpec]: MixedType<any, DataType, E>;
+  [arrayTypeSchemaSpec]: MixedType<any, DataType, E> | MixedType<any, DataType, E>[];
   private isArrayTypeNested = false;
 
   constructor(errorMessage?: E | string) {
@@ -75,44 +75,66 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
     return this;
   }
 
-  of(type: MixedType<any, DataType, E>) {
-    this[arrayTypeSchemaSpec] = type;
-    
-    // Mark inner ArrayType as nested when dealing with nested arrays
-    if (type instanceof ArrayType) {
-      type.isArrayTypeNested = true;
-    }
+  of(...types: MixedType<any, DataType, E>[]) {
+    if (types.length === 1) {
+      const type = types[0];
+      this[arrayTypeSchemaSpec] = type;
 
-    super.pushRule({
-      onValid: (items, data, fieldName) => {
-        // For non-array values in nested arrays, pass directly to inner type validation
-        if (!Array.isArray(items) && this.isArrayTypeNested) {
-          return type.check(items, data, fieldName);
-        }
-
-        // For non-array values in non-nested arrays, return array type error
-        if (!Array.isArray(items)) {
-          return {
-            hasError: true,
-            errorMessage: this.locale.type
-          };
-        }
-
-        const checkResults = items.map((value, index) => {
-          const name = Array.isArray(fieldName)
-            ? [...fieldName, `[${index}]`]
-            : [fieldName, `[${index}]`];
-
-          return type.check(value, data, name as string[]);
-        });
-        const hasError = !!checkResults.find(item => item?.hasError);
-
-        return {
-          hasError,
-          array: checkResults
-        } as CheckResult<string | E>;
+      // Mark inner ArrayType as nested when dealing with nested arrays
+      if (type instanceof ArrayType) {
+        type.isArrayTypeNested = true;
       }
-    });
+
+      super.pushRule({
+        onValid: (items, data, fieldName) => {
+          // For non-array values in nested arrays, pass directly to inner type validation
+          if (!Array.isArray(items) && this.isArrayTypeNested) {
+            return type.check(items, data, fieldName);
+          }
+
+          // For non-array values in non-nested arrays, return array type error
+          if (!Array.isArray(items)) {
+            return {
+              hasError: true,
+              errorMessage: this.locale.type
+            };
+          }
+
+          const checkResults = items.map((value, index) => {
+            const name = Array.isArray(fieldName)
+              ? [...fieldName, `[${index}]`]
+              : [fieldName, `[${index}]`];
+
+            return type.check(value, data, name as string[]);
+          });
+          const hasError = !!checkResults.find(item => item?.hasError);
+
+          return {
+            hasError,
+            array: checkResults
+          } as CheckResult<string | E>;
+        }
+      });
+    } else {
+      this[arrayTypeSchemaSpec] = types;
+      super.pushRule({
+        onValid: (items, data, fieldName) => {
+          const checkResults = items.map((value, index) => {
+            const name = Array.isArray(fieldName)
+              ? [...fieldName, `[${index}]`]
+              : [fieldName, `[${index}]`];
+
+            return types[index].check(value, data, name as string[]);
+          });
+          const hasError = !!checkResults.find(item => item?.hasError);
+
+          return {
+            hasError,
+            array: checkResults
+          } as CheckResult<string | E>;
+        }
+      });
+    }
 
     return this;
   }

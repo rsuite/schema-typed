@@ -511,26 +511,6 @@ describe('#ArrayType', () => {
         )
       });
 
-      const data = {
-        users: [
-          {
-            name: 'John Doe',
-            tasks: [
-              {
-                title: 'Frontend Development',
-                assignees: [
-                  {
-                    email: 'test@example.com',
-                    role: 'owner',
-                    priority: 3
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      };
-
       // Test valid email
       expect(
         schema.checkForField(
@@ -813,6 +793,168 @@ describe('#ArrayType', () => {
       ).to.deep.equal({
         hasError: true,
         errorMessage: 'Task title required'
+      });
+    });
+
+    it('Should validate explicit nested array type', () => {
+      const schema = new Schema({
+        users: ArrayType().of(
+          StringType().isRequired().isEmail(),
+          ObjectType().shape({
+            name: StringType().isEmail(),
+            email: StringType().isEmail()
+          })
+        )
+      });
+
+      expect(
+        schema.checkForField(
+          'users[0]',
+          {
+            users: ['xx']
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'users[0] must be a valid email'
+      });
+
+      expect(
+        schema.checkForField(
+          'users[0]',
+          {
+            users: ['ddd@bbb.com']
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      expect(
+        schema.checkForField(
+          'users[1].name',
+          {
+            users: ['ddd@bbb.com', { name: 'xxx' }]
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'users[1].name must be a valid email'
+      });
+
+      expect(
+        schema.checkForField(
+          'users[1].name',
+          {
+            users: ['ddd@bbb.com', { name: 'ddd@bbb.com' }]
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: false
+      });
+
+      expect(
+        schema.check({
+          users: [
+            'xxx',
+            {
+              name: 'xx',
+              email: 'xx'
+            }
+          ]
+        })
+      ).to.deep.equal({
+        users: {
+          hasError: true,
+          array: [
+            {
+              hasError: true,
+              errorMessage: 'users.[0] must be a valid email'
+            },
+            {
+              hasError: true,
+              object: {
+                name: {
+                  hasError: true,
+                  errorMessage: 'name must be a valid email'
+                },
+                email: {
+                  hasError: true,
+                  errorMessage: 'email must be a valid email'
+                }
+              }
+            }
+          ]
+        }
+      });
+    });
+
+    it('Should validate nested array within an object', () => {
+      const schema = new Schema({
+        user: ObjectType().shape({
+          emails: ArrayType().of(
+            StringType().isEmail(),
+            ObjectType().shape({
+              name: StringType().isEmail()
+            })
+          )
+        })
+      });
+
+      expect(
+        schema.checkForField(
+          'user.emails[0]',
+          {
+            user: {
+              emails: ['xxx']
+            }
+          },
+          options
+        )
+      ).to.deep.equal({
+        hasError: true,
+        errorMessage: 'user.emails[0] must be a valid email'
+      });
+
+      expect(
+        schema.check({
+          user: {
+            emails: [
+              'xxx',
+              {
+                name: 'xxx'
+              }
+            ]
+          }
+        })
+      ).to.deep.equal({
+        user: {
+          hasError: true,
+          object: {
+            emails: {
+              hasError: true,
+              array: [
+                {
+                  hasError: true,
+                  errorMessage: 'emails.[0] must be a valid email'
+                },
+                {
+                  hasError: true,
+                  object: {
+                    name: {
+                      hasError: true,
+                      errorMessage: 'name must be a valid email'
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
       });
     });
   });

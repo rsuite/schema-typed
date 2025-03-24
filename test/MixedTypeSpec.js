@@ -1,5 +1,6 @@
 import chai, { expect } from 'chai';
 import * as schema from '../src';
+import { getFieldType, schemaSpecKey, arrayTypeSchemaSpec } from '../src/MixedType';
 
 chai.should();
 
@@ -1090,6 +1091,124 @@ describe('#MixedType', () => {
           });
         });
       });
+    });
+  });
+
+  describe('getFieldType', () => {
+    it('Should return the field type directly', () => {
+      const schema = {
+        username: StringType().isRequired(),
+        email: StringType().isEmail(),
+        age: NumberType().range(18, 30)
+      };
+
+      expect(getFieldType(schema, 'username')).to.equal(schema.username);
+      expect(getFieldType(schema, 'email')).to.equal(schema.email);
+      expect(getFieldType(schema, 'age')).to.equal(schema.age);
+      expect(getFieldType(schema, 'nonexistent')).to.be.undefined;
+    });
+
+    it('Should return the nested field type when nestedObject is true', () => {
+      const schema = {
+        user: ObjectType().shape({
+          name: StringType().isRequired(),
+          profile: ObjectType().shape({
+            age: NumberType().range(18, 30)
+          })
+        })
+      };
+
+      expect(getFieldType(schema, 'user.name', true)).to.equal(schema.user[schemaSpecKey].name);
+      expect(getFieldType(schema, 'user.profile.age', true)).to.equal(
+        schema.user[schemaSpecKey].profile[schemaSpecKey].age
+      );
+      expect(getFieldType(schema, 'user.nonexistent', true)).to.be.undefined;
+    });
+
+    it('Should return array element type when dealing with arrays', () => {
+      const itemType = StringType().isRequired();
+      const schema = {
+        tags: ArrayType().of(itemType)
+      };
+
+      expect(getFieldType(schema, 'tags[0]', true)).to.equal(itemType);
+      expect(getFieldType(schema, 'nonexistent[0]', true)).to.be.undefined;
+    });
+
+    it('Should return nested field type within array objects', () => {
+      const schema = {
+        users: ArrayType().of(
+          ObjectType().shape({
+            name: StringType().isRequired(),
+            age: NumberType().range(18, 30)
+          })
+        )
+      };
+
+      expect(getFieldType(schema, 'users[0].name', true)).to.equal(
+        schema.users[arrayTypeSchemaSpec][schemaSpecKey].name
+      );
+      expect(getFieldType(schema, 'users[0].age', true)).to.equal(
+        schema.users[arrayTypeSchemaSpec][schemaSpecKey].age
+      );
+      expect(getFieldType(schema, 'users[0].nonexistent', true)).to.be.undefined;
+    });
+
+    it('Should handle complex nested structures', () => {
+      const schema = {
+        company: ObjectType().shape({
+          departments: ArrayType().of(
+            ObjectType().shape({
+              name: StringType().isRequired(),
+              employees: ArrayType().of(
+                ObjectType().shape({
+                  name: StringType().isRequired(),
+                  email: StringType().isEmail()
+                })
+              )
+            })
+          )
+        })
+      };
+
+      expect(getFieldType(schema, 'company.departments[0].name', true)).to.equal(
+        schema.company[schemaSpecKey].departments[arrayTypeSchemaSpec][schemaSpecKey].name
+      );
+
+      expect(getFieldType(schema, 'company.departments[0].employees[0].email', true)).to.equal(
+        schema.company[schemaSpecKey].departments[arrayTypeSchemaSpec][schemaSpecKey].employees[
+          arrayTypeSchemaSpec
+        ][schemaSpecKey].email
+      );
+    });
+
+    it('Should return explicit filed of ArrayType().of', () => {
+      const schema = {
+        users: ArrayType().of(
+          StringType().isRequired(),
+          ObjectType().shape({
+            name: StringType().isRequired(),
+            email: StringType().isEmail()
+          })
+        )
+      };
+      expect(getFieldType(schema, 'users[0]', true)).to.equal(schema.users[arrayTypeSchemaSpec][0]);
+      expect(getFieldType(schema, 'users[1].name', true)).to.equal(
+        schema.users[arrayTypeSchemaSpec][1][schemaSpecKey].name
+      );
+    });
+
+    it('Should handle edge cases', () => {
+      const schema = {
+        a: StringType()
+      };
+
+      expect(getFieldType(null, 'a')).to.be.undefined;
+      expect(getFieldType(undefined, 'a')).to.be.undefined;
+      expect(getFieldType({}, 'a')).to.be.undefined;
+      expect(getFieldType(schema, '')).to.be.undefined;
+      expect(getFieldType(schema, '..')).to.be.undefined;
+      expect(getFieldType(schema, 'a.b.c[0].d', true)).to.be.undefined;
     });
   });
 });
