@@ -1206,6 +1206,7 @@ describe('#MixedType', () => {
       expect(getFieldType(null, 'a')).to.be.undefined;
       expect(getFieldType(undefined, 'a')).to.be.undefined;
       expect(getFieldType({}, 'a')).to.be.undefined;
+      expect(getFieldType({}, 'a.a[1]', true)).to.be.undefined;
       expect(getFieldType(schema, '')).to.be.undefined;
       expect(getFieldType(schema, '..')).to.be.undefined;
       expect(getFieldType(schema, 'a.b.c[0].d', true)).to.be.undefined;

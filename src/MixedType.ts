@@ -69,7 +69,7 @@ export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: 
           return type;
         }
 
-        if (namePath.length > 1 && type[schemaSpecKey]) {
+        if (namePath.length > 1 && type && type[schemaSpecKey]) {
           return getFieldType(type[schemaSpecKey], namePath.slice(1).join('.'), true);
         }
       }
