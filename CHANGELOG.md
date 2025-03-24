@@ -1,3 +1,12 @@
+# [2.4.0](https://github.com/rsuite/schema-typed/compare/v2.3.0...v2.4.0) (2025-03-24)
+
+
+### Features
+
+* Array support explicit type ([#83](https://github.com/rsuite/schema-typed/issues/83)) ([e716ab4](https://github.com/rsuite/schema-typed/commit/e716ab4b9f20d66da8e3b6b1d2ae46181c59641a))
+
+
+
 # [2.3.0](https://github.com/rsuite/schema-typed/compare/v2.2.2...v2.3.0) (2025-02-06)
 
 
