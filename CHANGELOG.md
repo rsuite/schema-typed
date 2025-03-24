@@ -1,3 +1,12 @@
+## [2.4.1](https://github.com/rsuite/schema-typed/compare/v2.4.0...v2.4.1) (2025-03-24)
+
+
+### Bug Fixes
+
+* when schema is empty getFieldType throw error with nestedObject ([#84](https://github.com/rsuite/schema-typed/issues/84)) ([1c6754e](https://github.com/rsuite/schema-typed/commit/1c6754edfad2ba426e8610b86111c1e9c9809e04))
+
+
+
 # [2.4.0](https://github.com/rsuite/schema-typed/compare/v2.3.0...v2.4.0) (2025-03-24)
 
 
