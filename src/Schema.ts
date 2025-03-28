@@ -7,11 +7,16 @@ interface CheckOptions {
    * Check for nested object
    */
   nestedObject?: boolean;
+
+  /**
+   * Checked fields
+   */
+  _checkedFields?: string[];
 }
 
 export class Schema<DataType = any, ErrorMsgType = string> {
   readonly $spec: SchemaDeclaration<DataType, ErrorMsgType>;
-  
+
   private data: PlainObject;
   private checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
 
@@ -111,10 +116,14 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     this.setSchemaOptionsForAllType(data);
 
     const { nestedObject } = options;
+    let checkedFields = options._checkedFields || [];
+
+    // Add current field to checked list
+    checkedFields = [...checkedFields, fieldName as string];
+
     const fieldChecker = this.getFieldType(fieldName, nestedObject);
 
     if (!fieldChecker) {
-      // fieldValue can be anything if no schema defined
       return { hasError: false };
     }
 
@@ -126,15 +135,16 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     if (!checkResult.hasError) {
       const { checkIfValueExists } = fieldChecker.proxyOptions;
 
-      // Check other fields if the field depends on them for validation
       fieldChecker.otherFields?.forEach((field: string) => {
-        if (checkIfValueExists) {
-          if (!isEmpty(getFieldValue(data, field, nestedObject))) {
-            this.checkForField(field as T, data, options);
+        if (!checkedFields.includes(field)) {
+          if (checkIfValueExists) {
+            if (!isEmpty(getFieldValue(data, field, nestedObject))) {
+              this.checkForField(field as T, data, { ...options, _checkedFields: checkedFields });
+            }
+            return;
           }
-          return;
+          this.checkForField(field as T, data, { ...options, _checkedFields: checkedFields });
         }
-        this.checkForField(field as T, data, options);
       });
     }
 

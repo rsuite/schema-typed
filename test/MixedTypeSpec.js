@@ -714,6 +714,21 @@ describe('#MixedType', () => {
         }
       });
     });
+
+    it('should handle circular proxy dependencies', () => {
+      const model = SchemaModel({
+        username: StringType().minLength(6, 'min 6').proxy(['password']),
+        password: StringType().minLength(6, 'min 6').proxy(['username'])
+      });
+
+      model.checkForField('username', {
+        username: '123456',
+        password: '123456'
+      });
+      const checkResult = model.getCheckResult();
+      expect(checkResult.username.hasError).to.equal(false);
+      expect(checkResult.password.hasError).to.equal(false);
+    });
   });
 
   it('Should check the wrong verification object', () => {
