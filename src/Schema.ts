@@ -11,8 +11,8 @@ interface CheckOptions {
 
 export class Schema<DataType = any, ErrorMsgType = string> {
   readonly $spec: SchemaDeclaration<DataType, ErrorMsgType>;
-  
   private data: PlainObject;
+  private checkedFields: string[] = [];
   private checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
 
   constructor(schema: SchemaDeclaration<DataType, ErrorMsgType>) {
@@ -102,8 +102,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   getSchemaSpec() {
     return this.$spec;
   }
-
-  checkForField<T extends keyof DataType>(
+  _checkForField<T extends keyof DataType>(
     fieldName: T,
     data: DataType,
     options: CheckOptions = {}
@@ -111,10 +110,13 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     this.setSchemaOptionsForAllType(data);
 
     const { nestedObject } = options;
+
+    // Add current field to checked list
+    this.checkedFields = [...this.checkedFields, fieldName as string];
+
     const fieldChecker = this.getFieldType(fieldName, nestedObject);
 
     if (!fieldChecker) {
-      // fieldValue can be anything if no schema defined
       return { hasError: false };
     }
 
@@ -126,19 +128,31 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     if (!checkResult.hasError) {
       const { checkIfValueExists } = fieldChecker.proxyOptions;
 
-      // Check other fields if the field depends on them for validation
       fieldChecker.otherFields?.forEach((field: string) => {
-        if (checkIfValueExists) {
-          if (!isEmpty(getFieldValue(data, field, nestedObject))) {
-            this.checkForField(field as T, data, options);
+        if (!this.checkedFields.includes(field)) {
+          if (checkIfValueExists) {
+            if (!isEmpty(getFieldValue(data, field, nestedObject))) {
+              this._checkForField(field as T, data, { ...options });
+            }
+            return;
           }
-          return;
+          this._checkForField(field as T, data, { ...options });
         }
-        this.checkForField(field as T, data, options);
       });
     }
 
     return checkResult;
+  }
+
+  checkForField<T extends keyof DataType>(
+    fieldName: T,
+    data: DataType,
+    options: CheckOptions = {}
+  ): CheckResult<ErrorMsgType | string> {
+    const result = this._checkForField(fieldName, data, options);
+    // clean checked fields after check finished
+    this.checkedFields = [];
+    return result;
   }
 
   checkForFieldAsync<T extends keyof DataType>(
