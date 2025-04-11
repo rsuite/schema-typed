@@ -1,3 +1,12 @@
+## [2.4.2](https://github.com/rsuite/schema-typed/compare/v2.4.1...v2.4.2) (2025-04-11)
+
+
+### Bug Fixes
+
+* prevent infinite loops in circular proxy validation ([#85](https://github.com/rsuite/schema-typed/issues/85)) ([4d147b9](https://github.com/rsuite/schema-typed/commit/4d147b94f8f5752530984ab1602e53eb2c0c708e))
+
+
+
 ## [2.4.1](https://github.com/rsuite/schema-typed/compare/v2.4.0...v2.4.1) (2025-03-24)
 
 
