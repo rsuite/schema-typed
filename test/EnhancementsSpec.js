@@ -408,7 +408,7 @@ describe('#utils — native get/set', () => {
   describe('set()', () => {
     it('Sets a nested property, creating intermediates', () => {
       const { set } = require('../src/utils');
-      const obj: any = {};
+      const obj = {};
       set(obj, 'a.b', 42);
       expect(obj.a.b).to.equal(42);
     });
