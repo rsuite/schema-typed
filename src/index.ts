@@ -6,6 +6,7 @@ import { default as ArrayType } from './ArrayType';
 import { default as DateType } from './DateType';
 import { default as ObjectType } from './ObjectType';
 import { default as BooleanType } from './BooleanType';
+import { default as LiteralType } from './LiteralType';
 
 export type {
   CheckResult,
@@ -13,8 +14,13 @@ export type {
   SchemaDeclaration,
   CheckType,
   RuleType,
-  ValidCallbackType
+  ValidCallbackType,
+  InferType,
+  TypeOf,
+  PlainObject
 } from './types';
+
+export type { ValidationResult } from './Schema';
 
 export {
   SchemaModel,
@@ -25,5 +31,7 @@ export {
   ArrayType,
   DateType,
   ObjectType,
-  BooleanType
+  BooleanType,
+  LiteralType
 };
+

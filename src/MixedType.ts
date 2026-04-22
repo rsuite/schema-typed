@@ -25,6 +25,12 @@ type ProxyOptions = {
   checkIfValueExists?: boolean;
 };
 
+/** Options passed to `check()` / `checkForField()`. */
+export interface CheckOptions {
+  /** Collect ALL validation errors for a field instead of stopping at the first one. */
+  abortEarly?: boolean;
+}
+
 export const schemaSpecKey = 'objectTypeSchemaSpec';
 export const arrayTypeSchemaSpec = 'arrayTypeSchemaSpec';
 
@@ -95,6 +101,17 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   protected priorityRules: RuleType<ValueType, DataType, E | string>[] = [];
   protected fieldLabel?: string;
 
+  /** When `true`, a `null` value is treated as valid regardless of other rules. */
+  protected nullableFlag = false;
+  /** When `true`, an `undefined` value is treated as valid regardless of other rules. */
+  protected optionalFlag = false;
+
+  /** Ordered list of transform functions applied before validation. */
+  protected transformFns: ((value: ValueType) => any)[] = [];
+
+  /** Arbitrary metadata attached to this type (e.g. for UI rendering). */
+  protected metadata: Record<string, any> = {};
+
   $schemaSpec: SchemaDeclaration<DataType, E>;
   value: any;
   locale: L & MixedTypeLocale;
@@ -113,8 +130,24 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     this.value = value;
   }
 
-  check(value: any = this.value, data?: DataType, fieldName?: string | string[]) {
-    if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
+  /** Apply all registered transform functions to `value` and return the result. */
+  cast(value: ValueType): any {
+    return this.transformFns.reduce((v: any, fn) => fn(v), value);
+  }
+
+  check(value: any = this.value, data?: DataType, fieldName?: string | string[], options?: CheckOptions) {
+    // Apply transforms before validation
+    const v = this.transformFns.length ? this.cast(value) : value;
+
+    // Explicit nullable / optional fast-paths
+    if (v === null && this.nullableFlag) {
+      return { hasError: false };
+    }
+    if (v === undefined && this.optionalFlag) {
+      return { hasError: false };
+    }
+
+    if (this.required && !checkRequired(v, this.trim, this.emptyAllowed)) {
       return {
         hasError: true,
         errorMessage: formatErrorMessage(this.requiredMessage, {
@@ -123,38 +156,52 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       };
     }
 
+    const abortEarly = options?.abortEarly !== false;
+
     const validator = createValidator<ValueType, DataType, E | string>(
       data,
       fieldName,
-      this.fieldLabel
+      this.fieldLabel,
+      abortEarly
     );
 
-    const checkResult = validator(value, this.priorityRules);
+    const checkResult = validator(v, this.priorityRules);
 
     // If the priority rule fails, return the result directly
     if (checkResult) {
       return checkResult;
     }
 
-    if (!this.required && isEmpty(value)) {
+    if (!this.required && isEmpty(v)) {
       return { hasError: false };
     }
 
-    return validator(value, this.rules) || { hasError: false };
+    return validator(v, this.rules) || { hasError: false };
   }
 
-  checkAsync(
+  async checkAsync(
     value: any = this.value,
     data?: DataType,
     fieldName?: string | string[]
   ): Promise<CheckResult<E | string>> {
-    if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
-      return Promise.resolve({
+    // Apply transforms before validation
+    const v = this.transformFns.length ? this.cast(value) : value;
+
+    // Explicit nullable / optional fast-paths
+    if (v === null && this.nullableFlag) {
+      return { hasError: false };
+    }
+    if (v === undefined && this.optionalFlag) {
+      return { hasError: false };
+    }
+
+    if (this.required && !checkRequired(v, this.trim, this.emptyAllowed)) {
+      return {
         hasError: true,
         errorMessage: formatErrorMessage(this.requiredMessage, {
           name: this.fieldLabel || joinName(fieldName)
         })
-      });
+      };
     }
 
     const validator = createValidatorAsync<ValueType, DataType, E | string>(
@@ -163,28 +210,18 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       this.fieldLabel
     );
 
-    return new Promise(resolve =>
-      validator(value, this.priorityRules)
-        .then((checkResult: CheckResult<E | string> | void | null) => {
-          // If the priority rule fails, return the result directly
-          if (checkResult) {
-            resolve(checkResult);
-          }
-        })
-        .then(() => {
-          if (!this.required && isEmpty(value)) {
-            resolve({ hasError: false });
-          }
-        })
-        .then(() => validator(value, this.rules))
-        .then((checkResult: CheckResult<E | string> | void | null) => {
-          if (checkResult) {
-            resolve(checkResult);
-          }
-          resolve({ hasError: false });
-        })
-    );
+    const priorityResult = await validator(v, this.priorityRules);
+    if (priorityResult) {
+      return priorityResult;
+    }
+
+    if (!this.required && isEmpty(v)) {
+      return { hasError: false };
+    }
+
+    return (await validator(v, this.rules)) || { hasError: false };
   }
+
   protected pushRule(rule: RuleType<ValueType, DataType, E | string>) {
     const { onValid, errorMessage, priority, params } = rule;
     const nextRule = {
@@ -231,28 +268,115 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   /**
-   * Define data verification rules based on conditions.
-   * @param condition
-   * @example
+   * Mark this field as accepting `null` as a valid value.
+   * When set, a `null` value short-circuits all further validation and returns no error.
    *
+   * @example
+   * StringType().nullable()
+   */
+  nullable() {
+    this.nullableFlag = true;
+    return this;
+  }
+
+  /**
+   * Mark this field as accepting `undefined` as a valid value.
+   * When set, an `undefined` value short-circuits all further validation and returns no error.
+   *
+   * @example
+   * StringType().optional()
+   */
+  optional() {
+    this.optionalFlag = true;
+    return this;
+  }
+
+  /**
+   * Register a transform function that is applied to the raw value **before** validation.
+   * Multiple transforms are applied in registration order.
+   * Use `cast(value)` to obtain the transformed value without running validation.
+   *
+   * @example
+   * StringType().transform(v => v.trim()).minLength(1)
+   */
+  transform(fn: (value: ValueType) => any) {
+    this.transformFns.push(fn);
+    return this;
+  }
+
+  /**
+   * Attach arbitrary metadata to this type.
+   * Useful for driving UI rendering (labels, placeholders, disabled state, etc.)
+   * from the schema without coupling to a specific form library.
+   *
+   * @example
+   * StringType().meta({ label: 'Email address', placeholder: 'you@example.com' })
+   */
+  meta(data: Record<string, any>) {
+    this.metadata = { ...this.metadata, ...data };
+    return this;
+  }
+
+  /**
+   * Read metadata previously set with `meta()`.
+   */
+  getMeta(): Record<string, any> {
+    return this.metadata;
+  }
+
+  /**
+   * Define data verification rules based on conditions.
+   *
+   * **Callback form** (original behaviour): receives the full schema spec.
    * ```js
-   * SchemaModel({
-   *   option: StringType().isOneOf(['a', 'b', 'other']),
-   *   other: StringType().when(schema => {
-   *     const { value } = schema.option;
-   *     return value === 'other' ? StringType().isRequired('Other required') : StringType();
-   *   })
-   * });
+   * StringType().when(schema => {
+   *   const { value } = schema.option;
+   *   return value === 'other' ? StringType().isRequired('Other required') : StringType();
+   * })
+   * ```
+   *
+   * **Field-name form** (Yup-style): receives the current values of the named field(s) and
+   * returns a fresh type to validate with. The returned type is only used for that single check
+   * and does not affect the original type.
+   * ```js
+   * StringType().when('role', (role) =>
+   *   role === 'admin' ? StringType().isRequired('Required for admins') : StringType()
+   * )
+   *
+   * StringType().when(['plan', 'role'], (plan, role) =>
+   *   plan === 'pro' && role === 'admin' ? StringType().isRequired() : StringType()
+   * )
    * ```
    */
-  when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
-    this.addRule(
-      (value, data, fieldName) => {
-        return condition(this.$schemaSpec).check(value, data, fieldName);
-      },
-      undefined,
-      true
-    );
+  when(
+    fieldsOrCondition:
+      | string
+      | string[]
+      | ((schemaSpec: SchemaDeclaration<DataType, E>) => MixedType),
+    fn?: (...args: any[]) => MixedType
+  ) {
+    if (typeof fieldsOrCondition === 'function') {
+      // Original behaviour
+      this.addRule(
+        (value, data, fieldName) => {
+          return fieldsOrCondition(this.$schemaSpec).check(value, data, fieldName);
+        },
+        undefined,
+        true
+      );
+    } else {
+      // Field-name form
+      const fields = Array.isArray(fieldsOrCondition) ? fieldsOrCondition : [fieldsOrCondition];
+      this.addRule(
+        (value, data, fieldName) => {
+          const fieldValues = fields.map(f => get(data as any, f));
+          const schema = fn!(...fieldValues);
+          return schema.check(value, data, fieldName);
+        },
+        undefined,
+        true
+      );
+    }
     return this;
   }
 
@@ -298,6 +422,22 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   /**
+   * Alias for `proxy()` with a more descriptive name.
+   * After this field passes validation, the listed fields are also re-validated.
+   *
+   * @example
+   * ```js
+   * SchemaModel({
+   *   password: StringType().isRequired().triggers(['confirmPassword']),
+   *   confirmPassword: StringType().equalTo('password').isRequired()
+   * });
+   * ```
+   */
+  triggers(fieldNames: string[], options?: ProxyOptions) {
+    return this.proxy(fieldNames, options);
+  }
+
+  /**
    * Overrides the key name in error messages.
    *
    * @example
@@ -317,3 +457,4 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
 export default function getMixedType<DataType = any, E = ErrorMessageType>() {
   return new MixedType<DataType, E>();
 }
+

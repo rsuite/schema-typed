@@ -39,9 +39,7 @@
     "types"
   ],
   "homepage": "https://github.com/rsuite/schema-typed#readme",
-  "dependencies": {
-    "lodash": "^4.17.21"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/node": "^20.12.5",
