@@ -191,6 +191,28 @@ describe('#MixedType enhancements', () => {
       expect(result.errorMessage).to.equal('priority error');
       expect(secondRuleCalled).to.equal(false);
     });
+
+    it('Should pass when value is null and nullable() is set', async () => {
+      const type = StringType().nullable().isRequired();
+      const result = await type.checkAsync(null);
+      expect(result).to.deep.equal({ hasError: false });
+    });
+
+    it('Should pass when value is undefined and optional() is set', async () => {
+      const type = StringType().optional().isRequired();
+      const result = await type.checkAsync(undefined);
+      expect(result).to.deep.equal({ hasError: false });
+    });
+
+    it('Should validate the transformed value', async () => {
+      const type = StringType().transform(v => v.trim()).minLength(3, 'Too short');
+      // After trim: 'x' (length 1) → fails
+      const fail = await type.checkAsync('  x  ');
+      expect(fail).to.have.property('hasError', true);
+      // After trim: 'hello' (length 5) → passes
+      const pass = await type.checkAsync('  hello  ');
+      expect(pass).to.deep.equal({ hasError: false });
+    });
   });
 });
 
@@ -314,6 +336,13 @@ describe('#Schema enhancements', () => {
 
       expect(picked.getKeys()).to.deep.equal(['name', 'email']);
       expect(picked.getKeys()).to.not.include('age');
+    });
+
+    it('Should silently skip keys that do not exist in the original schema', () => {
+      const model = SchemaModel({ name: StringType(), age: NumberType() });
+      const picked = model.pick(['name', 'nonexistent']);
+
+      expect(picked.getKeys()).to.deep.equal(['name']);
     });
   });
 
