@@ -128,9 +128,12 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   ): CheckResult<ErrorMsgType | string> {
     this.setSchemaOptionsForAllType(data);
 
-    // Auto-detect nested path when the option is not explicitly provided
+    // Auto-detect nested path when the option is not explicitly provided.
+    // A key that exists directly in $spec (even if it contains dots) is NOT a nested path.
     const nestedObject =
-      options.nestedObject !== undefined ? options.nestedObject : isNestedPath(fieldName as string);
+      options.nestedObject !== undefined
+        ? options.nestedObject
+        : isNestedPath(fieldName as string) && !(fieldName in this.$spec);
 
     // Add current field to checked list
     this.checkedFields = [...this.checkedFields, fieldName as string];
@@ -183,9 +186,12 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   ): Promise<CheckResult<ErrorMsgType | string>> {
     this.setSchemaOptionsForAllType(data);
 
-    // Auto-detect nested path when the option is not explicitly provided
+    // Auto-detect nested path when the option is not explicitly provided.
+    // A key that exists directly in $spec (even if it contains dots) is NOT a nested path.
     const nestedObject =
-      options.nestedObject !== undefined ? options.nestedObject : isNestedPath(fieldName as string);
+      options.nestedObject !== undefined
+        ? options.nestedObject
+        : isNestedPath(fieldName as string) && !(fieldName in this.$spec);
 
     const fieldChecker = this.getFieldType(fieldName, nestedObject);
 
