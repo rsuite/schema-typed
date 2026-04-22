@@ -1,12 +1,31 @@
 import { SchemaDeclaration, SchemaCheckResult, CheckResult, PlainObject } from './types';
-import { MixedType, getFieldType, getFieldValue } from './MixedType';
+import { MixedType, getFieldType, getFieldValue, CheckOptions } from './MixedType';
 import { set, get, isEmpty, pathTransform } from './utils';
 
-interface CheckOptions {
+interface CheckForFieldOptions extends CheckOptions {
   /**
-   * Check for nested object
+   * Check for nested object paths (e.g. `"address.city"` or `"list[0].name"`).
+   * When omitted the value is auto-detected from the field name.
    */
   nestedObject?: boolean;
+}
+
+/**
+ * A flat validation summary returned by `Schema.validate()`.
+ */
+export interface ValidationResult<DataType, ErrorMsgType = string> {
+  /** `true` when at least one field has an error. */
+  hasError: boolean;
+  /**
+   * Map of field names to their first error message.
+   * Only fields with errors are included.
+   */
+  errorMessages: Partial<Record<keyof DataType, ErrorMsgType | string>>;
+}
+
+/** Returns `true` when `fieldName` looks like a nested path. */
+function isNestedPath(fieldName: string): boolean {
+  return fieldName.includes('.') || /\[\d+\]/.test(fieldName);
 }
 
 export class Schema<DataType = any, ErrorMsgType = string> {
@@ -105,11 +124,16 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   _checkForField<T extends keyof DataType>(
     fieldName: T,
     data: DataType,
-    options: CheckOptions = {}
+    options: CheckForFieldOptions = {}
   ): CheckResult<ErrorMsgType | string> {
     this.setSchemaOptionsForAllType(data);
 
-    const { nestedObject } = options;
+    // Auto-detect nested path when the option is not explicitly provided.
+    // A key that exists directly in $spec (even if it contains dots) is NOT a nested path.
+    const nestedObject =
+      options.nestedObject !== undefined
+        ? options.nestedObject
+        : isNestedPath(fieldName as string) && !(fieldName in this.$spec);
 
     // Add current field to checked list
     this.checkedFields = [...this.checkedFields, fieldName as string];
@@ -121,7 +145,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     }
 
     const fieldValue = getFieldValue(data, fieldName as string, nestedObject);
-    const checkResult = fieldChecker.check(fieldValue, data, fieldName as string);
+    const checkResult = fieldChecker.check(fieldValue, data, fieldName as string, options);
 
     this.setFieldCheckResult(fieldName as string, checkResult, nestedObject);
 
@@ -147,7 +171,7 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   checkForField<T extends keyof DataType>(
     fieldName: T,
     data: DataType,
-    options: CheckOptions = {}
+    options: CheckForFieldOptions = {}
   ): CheckResult<ErrorMsgType | string> {
     const result = this._checkForField(fieldName, data, options);
     // clean checked fields after check finished
@@ -158,11 +182,17 @@ export class Schema<DataType = any, ErrorMsgType = string> {
   checkForFieldAsync<T extends keyof DataType>(
     fieldName: T,
     data: DataType,
-    options: CheckOptions = {}
+    options: CheckForFieldOptions = {}
   ): Promise<CheckResult<ErrorMsgType | string>> {
     this.setSchemaOptionsForAllType(data);
 
-    const { nestedObject } = options;
+    // Auto-detect nested path when the option is not explicitly provided.
+    // A key that exists directly in $spec (even if it contains dots) is NOT a nested path.
+    const nestedObject =
+      options.nestedObject !== undefined
+        ? options.nestedObject
+        : isNestedPath(fieldName as string) && !(fieldName in this.$spec);
+
     const fieldChecker = this.getFieldType(fieldName, nestedObject);
 
     if (!fieldChecker) {
@@ -199,11 +229,11 @@ export class Schema<DataType = any, ErrorMsgType = string> {
     });
   }
 
-  check<T extends keyof DataType>(data: DataType) {
+  check<T extends keyof DataType>(data: DataType, options: CheckOptions = {}) {
     const checkResult: SchemaCheckResult<DataType, ErrorMsgType> = {};
     Object.keys(this.$spec).forEach(key => {
       if (typeof data === 'object') {
-        checkResult[key] = this.checkForField(key as T, data);
+        checkResult[key] = this.checkForField(key as T, data, options);
       }
     });
 
@@ -228,6 +258,81 @@ export class Schema<DataType = any, ErrorMsgType = string> {
       return checkResult;
     });
   }
+
+  /**
+   * A convenience method that runs `check()` and returns a flat summary.
+   *
+   * @returns `{ hasError, errorMessages }` where `errorMessages` maps field names to their
+   *          first error message (only fields that failed are included).
+   *
+   * @example
+   * const { hasError, errorMessages } = model.validate(formData);
+   * if (hasError) console.log(errorMessages.username);
+   */
+  validate(data: DataType): ValidationResult<DataType, ErrorMsgType> {
+    const rawResult = this.check(data);
+    const errorMessages: Partial<Record<keyof DataType, ErrorMsgType | string>> = {};
+    let hasError = false;
+
+    (Object.keys(rawResult) as (keyof DataType)[]).forEach(key => {
+      const result = rawResult[key];
+      if (result?.hasError) {
+        hasError = true;
+        errorMessages[key] = result.errorMessage;
+      }
+    });
+
+    return { hasError, errorMessages };
+  }
+
+  /**
+   * Returns a new `Schema` that merges the current spec with additional field declarations.
+   * Fields in `fields` override same-name fields from the current spec.
+   *
+   * @example
+   * const baseModel = SchemaModel({ name: StringType() });
+   * const extendedModel = baseModel.extend({ age: NumberType() });
+   */
+  extend<ExtendType = Partial<DataType>>(
+    fields: SchemaDeclaration<ExtendType, ErrorMsgType>
+  ): Schema<DataType & ExtendType, ErrorMsgType> {
+    return new Schema<DataType & ExtendType, ErrorMsgType>({
+      ...(this.$spec as any),
+      ...(fields as any)
+    });
+  }
+
+  /**
+   * Returns a new `Schema` containing only the specified fields.
+   *
+   * @example
+   * const fullModel = SchemaModel({ name: StringType(), age: NumberType(), email: StringType() });
+   * const partialModel = fullModel.pick(['name', 'email']);
+   */
+  pick<K extends keyof DataType>(keys: K[]): Schema<Pick<DataType, K>, ErrorMsgType> {
+    const picked: any = {};
+    keys.forEach(key => {
+      if (this.$spec[key] !== undefined) {
+        picked[key] = this.$spec[key];
+      }
+    });
+    return new Schema<Pick<DataType, K>, ErrorMsgType>(picked);
+  }
+
+  /**
+   * Returns a new `Schema` with the specified fields removed.
+   *
+   * @example
+   * const fullModel = SchemaModel({ name: StringType(), age: NumberType(), token: StringType() });
+   * const publicModel = fullModel.omit(['token']);
+   */
+  omit<K extends keyof DataType>(keys: K[]): Schema<Omit<DataType, K>, ErrorMsgType> {
+    const omitted: any = { ...(this.$spec as any) };
+    keys.forEach(key => {
+      delete omitted[key as string];
+    });
+    return new Schema<Omit<DataType, K>, ErrorMsgType>(omitted);
+  }
 }
 
 export function SchemaModel<DataType = PlainObject, ErrorMsgType = string>(
@@ -245,3 +350,4 @@ SchemaModel.combine = function combine<DataType = any, ErrorMsgType = string>(
       .reduce((accumulator, currentValue) => Object.assign(accumulator, currentValue), {} as any)
   );
 };
+

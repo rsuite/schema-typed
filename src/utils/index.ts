@@ -1,5 +1,5 @@
-export { default as get } from 'lodash/get';
-export { default as set } from 'lodash/set';
+export { get } from './get';
+export { set } from './set';
 export { default as basicEmptyCheck } from './basicEmptyCheck';
 export { default as checkRequired } from './checkRequired';
 export { default as createValidator } from './createValidator';

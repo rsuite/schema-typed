@@ -1,4 +1,4 @@
-import { MixedType, schemaSpecKey } from './MixedType';
+import { MixedType, schemaSpecKey, CheckOptions } from './MixedType';
 import {
   createValidator,
   createValidatorAsync,
@@ -24,7 +24,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
     });
   }
 
-  check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
+  check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[], _options?: CheckOptions) {
     const check = (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return {
@@ -70,15 +70,46 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
     return check(value, data, this) as CheckResult<E | string, DataType>;
   }
 
-  checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
-    const check = (value: any, data: any, type: any, childFieldKey?: string) => {
+  async checkAsync(
+    value: PlainObject = this.value,
+    data?: DataType,
+    fieldName?: string | string[]
+  ): Promise<CheckResult<E | string, DataType>> {
+    const check = async (
+      value: any,
+      data: any,
+      type: any,
+      childFieldKey?: string
+    ): Promise<CheckResult<E | string>> => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
-        return Promise.resolve({
+        return {
           hasError: true,
           errorMessage: formatErrorMessage<E>(type.requiredMessage || type.locale?.isRequired, {
             name: type.fieldLabel || childFieldKey || fieldName
           })
+        };
+      }
+
+      if (type[schemaSpecKey] && typeof value === 'object') {
+        const keys: string[] = [];
+        const checkAll: Promise<CheckResult<E | string>>[] = [];
+
+        Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
+          checkAll.push(check(value[k], value, v, k));
+          keys.push(k);
         });
+
+        const values = await Promise.all(checkAll);
+        let hasError = false;
+        const checkResult: any = {};
+        values.forEach((v, index) => {
+          if (v?.hasError) {
+            hasError = true;
+          }
+          checkResult[keys[index]] = v;
+        });
+
+        return { hasError, object: checkResult };
       }
 
       const validator = createValidatorAsync<PlainObject, DataType, E | string>(
@@ -87,48 +118,16 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
         type.fieldLabel
       );
 
-      return new Promise(resolve => {
-        if (type[schemaSpecKey] && typeof value === 'object') {
-          const checkResult: any = {};
-          const checkAll: Promise<unknown>[] = [];
-          const keys: string[] = [];
-          Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
-            checkAll.push(check(value[k], value, v, k));
-            keys.push(k);
-          });
+      const priorityResult = await validator(value, type.priorityRules);
+      if (priorityResult) {
+        return priorityResult;
+      }
 
-          return Promise.all(checkAll).then(values => {
-            let hasError = false;
-            values.forEach((v: any, index: number) => {
-              if (v?.hasError) {
-                hasError = true;
-              }
-              checkResult[keys[index]] = v;
-            });
+      if (!type.required && isEmpty(value)) {
+        return { hasError: false };
+      }
 
-            resolve({ hasError, object: checkResult });
-          });
-        }
-
-        return validator(value, type.priorityRules)
-          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
-            if (checkStatus) {
-              resolve(checkStatus);
-            }
-          })
-          .then(() => {
-            if (!type.required && isEmpty(value)) {
-              resolve({ hasError: false });
-            }
-          })
-          .then(() => validator(value, type.rules))
-          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
-            if (checkStatus) {
-              resolve(checkStatus);
-            }
-            resolve({ hasError: false });
-          });
-      });
+      return (await validator(value, type.rules)) || { hasError: false };
     };
 
     return check(value, data, this) as Promise<CheckResult<E | string, DataType>>;
@@ -150,3 +149,4 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
 export default function getObjectType<DataType = any, E = string>(errorMessage?: E) {
   return new ObjectType<DataType, E>(errorMessage);
 }
+
