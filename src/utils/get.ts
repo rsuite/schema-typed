@@ -5,7 +5,7 @@
  */
 export function get(obj: any, path: string): any {
   if (obj == null || !path) return undefined;
-  // Normalise bracket notation: "a[0].b" → "a.0.b"
+  // Normalize bracket notation: "a[0].b" → "a.0.b"
   const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
   let current = obj;
   for (const part of parts) {

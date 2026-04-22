@@ -369,7 +369,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       const fields = Array.isArray(fieldsOrCondition) ? fieldsOrCondition : [fieldsOrCondition];
       this.addRule(
         (value, data, fieldName) => {
-          const fieldValues = fields.map(f => get(data as any, f));
+          const fieldValues = fields.map(f => get(data as Record<string, unknown>, f));
           const schema = fn!(...fieldValues);
           return schema.check(value, data, fieldName);
         },
