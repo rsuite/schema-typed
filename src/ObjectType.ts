@@ -1,4 +1,4 @@
-import { MixedType, schemaSpecKey } from './MixedType';
+import { MixedType, schemaSpecKey, CheckOptions } from './MixedType';
 import {
   createValidator,
   createValidatorAsync,
@@ -24,7 +24,7 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
     });
   }
 
-  check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
+  check(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[], _options?: CheckOptions) {
     const check = (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return {
