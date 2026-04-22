@@ -213,7 +213,7 @@ describe('#Schema enhancements', () => {
 
       const result = model.check({ name: 'x' }, { abortEarly: false });
       expect(result.name).to.have.property('hasError', true);
-      expect(result.name!.errorMessages).to.deep.equal(['error1', 'error2']);
+      expect(result.name && result.name.errorMessages).to.deep.equal(['error1', 'error2']);
     });
   });
 
