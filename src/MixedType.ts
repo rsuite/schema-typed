@@ -143,7 +143,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     return validator(value, this.rules) || { hasError: false };
   }
 
-  checkAsync(
+  async checkAsync(
     value: any = this.value,
     data?: DataType,
     fieldName?: string | string[]
@@ -163,28 +163,19 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
       this.fieldLabel
     );
 
-    return new Promise(resolve =>
-      validator(value, this.priorityRules)
-        .then((checkResult: CheckResult<E | string> | void | null) => {
-          // If the priority rule fails, return the result directly
-          if (checkResult) {
-            resolve(checkResult);
-          }
-        })
-        .then(() => {
-          if (!this.required && isEmpty(value)) {
-            resolve({ hasError: false });
-          }
-        })
-        .then(() => validator(value, this.rules))
-        .then((checkResult: CheckResult<E | string> | void | null) => {
-          if (checkResult) {
-            resolve(checkResult);
-          }
-          resolve({ hasError: false });
-        })
-    );
+    const checkResult = await validator(value, this.priorityRules);
+
+    if (checkResult) {
+      return checkResult;
+    }
+
+    if (!this.required && isEmpty(value)) {
+      return { hasError: false };
+    }
+
+    return (await validator(value, this.rules)) || { hasError: false };
   }
+
   protected pushRule(rule: RuleType<ValueType, DataType, E | string>) {
     const { onValid, errorMessage, priority, params } = rule;
     const nextRule = {

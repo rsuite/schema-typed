@@ -18,18 +18,18 @@ export function createValidatorAsync<V, D, E>(data?: D, name?: string | string[]
   }
 
   return (value: V, rules: RuleType<V, D, E>[]) => {
-    const promises = rules.map(rule => {
+    const promises = rules.map(async rule => {
       const { onValid, errorMessage, params } = rule;
       const errorMsg = typeof errorMessage === 'function' ? errorMessage() : errorMessage;
 
-      return Promise.resolve(onValid(value, data, name)).then(
-        check(
-          formatErrorMessage<E>(errorMsg, {
-            ...params,
-            name: label || joinName(name)
-          })
-        )
+      const validate = check(
+        formatErrorMessage<E>(errorMsg, {
+          ...params,
+          name: label || joinName(name)
+        })
       );
+
+      return validate(await onValid(value, data, name));
     });
 
     return Promise.all(promises).then(results =>
