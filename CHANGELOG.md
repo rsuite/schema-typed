@@ -1,3 +1,10 @@
+## [2.4.3](https://github.com/rsuite/schema-typed/compare/v2.4.2...v2.4.3) (2026-10-09)
+
+### Bug Fixes
+
+- Propagate asynchronous validation failures, including nested objects and concurrent rules, without leaving validation promises pending ([#88](https://github.com/rsuite/schema-typed/pull/88)).
+- Upgrade the lodash dependency to `^4.18.0` ([#89](https://github.com/rsuite/schema-typed/pull/89)).
+
 ## [2.4.2](https://github.com/rsuite/schema-typed/compare/v2.4.1...v2.4.2) (2025-04-11)
 
 
