@@ -71,14 +71,35 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
-    const check = (value: any, data: any, type: any, childFieldKey?: string) => {
+    const check = async (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
-        return Promise.resolve({
+        return {
           hasError: true,
           errorMessage: formatErrorMessage<E>(type.requiredMessage || type.locale?.isRequired, {
             name: type.fieldLabel || childFieldKey || fieldName
           })
+        };
+      }
+
+      if (type[schemaSpecKey] && typeof value === 'object') {
+        const checkResult: any = {};
+        const checkAll: Promise<unknown>[] = [];
+        const keys: string[] = [];
+        Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
+          checkAll.push(check(value[k], value, v, k));
+          keys.push(k);
         });
+
+        const values = await Promise.all(checkAll);
+        let hasError = false;
+        values.forEach((v: any, index: number) => {
+          if (v?.hasError) {
+            hasError = true;
+          }
+          checkResult[keys[index]] = v;
+        });
+
+        return { hasError, object: checkResult };
       }
 
       const validator = createValidatorAsync<PlainObject, DataType, E | string>(
@@ -86,49 +107,17 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
         childFieldKey || fieldName,
         type.fieldLabel
       );
+      const checkStatus = await validator(value, type.priorityRules);
 
-      return new Promise(resolve => {
-        if (type[schemaSpecKey] && typeof value === 'object') {
-          const checkResult: any = {};
-          const checkAll: Promise<unknown>[] = [];
-          const keys: string[] = [];
-          Object.entries(type[schemaSpecKey]).forEach(([k, v]) => {
-            checkAll.push(check(value[k], value, v, k));
-            keys.push(k);
-          });
+      if (checkStatus) {
+        return checkStatus;
+      }
 
-          return Promise.all(checkAll).then(values => {
-            let hasError = false;
-            values.forEach((v: any, index: number) => {
-              if (v?.hasError) {
-                hasError = true;
-              }
-              checkResult[keys[index]] = v;
-            });
+      if (!type.required && isEmpty(value)) {
+        return { hasError: false };
+      }
 
-            resolve({ hasError, object: checkResult });
-          });
-        }
-
-        return validator(value, type.priorityRules)
-          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
-            if (checkStatus) {
-              resolve(checkStatus);
-            }
-          })
-          .then(() => {
-            if (!type.required && isEmpty(value)) {
-              resolve({ hasError: false });
-            }
-          })
-          .then(() => validator(value, type.rules))
-          .then((checkStatus: CheckResult<E | string, DataType> | void | null) => {
-            if (checkStatus) {
-              resolve(checkStatus);
-            }
-            resolve({ hasError: false });
-          });
-      });
+      return (await validator(value, type.rules)) || { hasError: false };
     };
 
     return check(value, data, this) as Promise<CheckResult<E | string, DataType>>;
