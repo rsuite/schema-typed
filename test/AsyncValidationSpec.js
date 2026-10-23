@@ -9,11 +9,12 @@ describe('asynchronous validation failures', () => {
         priority ? 'priority' : 'regular'
       } ${boundary} throws`, () => {
         // A child process exposes detached rejections without altering Mocha's error handlers.
+        // Type checking runs in the parent and builds; this child only observes runtime events.
         const output = execFileSync(
           process.execPath,
           [
             '-r',
-            'ts-node/register',
+            'ts-node/register/transpile-only',
             '-e',
             `
               const { MixedType } = require('./src');
