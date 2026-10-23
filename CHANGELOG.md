@@ -1,9 +1,10 @@
-## [2.4.3](https://github.com/rsuite/schema-typed/compare/v2.4.2...v2.4.3) (2026-10-09)
+## [2.4.3](https://github.com/rsuite/schema-typed/compare/v2.4.2...v2.4.3) (2026-10-24)
 
 ### Bug Fixes
 
 - Propagate asynchronous validation failures, including nested objects and concurrent rules, without leaving validation promises pending ([#88](https://github.com/rsuite/schema-typed/pull/88)).
-- Upgrade the lodash dependency to `^4.18.0` ([#89](https://github.com/rsuite/schema-typed/pull/89)).
+- Require lodash `^4.18.1` to include the security fixes and restore the template entry used by the changelog command ([#89](https://github.com/rsuite/schema-typed/pull/89), [#91](https://github.com/rsuite/schema-typed/pull/91)).
+- Patch release tooling dependencies and remove the unused Coveralls CLI while retaining the GitHub coverage action ([#91](https://github.com/rsuite/schema-typed/pull/91)).
 
 ## [2.4.2](https://github.com/rsuite/schema-typed/compare/v2.4.1...v2.4.2) (2025-04-11)
 
