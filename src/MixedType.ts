@@ -3,6 +3,7 @@ import {
   CheckResult,
   ValidCallbackType,
   AsyncValidCallbackType,
+  AsyncCheckOptions,
   RuleType,
   ErrorMessageType,
   TypeName,
@@ -146,7 +147,8 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   async checkAsync(
     value: any = this.value,
     data?: DataType,
-    fieldName?: string | string[]
+    fieldName?: string | string[],
+    options?: AsyncCheckOptions
   ): Promise<CheckResult<E | string>> {
     if (this.required && !checkRequired(value, this.trim, this.emptyAllowed)) {
       return Promise.resolve({
@@ -160,7 +162,8 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
     const validator = createValidatorAsync<ValueType, DataType, E | string>(
       data,
       fieldName,
-      this.fieldLabel
+      this.fieldLabel,
+      options?.syncRuleMessageOrder
     );
 
     const checkResult = await validator(value, this.priorityRules);
@@ -177,9 +180,10 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
 
   protected pushRule(rule: RuleType<ValueType, DataType, E | string>) {
-    const { onValid, errorMessage, priority, params } = rule;
+    const { onValid, onValidAsync, errorMessage, priority, params } = rule;
     const nextRule = {
       onValid,
+      onValidAsync,
       params,
       isAsync: rule.isAsync,
       errorMessage: errorMessage || this.rules?.[0]?.errorMessage

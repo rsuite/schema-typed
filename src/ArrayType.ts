@@ -76,6 +76,29 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   }
 
   of(...types: MixedType<any, DataType, E>[]) {
+    const onValidAsync = async (items: any[], data?: DataType, fieldName?: string | string[]) => {
+      if (!Array.isArray(items)) {
+        if (types.length === 1 && this.isArrayTypeNested) {
+          return types[0].checkAsync(items, data, fieldName, { syncRuleMessageOrder: true });
+        }
+        return { hasError: true, errorMessage: this.locale.type };
+      }
+
+      const checkResults = await Promise.all(
+        items.map(async (value, index) => {
+          const name = Array.isArray(fieldName)
+            ? [...fieldName, `[${index}]`]
+            : [fieldName, `[${index}]`];
+          const type = types.length === 1 ? types[0] : types[index];
+          return type.checkAsync(value, data, name as string[], { syncRuleMessageOrder: true });
+        })
+      );
+      return {
+        hasError: checkResults.some(item => item?.hasError),
+        array: checkResults
+      } as CheckResult<string | E>;
+    };
+
     if (types.length === 1) {
       const type = types[0];
       this[arrayTypeSchemaSpec] = type;
@@ -86,6 +109,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
       }
 
       super.pushRule({
+        onValidAsync,
         onValid: (items, data, fieldName) => {
           // For non-array values in nested arrays, pass directly to inner type validation
           if (!Array.isArray(items) && this.isArrayTypeNested) {
@@ -118,6 +142,7 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
     } else {
       this[arrayTypeSchemaSpec] = types;
       super.pushRule({
+        onValidAsync,
         onValid: (items, data, fieldName) => {
           const checkResults = items.map((value, index) => {
             const name = Array.isArray(fieldName)

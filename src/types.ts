@@ -16,6 +16,11 @@ export interface CheckResult<E = string, DataType = PlainObject> {
   array?: CheckResult<E>[];
 }
 export type ErrorMessageType = string;
+
+/** @internal Context retained when async traversal replaces a synchronous child check. */
+export interface AsyncCheckOptions {
+  syncRuleMessageOrder?: boolean;
+}
 export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
@@ -34,6 +39,8 @@ export type PlainObject<T extends Record<string, unknown> = any> = {
 
 export interface RuleType<V, D, E> {
   onValid: AsyncValidCallbackType<V, D, E>;
+  /** Async traversal for structural rules that also support synchronous validation. */
+  onValidAsync?: AsyncValidCallbackType<V, D, E>;
   errorMessage?: any;
   priority?: boolean;
   params?: any;
