@@ -8,10 +8,11 @@
   "scripts": {
     "lint": "eslint src/**/*.ts",
     "build": "tsc --outDir lib && tsc -p tsconfig-es.json --outDir es",
-    "prepublishOnly": "npm run test && npm run build",
+    "prepublishOnly": "npm run test && npm run build && npm run test:types",
     "tdd": "mocha --watch",
     "test": "npm run lint && npm run test:once",
     "test:once": "nyc --reporter=lcovonly --reporter=html  mocha",
+    "test:types": "tsc -p type-tests/tsconfig.json",
     "doctoc:": "doctoc README.md",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "version": "npm run changelog && git add -A"

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": false,
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "target": "ES2019",
+    "lib": ["ES2019"],
+    "types": []
+  },
+  "include": ["./async-rule-message.ts"]
+}

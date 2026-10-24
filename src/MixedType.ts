@@ -205,7 +205,7 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
   }
   addAsyncRule(
     onValid: AsyncValidCallbackType<ValueType, DataType, E | string>,
-    errorMessage?: E | string,
+    errorMessage?: E | string | (() => E | string),
     priority?: boolean
   ) {
     this.pushRule({ onValid, isAsync: true, errorMessage, priority });
