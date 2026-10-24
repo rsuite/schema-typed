@@ -292,4 +292,31 @@ describe('whole-array asynchronous child validation', () => {
     assert.deepEqual(await type.checkAsync('value'), { hasError: true, errorMessage: '' });
     assert.deepEqual(order, ['factory', 'rule']);
   });
+
+  it('keeps scalar entries supported by nested-array schemas consistent in both modes', async () => {
+    const type = ArrayType().of(ArrayType().of(NumberType().min(0, 'Non-negative')));
+    const expected = {
+      hasError: true,
+      array: [{ hasError: false }, { hasError: true, errorMessage: 'Non-negative' }]
+    };
+    assert.deepEqual(type.check([0, -1]), expected);
+    assert.deepEqual(await type.checkAsync([0, -1]), expected);
+  });
+
+  it('runs asynchronous child rules for scalar entries supported by nested-array schemas', async () => {
+    let calls = 0;
+    const type = ArrayType().of(
+      ArrayType().of(
+        NumberType().addAsyncRule(value => {
+          calls++;
+          return Promise.resolve(value >= 0);
+        }, 'Non-negative')
+      )
+    );
+    assert.deepEqual(await type.checkAsync([0, -1]), {
+      hasError: true,
+      array: [{ hasError: false }, { hasError: true, errorMessage: 'Non-negative' }]
+    });
+    assert.equal(calls, 2);
+  });
 });
