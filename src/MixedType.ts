@@ -241,13 +241,17 @@ export class MixedType<ValueType = any, DataType = any, E = ErrorMessageType, L 
    * ```
    */
   when(condition: (schemaSpec: SchemaDeclaration<DataType, E>) => MixedType) {
-    this.addRule(
-      (value, data, fieldName) => {
+    this.pushRule({
+      onValid: (value, data, fieldName) => {
         return condition(this.$schemaSpec).check(value, data, fieldName);
       },
-      undefined,
-      true
-    );
+      onValidAsync: (value, data, fieldName) => {
+        return condition(this.$schemaSpec).checkAsync(value, data, fieldName, {
+          syncRuleMessageOrder: true
+        });
+      },
+      priority: true
+    });
     return this;
   }
 
