@@ -6,7 +6,13 @@ import {
   isEmpty,
   formatErrorMessage
 } from './utils';
-import { PlainObject, SchemaDeclaration, CheckResult, ErrorMessageType } from './types';
+import {
+  PlainObject,
+  SchemaDeclaration,
+  CheckResult,
+  ErrorMessageType,
+  AsyncCheckOptions
+} from './types';
 import { ObjectTypeLocale } from './locales';
 
 export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
@@ -70,7 +76,12 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
     return check(value, data, this) as CheckResult<E | string, DataType>;
   }
 
-  checkAsync(value: PlainObject = this.value, data?: DataType, fieldName?: string | string[]) {
+  checkAsync(
+    value: PlainObject = this.value,
+    data?: DataType,
+    fieldName?: string | string[],
+    options?: AsyncCheckOptions
+  ) {
     const check = async (value: any, data: any, type: any, childFieldKey?: string) => {
       if (type.required && !checkRequired(value, type.trim, type.emptyAllowed)) {
         return {
@@ -105,7 +116,8 @@ export class ObjectType<DataType = any, E = ErrorMessageType> extends MixedType<
       const validator = createValidatorAsync<PlainObject, DataType, E | string>(
         data,
         childFieldKey || fieldName,
-        type.fieldLabel
+        type.fieldLabel,
+        options?.syncRuleMessageOrder
       );
       const checkStatus = await validator(value, type.priorityRules);
 
