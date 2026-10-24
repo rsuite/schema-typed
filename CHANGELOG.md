@@ -1,3 +1,11 @@
+## [2.4.4](https://github.com/rsuite/schema-typed/compare/v2.4.3...v2.4.4) (2026-10-24)
+
+### Bug Fixes
+
+- Validate asynchronous children in arrays, tuples, nested arrays and shaped objects, preserving nested error order and propagating child failures ([#95](https://github.com/rsuite/schema-typed/pull/95)).
+- Await asynchronous validators selected by `when()`, including their rejected promises and thrown errors, while retaining synchronous validation and selected synchronous message-factory ordering ([#97](https://github.com/rsuite/schema-typed/pull/97)).
+- Accept synchronous error-message factories in the `addAsyncRule()` public TypeScript declaration ([#96](https://github.com/rsuite/schema-typed/pull/96)).
+
 ## [2.4.3](https://github.com/rsuite/schema-typed/compare/v2.4.2...v2.4.3) (2026-10-24)
 
 ### Bug Fixes
