@@ -4,6 +4,54 @@ import * as schema from '../src';
 const { ArrayType, StringType, NumberType, ObjectType, Schema } = schema;
 
 describe('#ArrayType', () => {
+  describe('ofIndexed', () => {
+    it('validates a single configured position without applying it to other rows', async () => {
+      const type = ArrayType().ofIndexed([StringType().isRequired('Required')]);
+
+      const values = ['valid', null, 10];
+      expect(type.check(values).hasError).to.equal(false);
+      expect((await type.checkAsync(values)).hasError).to.equal(false);
+
+      const invalid = ['', 'other'];
+      expect(type.check(invalid).array[0].errorMessage).to.equal('Required');
+      expect((await type.checkAsync(invalid)).array[0].errorMessage).to.equal('Required');
+    });
+
+    it('keeps sparse results at their original position and checks missing configured values', async () => {
+      const types = [];
+      types[2] = StringType().isRequired('Required');
+      const type = ArrayType().ofIndexed(types);
+
+      for (const result of [
+        type.check(['unconfigured']),
+        await type.checkAsync(['unconfigured'])
+      ]) {
+        expect(result.hasError).to.equal(true);
+        expect(Object.keys(result.array)).to.deep.equal(['2']);
+        expect(result.array[2]).to.deep.equal({ hasError: true, errorMessage: 'Required' });
+      }
+    });
+
+    it('looks up configured nested fields without using rules from other rows', async () => {
+      const types = [];
+      types[2] = ObjectType().shape({ email: StringType().isRequired('Required') });
+      const model = new Schema({ contacts: ArrayType().ofIndexed(types) });
+      const data = { contacts: [{}, {}, { email: '' }, {}] };
+      const nested = { nestedObject: true };
+
+      expect(model.checkForField('contacts[0].email', data, nested).hasError).to.equal(false);
+      expect((await model.checkForFieldAsync('contacts[3].email', data, nested)).hasError).to.equal(
+        false
+      );
+      expect(model.checkForField('contacts[2].email', data, nested).errorMessage).to.equal(
+        'Required'
+      );
+      expect(
+        (await model.checkForFieldAsync('contacts[2].email', data, nested)).errorMessage
+      ).to.equal('Required');
+    });
+  });
+
   it('Should be a valid array', () => {
     const schemaData = {
       data: ArrayType().minLength(2, 'error1').of(StringType().isEmail('error2')),

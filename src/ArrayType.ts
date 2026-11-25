@@ -8,7 +8,9 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ArrayTypeLocale
 > {
-  [arrayTypeSchemaSpec]: MixedType<any, DataType, E> | MixedType<any, DataType, E>[];
+  [arrayTypeSchemaSpec]:
+    | MixedType<any, DataType, E>
+    | readonly (MixedType<any, DataType, E> | undefined)[];
   private isArrayTypeNested = false;
 
   constructor(errorMessage?: E | string) {
@@ -70,6 +72,59 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
         return true;
       },
       errorMessage
+    });
+
+    return this;
+  }
+
+  /**
+   * Validate only the explicitly configured array positions.
+   */
+  ofIndexed(types: readonly (MixedType<any, DataType, E> | undefined)[]) {
+    const positionTypes = types.slice();
+    this[arrayTypeSchemaSpec] = positionTypes;
+
+    const positions: [number, MixedType<any, DataType, E>][] = [];
+    positionTypes.forEach((type, index) => {
+      if (type !== undefined) positions.push([index, type]);
+    });
+
+    const positionName = (fieldName: string | string[] | undefined, index: number) => {
+      const path = Array.isArray(fieldName)
+        ? fieldName
+        : fieldName === undefined
+        ? []
+        : [fieldName];
+      return [...path, `[${index}]`];
+    };
+    const summarize = (results: CheckResult<string | E>[]): CheckResult<string | E> => {
+      const array: CheckResult<string | E>[] = [];
+      positions.forEach(([index], position) => {
+        array[index] = results[position];
+      });
+      return { hasError: results.some(result => result.hasError), array };
+    };
+
+    super.pushRule({
+      onValid: (items, data, fieldName) => {
+        if (!Array.isArray(items)) return { hasError: true, errorMessage: this.locale.type };
+        return summarize(
+          positions.map(([index, type]) =>
+            type.check(items[index], data, positionName(fieldName, index))
+          )
+        );
+      },
+      onValidAsync: async (items, data, fieldName) => {
+        if (!Array.isArray(items)) return { hasError: true, errorMessage: this.locale.type };
+        const results = await Promise.all(
+          positions.map(([index, type]) =>
+            type.checkAsync(items[index], data, positionName(fieldName, index), {
+              syncRuleMessageOrder: true
+            })
+          )
+        );
+        return summarize(results);
+      }
     });
 
     return this;
