@@ -11,5 +11,5 @@
     "lib": ["ES2019"],
     "types": []
   },
-  "include": ["./async-rule-message.ts"]
+  "include": ["./async-rule-message.ts", "./rule-without-result.ts"]
 }

@@ -25,7 +25,7 @@ export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
   fieldName?: string | string[]
-) => CheckResult<E> | boolean;
+) => CheckResult<E> | boolean | void;
 
 export type AsyncValidCallbackType<V, D, E> = (
   value: V,
@@ -38,7 +38,7 @@ export type PlainObject<T extends Record<string, unknown> = any> = {
 };
 
 export interface RuleType<V, D, E> {
-  onValid: AsyncValidCallbackType<V, D, E>;
+  onValid: ValidCallbackType<V, D, E> | AsyncValidCallbackType<V, D, E>;
   /** Async traversal for structural rules that also support synchronous validation. */
   onValidAsync?: AsyncValidCallbackType<V, D, E>;
   errorMessage?: any;

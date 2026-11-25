@@ -12,7 +12,7 @@ export function createValidatorAsync<V, D, E>(
   syncRuleMessageOrder = false
 ) {
   function check(errorMessage?: E | string) {
-    return (checkResult: CheckResult<E> | boolean): CheckResult<E> | null => {
+    return (checkResult: CheckResult<E> | boolean | void): CheckResult<E> | null => {
       if (checkResult === false) {
         return { hasError: true, errorMessage };
       } else if (typeof checkResult === 'object' && (checkResult.hasError || checkResult.array)) {

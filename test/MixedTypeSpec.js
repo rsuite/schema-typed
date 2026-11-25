@@ -8,6 +8,26 @@ const { StringType, SchemaModel, NumberType, ArrayType, MixedType, ObjectType } 
 
 describe('#MixedType', () => {
   describe('addRule', () => {
+    it('Should continue validation when a rule returns no result', async () => {
+      const name = StringType()
+        .addRule(value => {
+          if (value.length > 5) {
+            return false;
+          }
+        }, 'Too long')
+        .addRule(value => value !== 'bad', 'Disallowed value');
+      const model = SchemaModel({ name });
+
+      for (const [value, expected] of [
+        ['good', { hasError: false }],
+        ['bad', { hasError: true, errorMessage: 'Disallowed value' }],
+        ['longer', { hasError: true, errorMessage: 'Too long' }]
+      ]) {
+        expect(model.check({ name: value }).name).to.deep.equal(expected);
+        expect((await model.checkAsync({ name: value })).name).to.deep.equal(expected);
+      }
+    });
+
     it('Should check if two fields are the same by addRule', () => {
       const schema = SchemaModel({
         a: StringType().isRequired(),
