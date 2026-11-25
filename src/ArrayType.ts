@@ -1,4 +1,4 @@
-import { MixedType } from './MixedType';
+import { MixedType, arrayTypeSchemaSpec } from './MixedType';
 import { PlainObject, CheckResult, ErrorMessageType } from './types';
 import { ArrayTypeLocale } from './locales';
 
@@ -8,10 +8,21 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
   E,
   ArrayTypeLocale
 > {
+  [arrayTypeSchemaSpec]:
+    | MixedType<any, DataType, E>
+    | readonly (MixedType<any, DataType, E> | undefined)[];
+  private isArrayTypeNested = false;
+
   constructor(errorMessage?: E | string) {
     super('array');
     super.pushRule({
-      onValid: v => Array.isArray(v),
+      onValid: v => {
+        // Skip array type check for nested array elements
+        if (this.isArrayTypeNested) {
+          return true;
+        }
+        return Array.isArray(v);
+      },
       errorMessage: errorMessage || this.locale.type
     });
   }
@@ -66,24 +77,144 @@ export class ArrayType<DataType = any, E = ErrorMessageType> extends MixedType<
     return this;
   }
 
-  of(type: MixedType<any, DataType, E>) {
+  /**
+   * Validate only the explicitly configured array positions.
+   */
+  ofIndexed(types: readonly (MixedType<any, DataType, E> | undefined)[]) {
+    const positionTypes = types.slice();
+    this[arrayTypeSchemaSpec] = positionTypes;
+
+    const positions: [number, MixedType<any, DataType, E>][] = [];
+    positionTypes.forEach((type, index) => {
+      if (type !== undefined) positions.push([index, type]);
+    });
+
+    const positionName = (fieldName: string | string[] | undefined, index: number) => {
+      const path = Array.isArray(fieldName)
+        ? fieldName
+        : fieldName === undefined
+        ? []
+        : [fieldName];
+      return [...path, `[${index}]`];
+    };
+    const summarize = (results: CheckResult<string | E>[]): CheckResult<string | E> => {
+      const array: CheckResult<string | E>[] = [];
+      positions.forEach(([index], position) => {
+        array[index] = results[position];
+      });
+      return { hasError: results.some(result => result.hasError), array };
+    };
+
     super.pushRule({
-      onValid: (items, data, filedName) => {
-        const checkResults = items.map((value, index) => {
-          const name = Array.isArray(filedName)
-            ? [...filedName, `[${index}]`]
-            : [filedName, `[${index}]`];
-
-          return type.check(value, data, name as string[]);
-        });
-        const hasError = !!checkResults.find(item => item?.hasError);
-
-        return {
-          hasError,
-          array: checkResults
-        } as CheckResult<string | E>;
+      onValid: (items, data, fieldName) => {
+        if (!Array.isArray(items)) return { hasError: true, errorMessage: this.locale.type };
+        return summarize(
+          positions.map(([index, type]) =>
+            type.check(items[index], data, positionName(fieldName, index))
+          )
+        );
+      },
+      onValidAsync: async (items, data, fieldName) => {
+        if (!Array.isArray(items)) return { hasError: true, errorMessage: this.locale.type };
+        const results = await Promise.all(
+          positions.map(([index, type]) =>
+            type.checkAsync(items[index], data, positionName(fieldName, index), {
+              syncRuleMessageOrder: true
+            })
+          )
+        );
+        return summarize(results);
       }
     });
+
+    return this;
+  }
+
+  of(...types: MixedType<any, DataType, E>[]) {
+    const onValidAsync = async (items: any[], data?: DataType, fieldName?: string | string[]) => {
+      if (!Array.isArray(items)) {
+        if (types.length === 1 && this.isArrayTypeNested) {
+          return types[0].checkAsync(items, data, fieldName, { syncRuleMessageOrder: true });
+        }
+        return { hasError: true, errorMessage: this.locale.type };
+      }
+
+      const checkResults = await Promise.all(
+        items.map(async (value, index) => {
+          const name = Array.isArray(fieldName)
+            ? [...fieldName, `[${index}]`]
+            : [fieldName, `[${index}]`];
+          const type = types.length === 1 ? types[0] : types[index];
+          return type.checkAsync(value, data, name as string[], { syncRuleMessageOrder: true });
+        })
+      );
+      return {
+        hasError: checkResults.some(item => item?.hasError),
+        array: checkResults
+      } as CheckResult<string | E>;
+    };
+
+    if (types.length === 1) {
+      const type = types[0];
+      this[arrayTypeSchemaSpec] = type;
+
+      // Mark inner ArrayType as nested when dealing with nested arrays
+      if (type instanceof ArrayType) {
+        type.isArrayTypeNested = true;
+      }
+
+      super.pushRule({
+        onValidAsync,
+        onValid: (items, data, fieldName) => {
+          // For non-array values in nested arrays, pass directly to inner type validation
+          if (!Array.isArray(items) && this.isArrayTypeNested) {
+            return type.check(items, data, fieldName);
+          }
+
+          // For non-array values in non-nested arrays, return array type error
+          if (!Array.isArray(items)) {
+            return {
+              hasError: true,
+              errorMessage: this.locale.type
+            };
+          }
+
+          const checkResults = items.map((value, index) => {
+            const name = Array.isArray(fieldName)
+              ? [...fieldName, `[${index}]`]
+              : [fieldName, `[${index}]`];
+
+            return type.check(value, data, name as string[]);
+          });
+          const hasError = !!checkResults.find(item => item?.hasError);
+
+          return {
+            hasError,
+            array: checkResults
+          } as CheckResult<string | E>;
+        }
+      });
+    } else {
+      this[arrayTypeSchemaSpec] = types;
+      super.pushRule({
+        onValidAsync,
+        onValid: (items, data, fieldName) => {
+          const checkResults = items.map((value, index) => {
+            const name = Array.isArray(fieldName)
+              ? [...fieldName, `[${index}]`]
+              : [fieldName, `[${index}]`];
+
+            return types[index].check(value, data, name as string[]);
+          });
+          const hasError = !!checkResults.find(item => item?.hasError);
+
+          return {
+            hasError,
+            array: checkResults
+          } as CheckResult<string | E>;
+        }
+      });
+    }
 
     return this;
   }

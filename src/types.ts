@@ -7,27 +7,44 @@ import { ObjectType } from './ObjectType';
 
 export type TypeName = 'array' | 'string' | 'boolean' | 'number' | 'object' | 'date';
 
-export interface CheckResult<E = string> {
+export interface CheckResult<E = string, DataType = PlainObject> {
   hasError?: boolean;
   errorMessage?: E | string;
-  object?: CheckResult<E>;
+  object?: {
+    [P in keyof DataType]: CheckResult<E>;
+  };
   array?: CheckResult<E>[];
 }
 export type ErrorMessageType = string;
+
+/** @internal Context retained when async traversal replaces a synchronous child check. */
+export interface AsyncCheckOptions {
+  syncRuleMessageOrder?: boolean;
+}
 export type ValidCallbackType<V, D, E> = (
   value: V,
   data?: D,
-  filedName?: string | string[]
-) => CheckResult<E> | boolean | undefined;
+  fieldName?: string | string[]
+) => CheckResult<E> | boolean | void;
+
+export type AsyncValidCallbackType<V, D, E> = (
+  value: V,
+  data?: D,
+  fieldName?: string | string[]
+) => CheckResult<E> | boolean | Promise<boolean | CheckResult<E>>;
+
 export type PlainObject<T extends Record<string, unknown> = any> = {
   [P in keyof T]: T;
 };
 
 export interface RuleType<V, D, E> {
-  onValid: ValidCallbackType<V, D, E>;
-  errorMessage?: E;
+  onValid: ValidCallbackType<V, D, E> | AsyncValidCallbackType<V, D, E>;
+  /** Async traversal for structural rules that also support synchronous validation. */
+  onValidAsync?: AsyncValidCallbackType<V, D, E>;
+  errorMessage?: any;
   priority?: boolean;
   params?: any;
+  isAsync?: boolean;
 }
 
 export type CheckType<X, T, E = ErrorMessageType> = X extends string
@@ -55,5 +72,5 @@ export type SchemaDeclaration<T, E = string> = {
 };
 
 export type SchemaCheckResult<T, E> = {
-  [P in keyof T]: CheckResult<E>;
+  [P in keyof T]?: CheckResult<E>;
 };

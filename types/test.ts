@@ -237,3 +237,22 @@ ObjectType<F9>().shape({
   // TS2345: Argument of type '{ b: NumberType<any>; }' is not assignable to parameter of type 'SchemaDeclaration<F9>'.
   //   Object literal may only specify known properties, and 'b' does not exist in type 'SchemaDeclaration<F9>'.
 });
+
+interface F10 {
+  a: {
+    b: number;
+  };
+}
+const schemaF10 = new Schema<F10>({
+  a: ObjectType().shape({
+    b: NumberType()
+  })
+});
+
+schemaF10.check({ a: { b: 1 } });
+
+// $ExpectError
+const checkResultF10 = schemaF10.check({ a: { b: '1' } });
+
+checkResultF10.a.object?.b.errorMessage;
+checkResultF10.a.object?.b.hasError;

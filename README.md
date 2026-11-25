@@ -14,7 +14,7 @@ Schema for data modeling & validation
   - [Getting Started](#getting-started)
   - [Multiple verification](#multiple-verification)
   - [Custom verification](#custom-verification)
-    - [Multi-field cross validation](#multi-field-cross-validation)
+    - [Field dependency validation](#field-dependency-validation)
     - [Asynchronous check](#asynchronous-check)
   - [Validate nested objects](#validate-nested-objects)
   - [Combine](#combine)
@@ -23,15 +23,19 @@ Schema for data modeling & validation
     - [`static combine(...models)`](#static-combinemodels)
     - [`check(data: object)`](#checkdata-object)
     - [`checkAsync(data: object)`](#checkasyncdata-object)
-    - [`checkForField(fieldName: string, data: object)`](#checkforfieldfieldname-string-data-object)
-    - [`checkForFieldAsync(fieldName: string, data: object)`](#checkforfieldasyncfieldname-string-data-object)
+    - [`checkForField(fieldName: string, data: object, options?: { nestedObject?: boolean })`](#checkforfieldfieldname-string-data-object-options--nestedobject-boolean-)
+    - [`checkForFieldAsync(fieldName: string, data: object, options?: { nestedObject?: boolean })`](#checkforfieldasyncfieldname-string-data-object-options--nestedobject-boolean-)
   - [MixedType()](#mixedtype)
     - [`isRequired(errorMessage?: string, trim: boolean = true)`](#isrequirederrormessage-string-trim-boolean--true)
     - [`isRequiredOrEmpty(errorMessage?: string, trim: boolean = true)`](#isrequiredoremptyerrormessage-string-trim-boolean--true)
     - [`addRule(onValid: Function, errorMessage?: string, priority: boolean)`](#addruleonvalid-function-errormessage-string-priority-boolean)
+    - [`addAsyncRule(onValid: Function, errorMessage?: string, priority: boolean)`](#addasyncruleonvalid-function-errormessage-string-priority-boolean)
     - [`when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`](#whencondition-schemaspec-schemadeclarationdatatype-errormsgtype--type)
     - [`check(value: ValueType, data?: DataType):CheckResult`](#checkvalue-valuetype-data-datatypecheckresult)
     - [`checkAsync(value: ValueType, data?: DataType):Promise<CheckResult>`](#checkasyncvalue-valuetype-data-datatypepromisecheckresult)
+    - [`label(label: string)`](#labellabel-string)
+    - [`equalTo(fieldName: string, errorMessage?: string)`](#equaltofieldname-string-errormessage-string)
+    - [`proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`](#proxyfieldnames-string-options--checkifvalueexists-boolean-)
   - [StringType(errorMessage?: string)](#stringtypeerrormessage-string)
     - [`isEmail(errorMessage?: string)`](#isemailerrormessage-string)
     - [`isURL(errorMessage?: string)`](#isurlerrormessage-string)
@@ -58,7 +62,7 @@ Schema for data modeling & validation
     - [`minLength(minLength: number, errorMessage?: string)`](#minlengthminlength-number-errormessage-string-1)
     - [`maxLength(maxLength: number, errorMessage?: string)`](#maxlengthmaxlength-number-errormessage-string-1)
     - [`unrepeatable(errorMessage?: string)`](#unrepeatableerrormessage-string)
-    - [`of(type: object)`](#oftype-object)
+    - [`of()`](#of)
   - [DateType(errorMessage?: string)](#datetypeerrormessage-string)
     - [`range(min: Date, max: Date, errorMessage?: string)`](#rangemin-date-max-date-errormessage-string)
     - [`min(min: Date, errorMessage?: string)`](#minmin-date-errormessage-string)
@@ -88,7 +92,7 @@ const model = SchemaModel({
   email: StringType().isEmail('Email required'),
   age: NumberType('Age should be a number').range(18, 30, 'Over the age limit'),
   tags: ArrayType().of(StringType('The tag should be a string').isRequired()),
-  role: ObjectType.shape({
+  role: ObjectType().shape({
     name: StringType().isRequired('Name required'),
     permissions: ArrayType().isRequired('Permissions required')
   })
@@ -169,32 +173,36 @@ model.check({ field1: '', field2: '' });
 **/
 ```
 
-#### Multi-field cross validation
+#### Field dependency validation
 
-E.g: verify that the two passwords are the same.
+1. Use the `equalTo` method to verify that the values of two fields are equal.
 
 ```js
 const model = SchemaModel({
-  password1: StringType().isRequired('This field required'),
-  password2: StringType().addRule((value, data) => {
-    if (value !== data.password1) {
-      return false;
-    }
-    return true;
-  }, 'The passwords are inconsistent twice')
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
 });
+```
 
-model.check({ password1: '123456', password2: 'root' });
+2. Use the `addRule` method to create a custom validation rule.
 
-/**
-{
-  password1: { hasError: false },
-  password2: {
-    hasError: true,
-    errorMessage: 'The passwords are inconsistent twice'
-  }
-}
-**/
+```js
+const model = SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().addRule(
+    (value, data) => value === data.password,
+    'Confirm password must be the same as password'
+  )
+});
+```
+
+3. Use the `proxy` method to verify that a field passes, and then proxy verification of other fields.
+
+```js
+const model = SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
+});
 ```
 
 #### Asynchronous check
@@ -217,7 +225,7 @@ function asyncCheckEmail(email) {
 const model = SchemaModel({
   email: StringType()
     .isEmail('Please input the correct email address')
-    .addRule((value, data) => {
+    .addAsyncRule((value, data) => {
       return asyncCheckEmail(value);
     }, 'Email address already exists')
     .isRequired('This field cannot be empty')
@@ -366,7 +374,7 @@ model
   });
 ```
 
-#### `checkForField(fieldName: string, data: object)`
+#### `checkForField(fieldName: string, data: object, options?: { nestedObject?: boolean })`
 
 Check whether a field in the data conforms to the model shape definition. Return a check result.
 
@@ -383,7 +391,7 @@ const data = {
 model.checkForField('username', data);
 ```
 
-#### `checkForFieldAsync(fieldName: string, data: object)`
+#### `checkForFieldAsync(fieldName: string, data: object, options?: { nestedObject?: boolean })`
 
 Asynchronously check whether a field in the data conforms to the model shape definition. Return a check result.
 
@@ -391,7 +399,7 @@ Asynchronously check whether a field in the data conforms to the model shape def
 const model = SchemaModel({
   username: StringType()
     .isRequired('This field required')
-    .addRule(value => {
+    .addAsyncRule(value => {
       return new Promise(resolve => {
         // Asynchronous processing logic
       });
@@ -432,39 +440,61 @@ MixedType().addRule((value, data) => {
 }, 'Please enter a legal character.');
 ```
 
-#### `when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`
-
-Define data verification rules based on conditions.
+#### `addAsyncRule(onValid: Function, errorMessage?: string, priority: boolean)`
 
 ```js
+MixedType().addAsyncRule((value, data) => {
+  return new Promise(resolve => {
+    // Asynchronous processing logic
+  });
+}, 'Please enter a legal character.');
+```
+
+#### `when(condition: (schemaSpec: SchemaDeclaration<DataType, ErrorMsgType>) => Type)`
+
+Conditional validation, the return value is a new type.
+
+```ts
 const model = SchemaModel({
-  age: NumberType().min(18, 'error'),
-  contact: MixedType().when(schema => {
-    const checkResult = schema.age.check();
-    return checkResult.hasError
-      ? StringType().isRequired('Please provide contact information')
-      : StringType();
+  option: StringType().isOneOf(['a', 'b', 'other']),
+  other: StringType().when(schema => {
+    const { value } = schema.option;
+    return value === 'other' ? StringType().isRequired('Other required') : StringType();
   })
 });
 
 /**
-{ 
-  age: { hasError: false }, 
-  contact: { hasError: false } 
+{
+  option: { hasError: false },
+  other: { hasError: false }
 }
 */
-model.check({ age: 18, contact: '' });
+model.check({ option: 'a', other: '' });
 
 /*
 {
-  age: { hasError: true, errorMessage: 'error' },
-  contact: {
-    hasError: true,
-    errorMessage: 'Please provide contact information'
-  }
+  option: { hasError: false },
+  other: { hasError: true, errorMessage: 'Other required' }
 }
 */
-model.check({ age: 17, contact: '' });
+model.check({ option: 'other', other: '' });
+```
+
+Check whether a field passes the validation to determine the validation rules of another field.
+
+```js
+const model = SchemaModel({
+  password: StringType().isRequired('Password required'),
+  confirmPassword: StringType().when(schema => {
+    const { hasError } = schema.password.check();
+    return hasError
+      ? StringType()
+      : StringType().addRule(
+          value => value === schema.password.value,
+          'The passwords are inconsistent twice'
+        );
+  })
+});
 ```
 
 #### `check(value: ValueType, data?: DataType):CheckResult`
@@ -501,6 +531,48 @@ type.checkAsync('1').then(checkResult => {
 });
 type.checkAsync(1).then(checkResult => {
   //  { hasError: false }
+});
+```
+
+#### `label(label: string)`
+
+Overrides the key name in error messages.
+
+```js
+MixedType().label('Username');
+```
+
+Eg:
+
+```js
+SchemaModel({
+  first_name: StringType().label('First name'),
+  age: NumberType().label('Age')
+});
+```
+
+#### `equalTo(fieldName: string, errorMessage?: string)`
+
+Check if the value is equal to the value of another field.
+
+```js
+SchemaModel({
+  password: StringType().isRequired(),
+  confirmPassword: StringType().equalTo('password')
+});
+```
+
+#### `proxy(fieldNames: string[], options?: { checkIfValueExists?: boolean })`
+
+After the field verification passes, proxy verification of other fields.
+
+- `fieldNames`: The field name to be proxied.
+- `options.checkIfValueExists`: When the value of other fields exists, the verification is performed (default: false)
+
+```js
+SchemaModel({
+  password: StringType().isRequired().proxy(['confirmPassword']),
+  confirmPassword: StringType().equalTo('password')
 });
 ```
 
@@ -654,10 +726,34 @@ ArrayType().maxLength(3, "Can't exceed three");
 ArrayType().unrepeatable('Duplicate options cannot appear');
 ```
 
-#### `of(type: object)`
+#### `of()`
 
 ```js
+// for every element of array
 ArrayType().of(StringType('The tag should be a string').isRequired());
+// for every element of array
+ArrayType().of(
+  ObjectType().shape({
+    name: StringType().isEmail()
+  })
+);
+// just specify the first and the second element
+ArrayType().of(
+  StringType().isEmail(),
+  ObjectType().shape({
+    name: StringType().isEmail()
+  })
+);
+```
+
+#### `ofIndexed(types)`
+
+Validates the positions that have a rule. Empty slots and `undefined` entries skip that
+position. Item errors use the original array indexes. A configured rule also checks
+an absent value at its position when the array exists.
+
+```js
+ArrayType().ofIndexed([undefined, StringType().isRequired('Second item required')]);
 ```
 
 ### DateType(errorMessage?: string)

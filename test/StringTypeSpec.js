@@ -153,7 +153,8 @@ describe('#StringType', () => {
 
   it('Should be a url', () => {
     const schema = SchemaModel({
-      str: StringType().isURL()
+      str: StringType().isURL(),
+      email: StringType().isURL('', { allowMailto: true })
     });
     schema.checkForField('str', { str: 'https://www.abc.com' }).hasError.should.equal(false);
     schema.checkForField('str', { str: 'http://www.abc.com' }).hasError.should.equal(false);
@@ -161,6 +162,8 @@ describe('#StringType', () => {
     schema.checkForField('str', { str: 'http://127.0.0.1/home' }).hasError.should.equal(false);
     schema.checkForField('str', { str: 'www.abc.com' }).hasError.should.equal(true);
     schema.checkForField('str', { str: 'a' }).errorMessage.should.equal('str must be a valid URL');
+    schema.checkForField('str', { str: 'mailto:user@example.com' }).hasError.should.be.true;
+    schema.checkForField('email', { email: 'mailto:user@example.com' }).hasError.should.be.false;
   });
 
   it('Should be a hexadecimal character', () => {
