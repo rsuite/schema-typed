@@ -48,7 +48,7 @@ export function getFieldType(schemaSpec: any, fieldName: string, nestedObject?: 
             if (arrayType[schemaSpecKey]) {
               return getFieldType(arrayType[schemaSpecKey], namePath.slice(1).join('.'), true);
             }
-            if (Array.isArray(arrayType) && arrayType[parseInt(arrayIndex)][schemaSpecKey]) {
+            if (Array.isArray(arrayType) && arrayType[parseInt(arrayIndex)]?.[schemaSpecKey]) {
               return getFieldType(
                 arrayType[parseInt(arrayIndex)][schemaSpecKey],
                 namePath.slice(1).join('.'),

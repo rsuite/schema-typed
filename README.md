@@ -746,6 +746,16 @@ ArrayType().of(
 );
 ```
 
+#### `ofIndexed(types)`
+
+Validates the positions that have a rule. Empty slots and `undefined` entries skip that
+position. Item errors use the original array indexes. A configured rule also checks
+an absent value at its position when the array exists.
+
+```js
+ArrayType().ofIndexed([undefined, StringType().isRequired('Second item required')]);
+```
+
 ### DateType(errorMessage?: string)
 
 Define a date type. Supports all the same methods as [MixedType](#mixedtype).
